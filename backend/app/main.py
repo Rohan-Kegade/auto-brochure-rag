@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from helpers.indexing_chain import indexing_chain
 from helpers.rag_chain import build_rag_chain
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="AutoBrochure-RAG Engine")
+
+# Enable CORS 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # To do - Adjust in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Global variables for active sessions
 vector_db = None
