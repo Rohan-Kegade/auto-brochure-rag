@@ -1,7 +1,5 @@
 fastapi[standard]
 langchain_community
-langchain_huggingface
-sentence-transformers
 faiss-cpu
 langchain_google_genai
 pdfplumber

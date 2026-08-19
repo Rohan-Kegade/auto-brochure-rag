@@ -4,11 +4,9 @@ from langchain_core.documents import Document
 from langchain_core.runnables import RunnableLambda
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
-
+embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
 
 def load_pdf_step(file_path: str) -> list[Document]:
   docs = []
