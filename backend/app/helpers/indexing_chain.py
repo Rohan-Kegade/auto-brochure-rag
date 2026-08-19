@@ -3,6 +3,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.runnables import RunnableLambda
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import UnstructuredPDFLoader
 
 # 1. Shared Embedding Model & Text Splitter
 embeddings = HuggingFaceEmbeddings(
@@ -16,7 +17,10 @@ text_splitter = RecursiveCharacterTextSplitter(
 
 # 2. Step Functions
 def load_pdf_step(file_path: str):
-  loader = PyPDFLoader(file_path)
+  loader = UnstructuredPDFLoader(
+    file_path=file_path,
+    strategy="hi_res", 
+  )
   return loader.load()
 
 
