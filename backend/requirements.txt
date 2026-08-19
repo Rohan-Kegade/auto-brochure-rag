@@ -1,3 +1,6 @@
 fastapi[standard]
 langchain_community
 pypdf
+langchain_huggingface
+sentence-transformers
+faiss-cpu
