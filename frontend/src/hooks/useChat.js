@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { INITIAL_AI_MESSAGE } from "../constants/config";
 import { sendChatMessageApi } from "../api/api";
+import { toast } from "sonner";
 
 export function useChat(sessionId, hasActivePdfs) {
   const [messages, setMessages] = useState([INITIAL_AI_MESSAGE]);
@@ -11,22 +12,32 @@ export function useChat(sessionId, hasActivePdfs) {
     e.preventDefault();
     if (!inputQuery.trim() || isLoading) return;
     if (!hasActivePdfs) {
-      alert("Add at least one brochure first.");
+      toast.warning("Please upload at least one brochure first.");
       return;
     }
 
     const userMessage = inputQuery.trim();
-    const historyPayload = messages.map((m) => ({ role: m.sender, content: m.text }));
+    const historyPayload = messages.map((m) => ({
+      role: m.sender,
+      content: m.text,
+    }));
 
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInputQuery("");
     setIsLoading(true);
 
     try {
-      const data = await sendChatMessageApi(sessionId, userMessage, historyPayload);
+      const data = await sendChatMessageApi(
+        sessionId,
+        userMessage,
+        historyPayload,
+      );
       setMessages((prev) => [...prev, { sender: "ai", text: data.answer }]);
     } catch (err) {
-      setMessages((prev) => [...prev, { sender: "ai", text: `**Error:** ${err.message}` }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: `**Error:** ${err.message}` },
+      ]);
     } finally {
       setIsLoading(false);
     }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { getOrCreateSessionId, createNewSessionId } from "./utils/session";
 import { useFileManager } from "./hooks/useFileManager";
 import { useChat } from "./hooks/useChat";
-
+import { Toaster } from "sonner";
 import { Sidebar } from "./components/sidebar/Sidebar";
 import { ChatHeader } from "./components/chat/ChatHeader";
 import { MessageList } from "./components/chat/MessageList";
@@ -13,6 +13,14 @@ export default function App() {
   const [sessionId, setSessionId] = useState(getOrCreateSessionId);
   const [showNewSessionModal, setShowNewSessionModal] = useState(false);
 
+  const fileManager = useFileManager(sessionId, (newlyUploadedFiles) => {
+    const noticeText =
+      newlyUploadedFiles.length === 1
+        ? `**${newlyUploadedFiles[0].name}** is ready. Ask me anything about it.`
+        : `Your ${newlyUploadedFiles.length} brochures are ready. You can now ask questions or compare them.`;
+    addSystemNotice(noticeText);
+  });
+
   const {
     messages,
     inputQuery,
@@ -21,15 +29,7 @@ export default function App() {
     sendMessage,
     addSystemNotice,
     resetChat,
-  } = useChat(sessionId, false);
-
-  const fileManager = useFileManager(sessionId, (newlyUploadedFiles) => {
-    const noticeText =
-      newlyUploadedFiles.length === 1
-        ? `**${newlyUploadedFiles[0].name}** is ready. Ask me anything about it.`
-        : `Your ${newlyUploadedFiles.length} brochures are ready. You can now ask questions or compare them.`;
-    addSystemNotice(noticeText);
-  });
+  } = useChat(sessionId, fileManager.hasActivePdfs);
 
   const handleConfirmNewSession = () => {
     const newId = createNewSessionId();
@@ -72,6 +72,7 @@ export default function App() {
         title="Start New Session?"
         message="This will clear your active brochures and chat history. Are you sure you want to proceed?"
       />
+      <Toaster position="top-center" richColors closeButton />
     </div>
   );
 }

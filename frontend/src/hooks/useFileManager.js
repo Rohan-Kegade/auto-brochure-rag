@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { MAX_PDFS } from "../constants/config";
 import { fetchActiveFiles, uploadFilesApi } from "../api/api";
 
@@ -37,22 +38,22 @@ export function useFileManager(sessionId, onUploadSuccess) {
     );
 
     if (validPdfs.length !== files.length) {
-      alert("Only PDF files are supported.");
+      toast.error("Only PDF files are supported.");
     }
 
     const existingNames = new Set(uploadedFiles.map((file) => file.name));
     const newFiles = validPdfs.filter((file) => !existingNames.has(file.name));
 
     if (!newFiles.length) {
-      alert("The selected PDF is already active.");
+      toast.warning("The selected PDF is already active.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
     const availableSlots = MAX_PDFS - activePdfCount;
     if (newFiles.length > availableSlots) {
-      alert(
-        `You can have up to ${MAX_PDFS} active PDFs. You can add ${availableSlots} more.`,
+      toast.warning(
+        `Limit reached: You can only add ${availableSlots} more PDF${availableSlots === 1 ? "" : "s"}.`
       );
       setSelectedFiles(newFiles.slice(0, availableSlots));
     } else {
@@ -76,9 +77,13 @@ export function useFileManager(sessionId, onUploadSuccess) {
       setSelectedFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
+      toast.success(
+        `${newlyUploadedFiles.length} brochure${newlyUploadedFiles.length > 1 ? "s" : ""} added successfully!`
+      );
+
       if (onUploadSuccess) onUploadSuccess(newlyUploadedFiles);
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message || "Failed to upload brochure.");
     } finally {
       setIsUploading(false);
     }
@@ -86,6 +91,7 @@ export function useFileManager(sessionId, onUploadSuccess) {
 
   const removeFile = (fileName) => {
     setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
+    toast.info(`Removed ${fileName}`);
   };
 
   const resetFiles = () => {
