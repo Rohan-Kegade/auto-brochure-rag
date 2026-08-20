@@ -5,8 +5,8 @@ import remarkGfm from "remark-gfm";
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 export default function App() {
-  const [filePath, setFilePath] = useState("Venue Digital Brochure.pdf");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isIndexed, setIsIndexed] = useState(false);
 
   const [messages, setMessages] = useState([
@@ -20,22 +20,34 @@ export default function App() {
 
   const chatEndRef = useRef(null);
 
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
   // Auto-scroll chat window when new messages arrive
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Handle Document Processing
-  const handleProcessDocument = async (e) => {
+  // Handle Document Uploading
+  const handleUploadDocument = async (e) => {
     e.preventDefault();
-    if (!filePath.trim()) return;
+    if (!selectedFile) {
+      alert("Please select a PDF file first.");
+      return;
+    }
 
-    setIsProcessing(true);
+    setIsUploading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/process?file_path=${encodeURIComponent(filePath)}`,
-        { method: "POST" },
-      );
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await fetch(`${API_BASE_URL}/upload`, {
+        method: "POST",
+        body: formData,
+      });
       const data = await response.json();
 
       if (response.ok) {
@@ -44,16 +56,16 @@ export default function App() {
           ...prev,
           {
             sender: "ai",
-            text: `Successfully indexed document: **${filePath}**. You can now ask questions about specs and variants!`,
+            text: `Successfully indexed document: **${selectedFile.name}**. You can now ask questions!`,
           },
         ]);
       } else {
-        alert(`Error: ${data.detail || "Failed to process document"}`);
+        alert(`Error: ${data.detail || "Failed to upload document"}`);
       }
     } catch (err) {
       alert(`Network error: ${err.message}`);
     } finally {
-      setIsProcessing(false);
+      setIsUploading(false);
     }
   };
 
@@ -63,9 +75,7 @@ export default function App() {
     if (!inputQuery.trim() || isLoading) return;
 
     if (!isIndexed) {
-      alert(
-        "Please process a brochure document first before asking questions.",
-      );
+      alert("Please upload a brochure document first before asking questions.");
       return;
     }
 
@@ -116,23 +126,22 @@ export default function App() {
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                Brochure File Path
+                Upload Brochure (PDF)
               </label>
               <input
-                type="text"
-                value={filePath}
-                onChange={(e) => setFilePath(e.target.value)}
-                placeholder="e.g. Venue Digital Brochure.pdf"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border border-slate-200 rounded-lg p-1"
               />
             </div>
 
             <button
-              onClick={handleProcessDocument}
-              disabled={isProcessing}
+              onClick={handleUploadDocument}
+              disabled={isUploading || !selectedFile}
               className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
-              {isProcessing ? (
+              {isUploading ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                   Indexing PDF...
@@ -171,7 +180,7 @@ export default function App() {
           {isIndexed && (
             <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
               Active File:{" "}
-              <strong className="text-slate-700">{filePath}</strong>
+              <strong className="text-slate-700">{selectedFile?.name}</strong>
             </span>
           )}
         </header>
@@ -261,7 +270,7 @@ export default function App() {
               placeholder={
                 isIndexed
                   ? "Ask about specs, feature comparison across variants..."
-                  : "Process a document first to start asking questions..."
+                  : "Upload a document first to start asking questions..."
               }
               disabled={!isIndexed || isLoading}
               className="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-slate-50 disabled:cursor-not-allowed"
