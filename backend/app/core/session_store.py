@@ -5,29 +5,28 @@ from fastapi import HTTPException
 
 class SessionStore:
 
-  def __init__(self):
-    self._sessions: Dict[str, dict] = {}
-    self._lock = Lock()
+    def __init__(self):
+        self._sessions: Dict[str, dict] = {}
+        self._lock = Lock()
 
-  def get_or_create(self, session_id: str) -> dict:
-    if not session_id:
-      raise HTTPException(
-          status_code=400, detail="X-Session-ID header missing."
-      )
+    def get_or_create(self, session_id: str) -> dict:
+        if not session_id:
+            raise HTTPException(status_code=400, detail="X-Session-ID header missing.")
 
-    with self._lock:
-      if session_id not in self._sessions:
-        self._sessions[session_id] = {
-            "vector_db": None,
-            "rag_chain": None,
-            "active_pdfs": set(),
-        }
-      return self._sessions[session_id]
+        with self._lock:
+            if session_id not in self._sessions:
+                self._sessions[session_id] = {
+                    "vector_db": None,
+                    "rag_chain": None,
+                    "active_pdfs": set(),
+                    "file_chunks": {},
+                }
+            return self._sessions[session_id]
 
-  def clear_session(self, session_id: str) -> None:
-    with self._lock:
-      if session_id in self._sessions:
-        del self._sessions[session_id]
+    def clear_session(self, session_id: str) -> None:
+        with self._lock:
+            if session_id in self._sessions:
+                del self._sessions[session_id]
 
 
 session_store = SessionStore()

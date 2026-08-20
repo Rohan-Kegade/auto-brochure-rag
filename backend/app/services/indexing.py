@@ -64,12 +64,21 @@ def load_pdf_bytes(file_bytes: bytes, filename: str) -> list[Document]:
     return docs
 
 
-def create_vector_store_from_bytes(
-    file_bytes: bytes, filename: str
-) -> FAISS | None:
+def create_vector_store_from_bytes(file_bytes: bytes, filename: str) -> FAISS | None:
     """Splits parsed PDF content into chunks and builds a FAISS vector store."""
     docs = load_pdf_bytes(file_bytes, filename)
     if not docs:
         return None
     chunks = text_splitter.split_documents(docs)
     return FAISS.from_documents(chunks, embeddings)
+
+
+def create_chunks_and_store(
+    file_bytes: bytes, filename: str
+) -> tuple[list[Document], FAISS] | tuple[None, None]:
+    docs = load_pdf_bytes(file_bytes, filename)
+    if not docs:
+        return None, None
+    chunks = text_splitter.split_documents(docs)
+    vector_store = FAISS.from_documents(chunks, embeddings)
+    return chunks, vector_store

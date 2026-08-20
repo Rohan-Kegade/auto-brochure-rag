@@ -13,13 +13,19 @@ export default function App() {
   const [sessionId, setSessionId] = useState(getOrCreateSessionId);
   const [showNewSessionModal, setShowNewSessionModal] = useState(false);
 
-  const fileManager = useFileManager(sessionId, (newlyUploadedFiles) => {
-    const noticeText =
-      newlyUploadedFiles.length === 1
-        ? `**${newlyUploadedFiles[0].name}** is ready. Ask me anything about it.`
-        : `Your ${newlyUploadedFiles.length} brochures are ready. You can now ask questions or compare them.`;
-    addSystemNotice(noticeText);
-  });
+  const fileManager = useFileManager(
+    sessionId,
+    (newlyUploadedFiles) => {
+      const noticeText =
+        newlyUploadedFiles.length === 1
+          ? `**${newlyUploadedFiles[0].name}** is ready. Ask me anything about it.`
+          : `Your ${newlyUploadedFiles.length} brochures are ready. You can now ask questions or compare them.`;
+      addSystemNotice(noticeText);
+    },
+    (removedFileName) => {
+      addSystemNotice(`**${removedFileName}** was removed from the session.`);
+    },
+  );
 
   const {
     messages,

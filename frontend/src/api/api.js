@@ -38,3 +38,22 @@ export const sendChatMessageApi = async (sessionId, message, history) => {
   if (!response.ok) throw new Error(data.detail || "Unable to get a response.");
   return data;
 };
+
+export async function deleteFileApi(sessionId, fileName) {
+  const response = await fetch(
+    `${API_BASE_URL}/files/${encodeURIComponent(fileName)}`,
+    {
+      method: "DELETE",
+      headers: {
+        "X-Session-ID": sessionId,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to remove file");
+  }
+
+  return response.json();
+}

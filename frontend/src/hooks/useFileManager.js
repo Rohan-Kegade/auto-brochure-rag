@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { MAX_PDFS } from "../constants/config";
-import { fetchActiveFiles, uploadFilesApi } from "../api/api";
+import { fetchActiveFiles, uploadFilesApi, deleteFileApi } from "../api/api";
 
-export function useFileManager(sessionId, onUploadSuccess) {
+export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -53,7 +53,7 @@ export function useFileManager(sessionId, onUploadSuccess) {
     const availableSlots = MAX_PDFS - activePdfCount;
     if (newFiles.length > availableSlots) {
       toast.warning(
-        `Limit reached: You can only add ${availableSlots} more PDF${availableSlots === 1 ? "" : "s"}.`
+        `Limit reached: You can only add ${availableSlots} more PDF${availableSlots === 1 ? "" : "s"}.`,
       );
       setSelectedFiles(newFiles.slice(0, availableSlots));
     } else {
@@ -78,7 +78,7 @@ export function useFileManager(sessionId, onUploadSuccess) {
       if (fileInputRef.current) fileInputRef.current.value = "";
 
       toast.success(
-        `${newlyUploadedFiles.length} brochure${newlyUploadedFiles.length > 1 ? "s" : ""} added successfully!`
+        `${newlyUploadedFiles.length} brochure${newlyUploadedFiles.length > 1 ? "s" : ""} added successfully!`,
       );
 
       if (onUploadSuccess) onUploadSuccess(newlyUploadedFiles);
@@ -89,9 +89,17 @@ export function useFileManager(sessionId, onUploadSuccess) {
     }
   };
 
-  const removeFile = (fileName) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
-    toast.info(`Removed ${fileName}`);
+  const removeFile = async (fileName) => {
+    try {
+      await deleteFileApi(sessionId, fileName);
+      setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
+      toast.info(`Removed ${fileName}`);
+      if (onRemoveSuccess) {
+        onRemoveSuccess(fileName);
+      }
+    } catch (err) {
+      toast.error(err.message || `Failed to remove ${fileName}`);
+    }
   };
 
   const resetFiles = () => {

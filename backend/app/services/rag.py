@@ -14,11 +14,13 @@ which might reference context in the chat history, formulate a standalone questi
 which can be understood without the chat history. Do NOT answer the question, \
 just reformulate it if needed and otherwise return it as is."""
 
-contextualize_q_prompt = ChatPromptTemplate.from_messages([
-    ("system", CONTEXTUALIZE_Q_SYSTEM_PROMPT),
-    MessagesPlaceholder(variable_name="chat_history"),
-    ("human", "{input}"),
-])
+contextualize_q_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", CONTEXTUALIZE_Q_SYSTEM_PROMPT),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+    ]
+)
 
 # Domain-specific car brochure QA system prompt
 QA_SYSTEM_PROMPT = """You are an expert AI assistant specialized in analyzing car brochures
@@ -45,11 +47,13 @@ Guidelines:
 Context:
 {context}"""
 
-qa_prompt = ChatPromptTemplate.from_messages([
-    ("system", QA_SYSTEM_PROMPT),
-    MessagesPlaceholder(variable_name="chat_history"),
-    ("human", "{input}"),
-])
+qa_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", QA_SYSTEM_PROMPT),
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{input}"),
+    ]
+)
 
 
 def format_docs(docs) -> str:
@@ -58,9 +62,7 @@ def format_docs(docs) -> str:
     for doc in docs:
         source = doc.metadata.get("source", "Unknown")
         page = doc.metadata.get("page", "Unknown")
-        formatted_docs.append(
-            f"Source: {source}\nPage: {page}\n\n{doc.page_content}"
-        )
+        formatted_docs.append(f"Source: {source}\nPage: {page}\n\n{doc.page_content}")
     return "\n\n---\n\n".join(formatted_docs)
 
 
