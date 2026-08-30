@@ -29,3 +29,4 @@ class DocumentsResponse(BaseModel):
     active_pdfs: List[str]
     indexed_files: List[str]
     max_pdfs: int
+    max_file_size_mb: int

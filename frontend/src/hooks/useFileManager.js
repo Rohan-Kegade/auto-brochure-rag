@@ -9,9 +9,14 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
 
+  const [limits, setLimits] = useState({
+    maxPdfs: MAX_PDFS,
+    maxFileSizeMb: MAX_FILE_SIZE_MB,
+  });
+
   const activePdfCount = uploadedFiles.length;
   const hasActivePdfs = activePdfCount > 0;
-  const maxPdfsReached = activePdfCount >= MAX_PDFS;
+  const maxPdfsReached = activePdfCount >= limits.maxPdfs;
 
   const syncActiveFiles = useCallback(async () => {
     try {
@@ -19,6 +24,10 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       if (data.indexed_files) {
         setUploadedFiles(data.indexed_files.map((name) => ({ name })));
       }
+      setLimits({
+        maxPdfs: data.max_pdfs ?? MAX_PDFS,
+        maxFileSizeMb: data.max_file_size_mb ?? MAX_FILE_SIZE_MB,
+      });
     } catch (err) {
       console.error(err.message);
       toast.error(getErrorMessage(err, "Couldn't load your session."), {
@@ -45,11 +54,11 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       toast.error("Only PDF files are supported.");
     }
 
-    const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+    const maxBytes = limits.maxFileSizeMb * 1024 * 1024;
     const sizedPdfs = validPdfs.filter((file) => file.size <= maxBytes);
 
     if (sizedPdfs.length !== validPdfs.length) {
-      toast.error(`Each PDF must be ${MAX_FILE_SIZE_MB} MB or smaller.`);
+      toast.error(`Each PDF must be ${limits.maxFileSizeMb} MB or smaller.`);
     }
 
     const existingNames = new Set(uploadedFiles.map((file) => file.name));
@@ -69,7 +78,7 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       return;
     }
 
-    const availableSlots = MAX_PDFS - activePdfCount;
+    const availableSlots = limits.maxPdfs - activePdfCount;
     if (newFiles.length > availableSlots) {
       toast.warning(
         `Limit reached: You can only add ${availableSlots} more PDF${availableSlots === 1 ? "" : "s"}.`,
@@ -151,6 +160,7 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
     activePdfCount,
     hasActivePdfs,
     maxPdfsReached,
+    maxPdfs: limits.maxPdfs,
     handleFileChange,
     uploadDocuments,
     removeFile,

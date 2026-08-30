@@ -124,6 +124,7 @@ async def get_active_documents(session: dict = Depends(get_session)):
         active_pdfs=active_list,
         indexed_files=active_list,
         max_pdfs=MAX_PDFS,
+        max_file_size_mb=MAX_FILE_SIZE_MB,
     )
 
 
@@ -157,4 +158,5 @@ async def delete_document(filename: str, session: dict = Depends(get_session)):
         active_pdfs=active_list,
         indexed_files=active_list,
         max_pdfs=MAX_PDFS,
+        max_file_size_mb=MAX_FILE_SIZE_MB,
     )

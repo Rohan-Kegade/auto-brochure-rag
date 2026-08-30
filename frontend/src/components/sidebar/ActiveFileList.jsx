@@ -1,11 +1,11 @@
 import React from "react";
 import { FileText, X } from "lucide-react";
-import { MAX_PDFS } from "../../constants/config";
 
 export function ActiveFileList({
   uploadedFiles,
   hasActivePdfs,
   activePdfCount,
+  maxPdfs,
   onRemoveFile,
 }) {
   return (
@@ -20,7 +20,7 @@ export function ActiveFileList({
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
           )}
           <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
-            {activePdfCount}/{MAX_PDFS}
+            {activePdfCount}/{maxPdfs}
           </span>
         </div>
       </div>

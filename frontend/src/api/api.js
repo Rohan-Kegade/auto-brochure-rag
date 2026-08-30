@@ -16,12 +16,6 @@ const parseJson = async (response) => {
   }
 };
 
-/**
- * fetch wrapper with offline detection and exponential backoff.
- *
- * Retries only transient failures (network errors, 429, 5xx). Retrying is
- * opt-in via `retry` so non-idempotent calls (upload) don't fire twice.
- */
 const apiRequest = async (
   path,
   { retry = false, fallbackError = "Something went wrong.", ...options } = {},

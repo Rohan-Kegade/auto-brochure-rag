@@ -13,10 +13,6 @@ export default function App() {
   const [sessionId, setSessionId] = useState(getOrCreateSessionId);
   const [showNewSessionModal, setShowNewSessionModal] = useState(false);
 
-  // useChat needs fileManager's active-PDF state and useFileManager needs to post
-  // chat notices, so the two hooks form a cycle. The notice function is bridged
-  // through a ref that useChat populates below, instead of relying on hook
-  // declaration order and closure timing.
   const addSystemNoticeRef = useRef(null);
 
   const fileManager = useFileManager(
@@ -65,6 +61,7 @@ export default function App() {
         activePdfCount={fileManager.activePdfCount}
         hasActivePdfs={fileManager.hasActivePdfs}
         maxPdfsReached={fileManager.maxPdfsReached}
+        maxPdfs={fileManager.maxPdfs}
         onFileChange={fileManager.handleFileChange}
         onUpload={fileManager.uploadDocuments}
         onRemoveFile={fileManager.removeFile}

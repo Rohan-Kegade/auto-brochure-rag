@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
 import { Upload, CheckCircle2, FileText } from "lucide-react";
-import { MAX_PDFS } from "../../constants/config";
 
 export function FileUploader({
   selectedFiles,
   isUploading,
   maxPdfsReached,
+  maxPdfs,
   onFileChange,
   onUpload,
 }) {
@@ -31,14 +31,14 @@ export function FileUploader({
 
       {!maxPdfsReached && (
         <p className="mt-2 text-[11px] text-slate-400">
-          Add up to {MAX_PDFS} brochures
+          Add up to {maxPdfs} brochures
         </p>
       )}
 
       {maxPdfsReached && (
         <p className="mt-2 text-[11px] text-emerald-600 font-medium flex items-center gap-1">
           <CheckCircle2 className="w-3.5 h-3.5" />
-          Maximum of {MAX_PDFS} brochures reached
+          Maximum of {maxPdfs} brochures reached
         </p>
       )}
 

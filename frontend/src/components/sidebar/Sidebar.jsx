@@ -10,6 +10,7 @@ export function Sidebar({
   activePdfCount,
   hasActivePdfs,
   maxPdfsReached,
+  maxPdfs,
   onFileChange,
   onUpload,
   onRemoveFile,
@@ -28,6 +29,7 @@ export function Sidebar({
           selectedFiles={selectedFiles}
           isUploading={isUploading}
           maxPdfsReached={maxPdfsReached}
+          maxPdfs={maxPdfs}
           onFileChange={onFileChange}
           onUpload={onUpload}
         />
@@ -36,6 +38,7 @@ export function Sidebar({
           uploadedFiles={uploadedFiles}
           hasActivePdfs={hasActivePdfs}
           activePdfCount={activePdfCount}
+          maxPdfs={maxPdfs}
           onRemoveFile={onRemoveFile}
         />
       </div>
