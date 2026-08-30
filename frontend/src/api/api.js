@@ -1,59 +1,101 @@
 import { API_BASE_URL } from "../constants/config";
 
-export const fetchActiveFiles = async (sessionId) => {
-  const response = await fetch(`${API_BASE_URL}/files`, {
-    headers: { "X-Session-ID": sessionId },
-  });
-  if (!response.ok) throw new Error("Failed to sync active session files.");
-  return response.json();
+const MAX_RETRIES = 2;
+const RETRY_BASE_DELAY_MS = 400;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isOffline = () =>
+  typeof navigator !== "undefined" && navigator.onLine === false;
+
+const parseJson = async (response) => {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
 };
 
-export const uploadFilesApi = async (sessionId, files) => {
+/**
+ * fetch wrapper with offline detection and exponential backoff.
+ *
+ * Retries only transient failures (network errors, 429, 5xx). Retrying is
+ * opt-in via `retry` so non-idempotent calls (upload) don't fire twice.
+ */
+const apiRequest = async (
+  path,
+  { retry = false, fallbackError = "Something went wrong.", ...options } = {},
+) => {
+  if (isOffline()) {
+    throw new Error(
+      "You appear to be offline. Check your connection and try again.",
+    );
+  }
+
+  const attempts = retry ? MAX_RETRIES + 1 : 1;
+  let lastError;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (attempt > 0) {
+      await wait(RETRY_BASE_DELAY_MS * 2 ** (attempt - 1));
+    }
+
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}${path}`, options);
+    } catch (err) {
+      lastError = err;
+      continue;
+    }
+
+    if (response.ok) return parseJson(response);
+
+    const data = await parseJson(response);
+    const error = new Error(data.detail || fallbackError);
+    if (response.status === 429 || response.status >= 500) {
+      lastError = error;
+      continue;
+    }
+    throw error;
+  }
+
+  throw lastError;
+};
+
+export const fetchActiveFiles = (sessionId) =>
+  apiRequest("/files", {
+    headers: { "X-Session-ID": sessionId },
+    retry: true,
+    fallbackError: "Failed to sync active session files.",
+  });
+
+export const uploadFilesApi = (sessionId, files) => {
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
 
-  const response = await fetch(`${API_BASE_URL}/upload`, {
+  return apiRequest("/upload", {
     method: "POST",
     headers: { "X-Session-ID": sessionId },
     body: formData,
+    fallbackError: "Unable to add the brochures.",
   });
-
-  const data = await response.json();
-  if (!response.ok)
-    throw new Error(data.detail || "Unable to add the brochures.");
-  return data;
 };
 
-export const sendChatMessageApi = async (sessionId, message, history) => {
-  const response = await fetch(`${API_BASE_URL}/chat`, {
+export const sendChatMessageApi = (sessionId, message, history) =>
+  apiRequest("/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-Session-ID": sessionId,
     },
     body: JSON.stringify({ message, history }),
+    retry: true,
+    fallbackError: "Unable to get a response.",
   });
 
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.detail || "Unable to get a response.");
-  return data;
-};
-
-export async function deleteFileApi(sessionId, fileName) {
-  const response = await fetch(
-    `${API_BASE_URL}/files/${encodeURIComponent(fileName)}`,
-    {
-      method: "DELETE",
-      headers: {
-        "X-Session-ID": sessionId,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Failed to remove file");
-  }
-
-  return response.json();
-}
+export const deleteFileApi = (sessionId, fileName) =>
+  apiRequest(`/files/${encodeURIComponent(fileName)}`, {
+    method: "DELETE",
+    headers: { "X-Session-ID": sessionId },
+    fallbackError: "Failed to remove file",
+  });
