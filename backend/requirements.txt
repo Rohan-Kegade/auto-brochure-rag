@@ -1,9 +1,9 @@
-# Web framework + ASGI server (fastapi[standard] bundles uvicorn, fastapi-cli, etc.)
+# Web framework + ASGI server
 fastapi[standard]==0.141.1
 uvicorn[standard]==0.52.4
 pydantic==2.13.4
 
-# LangChain (pinned together to keep the LCEL API stable)
+# LangChain
 langchain-core==1.5.6
 langchain-community==0.4.2
 langchain-text-splitters==1.1.2
