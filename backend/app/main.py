@@ -1,8 +1,26 @@
-from app.api.routes import router
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import logging
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="AutoBrochure-RAG Engine")
+from app.api.routes import router
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("autobrochure")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("AutoBrochure-RAG Engine starting up")
+    yield
+    logger.info("AutoBrochure-RAG Engine shutting down")
+
+
+app = FastAPI(title="AutoBrochure-RAG Engine", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -11,5 +29,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error."},
+    )
+
+
+@app.get("/")
+async def root():
+    return {"service": "AutoBrochure-RAG Engine", "status": "ok"}
+
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+
 
 app.include_router(router)
