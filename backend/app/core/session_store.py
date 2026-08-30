@@ -1,6 +1,5 @@
 from threading import Lock
-from typing import Any, Dict, Optional
-from fastapi import HTTPException
+from typing import Dict
 
 
 class SessionStore:
@@ -11,7 +10,7 @@ class SessionStore:
 
     def get_or_create(self, session_id: str) -> dict:
         if not session_id:
-            raise HTTPException(status_code=400, detail="X-Session-ID header missing.")
+            raise ValueError("session_id must be a non-empty string.")
 
         with self._lock:
             if session_id not in self._sessions:
