@@ -19,76 +19,82 @@ router = APIRouter()
 async def upload_documents(
     files: List[UploadFile] = File(...),
     session: dict = Depends(get_session),
+    x_session_id: str = Header(..., alias="X-Session-ID"),
 ):
     if not files:
         raise HTTPException(status_code=400, detail="Please upload at least one PDF.")
 
-    if len(files) + len(session["active_pdfs"]) > MAX_PDFS:
-        remaining = MAX_PDFS - len(session["active_pdfs"])
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"You can have a maximum of {MAX_PDFS} active PDFs. You can add"
-                f" {remaining} more."
-            ),
-        )
-
-    uploaded_names = []
-
-    try:
-        for file in files:
-            if not file.filename.lower().endswith(".pdf"):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Only PDF files are supported: {file.filename}",
-                )
-
-            if file.filename in session["active_pdfs"]:
-                continue
-
-            file_bytes = await file.read()
-            if len(file_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
-                raise HTTPException(
-                    status_code=413,
-                    detail=(
-                        f"'{file.filename}' exceeds the {MAX_FILE_SIZE_MB} MB"
-                        " limit per PDF."
-                    ),
-                )
-
-            chunks, new_vector_db = create_chunks_and_store(file_bytes, file.filename)
-            if new_vector_db is None:
-                continue
-
-            session["file_chunks"][file.filename] = chunks
-            session["file_ids"][file.filename] = list(
-                new_vector_db.index_to_docstore_id.values()
+    async with session_store.write_lock(x_session_id):
+        if len(files) + len(session["active_pdfs"]) > MAX_PDFS:
+            remaining = MAX_PDFS - len(session["active_pdfs"])
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"You can have a maximum of {MAX_PDFS} active PDFs. You can add"
+                    f" {remaining} more."
+                ),
             )
 
+        uploaded_names = []
+
+        try:
+            for file in files:
+                if not file.filename.lower().endswith(".pdf"):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Only PDF files are supported: {file.filename}",
+                    )
+
+                if file.filename in session["active_pdfs"]:
+                    continue
+
+                file_bytes = await file.read()
+                if len(file_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=(
+                            f"'{file.filename}' exceeds the {MAX_FILE_SIZE_MB} MB"
+                            " limit per PDF."
+                        ),
+                    )
+
+                chunks, new_vector_db = create_chunks_and_store(
+                    file_bytes, file.filename
+                )
+                if new_vector_db is None:
+                    continue
+
+                session["file_chunks"][file.filename] = chunks
+                session["file_ids"][file.filename] = list(
+                    new_vector_db.index_to_docstore_id.values()
+                )
+
+                if session["vector_db"] is None:
+                    session["vector_db"] = new_vector_db
+                else:
+                    session["vector_db"].merge_from(new_vector_db)
+
+                session["active_pdfs"].add(file.filename)
+                uploaded_names.append(file.filename)
+
             if session["vector_db"] is None:
-                session["vector_db"] = new_vector_db
-            else:
-                session["vector_db"].merge_from(new_vector_db)
+                raise HTTPException(
+                    status_code=400, detail="No valid PDFs were processed."
+                )
 
-            session["active_pdfs"].add(file.filename)
-            uploaded_names.append(file.filename)
+            session["rag_chain"] = build_rag_chain(session["vector_db"])
 
-        if session["vector_db"] is None:
-            raise HTTPException(status_code=400, detail="No valid PDFs were processed.")
+            return UploadResponse(
+                status="Success",
+                uploaded=uploaded_names,
+                active_pdf_count=len(session["active_pdfs"]),
+                active_pdfs=list(session["active_pdfs"]),
+            )
 
-        session["rag_chain"] = build_rag_chain(session["vector_db"])
-
-        return UploadResponse(
-            status="Success",
-            uploaded=uploaded_names,
-            active_pdf_count=len(session["active_pdfs"]),
-            active_pdfs=list(session["active_pdfs"]),
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -134,27 +140,33 @@ async def clear_session(x_session_id: str = Header(..., alias="X-Session-ID")):
 
 
 @router.delete("/files/{filename}", response_model=DocumentsResponse)
-async def delete_document(filename: str, session: dict = Depends(get_session)):
-    if filename not in session["active_pdfs"]:
-        raise HTTPException(
-            status_code=404, detail=f"File '{filename}' not found in active session."
-        )
+async def delete_document(
+    filename: str,
+    session: dict = Depends(get_session),
+    x_session_id: str = Header(..., alias="X-Session-ID"),
+):
+    async with session_store.write_lock(x_session_id):
+        if filename not in session["active_pdfs"]:
+            raise HTTPException(
+                status_code=404,
+                detail=f"File '{filename}' not found in active session.",
+            )
 
-    session["active_pdfs"].remove(filename)
-    session["file_chunks"].pop(filename, None)
-    removed_ids = session["file_ids"].pop(filename, None)
+        session["active_pdfs"].remove(filename)
+        session["file_chunks"].pop(filename, None)
+        removed_ids = session["file_ids"].pop(filename, None)
 
-    vector_db = session["vector_db"]
-    if vector_db is not None and removed_ids:
-        vector_db.delete(removed_ids)
+        vector_db = session["vector_db"]
+        if vector_db is not None and removed_ids:
+            vector_db.delete(removed_ids)
 
-    if session["active_pdfs"]:
-        session["rag_chain"] = build_rag_chain(vector_db)
-    else:
-        session["vector_db"] = None
-        session["rag_chain"] = None
+        if session["active_pdfs"]:
+            session["rag_chain"] = build_rag_chain(vector_db)
+        else:
+            session["vector_db"] = None
+            session["rag_chain"] = None
 
-    active_list = list(session["active_pdfs"])
+        active_list = list(session["active_pdfs"])
     return DocumentsResponse(
         active_pdf_count=len(active_list),
         active_pdfs=active_list,

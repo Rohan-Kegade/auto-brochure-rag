@@ -1,3 +1,4 @@
+import asyncio
 import time
 from collections import OrderedDict
 from threading import Lock
@@ -14,6 +15,7 @@ class SessionStore:
     ):
         self._sessions: "OrderedDict[str, dict]" = OrderedDict()
         self._last_access: dict[str, float] = {}
+        self._write_locks: dict[str, asyncio.Lock] = {}
         self._ttl_seconds = ttl_seconds
         self._max_sessions = max_sessions
         self._lock = Lock()
@@ -39,6 +41,14 @@ class SessionStore:
             self._evict_overflow()
             return self._sessions[session_id]
 
+    def write_lock(self, session_id: str) -> asyncio.Lock:
+        with self._lock:
+            lock = self._write_locks.get(session_id)
+            if lock is None:
+                lock = asyncio.Lock()
+                self._write_locks[session_id] = lock
+            return lock
+
     def clear_session(self, session_id: str) -> None:
         with self._lock:
             self._drop(session_id)
@@ -46,6 +56,7 @@ class SessionStore:
     def _drop(self, session_id: str) -> None:
         self._sessions.pop(session_id, None)
         self._last_access.pop(session_id, None)
+        self._write_locks.pop(session_id, None)
 
     def _evict_stale(self) -> None:
         cutoff = time.monotonic() - self._ttl_seconds
@@ -55,8 +66,8 @@ class SessionStore:
 
     def _evict_overflow(self) -> None:
         while len(self._sessions) > self._max_sessions:
-            oldest, _ = self._sessions.popitem(last=False)
-            self._last_access.pop(oldest, None)
+            oldest = next(iter(self._sessions))
+            self._drop(oldest)
 
 
 session_store = SessionStore()
