@@ -3,7 +3,7 @@ from functools import lru_cache
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables import RunnableBranch, RunnablePassthrough
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from app.core.config import LLM_MODEL
@@ -76,10 +76,13 @@ def build_rag_chain(vector_store):
     llm = get_llm()
     retriever = vector_store.as_retriever(search_kwargs={"k": 10})
 
-    def contextualized_question(input_dict):
-        if input_dict.get("chat_history"):
-            return contextualize_q_prompt | llm | StrOutputParser()
-        return input_dict["input"]
+    contextualized_question = RunnableBranch(
+        (
+            lambda x: bool(x.get("chat_history")),
+            contextualize_q_prompt | llm | StrOutputParser(),
+        ),
+        lambda x: x["input"],
+    )
 
     retrieval_chain = RunnablePassthrough.assign(
         context=contextualized_question | retriever | format_docs
