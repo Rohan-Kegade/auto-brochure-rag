@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getOrCreateSessionId, createNewSessionId } from "./utils/session";
 import { useFileManager } from "./hooks/useFileManager";
 import { useChat } from "./hooks/useChat";
@@ -13,6 +13,12 @@ export default function App() {
   const [sessionId, setSessionId] = useState(getOrCreateSessionId);
   const [showNewSessionModal, setShowNewSessionModal] = useState(false);
 
+  // useChat needs fileManager's active-PDF state and useFileManager needs to post
+  // chat notices, so the two hooks form a cycle. The notice function is bridged
+  // through a ref that useChat populates below, instead of relying on hook
+  // declaration order and closure timing.
+  const addSystemNoticeRef = useRef(null);
+
   const fileManager = useFileManager(
     sessionId,
     (newlyUploadedFiles) => {
@@ -20,10 +26,12 @@ export default function App() {
         newlyUploadedFiles.length === 1
           ? `**${newlyUploadedFiles[0].name}** is ready. Ask me anything about it.`
           : `Your ${newlyUploadedFiles.length} brochures are ready. You can now ask questions or compare them.`;
-      addSystemNotice(noticeText);
+      addSystemNoticeRef.current?.(noticeText);
     },
     (removedFileName) => {
-      addSystemNotice(`**${removedFileName}** was removed from the session.`);
+      addSystemNoticeRef.current?.(
+        `**${removedFileName}** was removed from the session.`,
+      );
     },
   );
 
@@ -36,6 +44,10 @@ export default function App() {
     addSystemNotice,
     resetChat,
   } = useChat(sessionId, fileManager.hasActivePdfs);
+
+  useEffect(() => {
+    addSystemNoticeRef.current = addSystemNotice;
+  }, [addSystemNotice]);
 
   const handleConfirmNewSession = () => {
     const newId = createNewSessionId();
