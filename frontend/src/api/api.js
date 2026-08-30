@@ -93,3 +93,10 @@ export const deleteFileApi = (sessionId, fileName) =>
     headers: { "X-Session-ID": sessionId },
     fallbackError: "Failed to remove file",
   });
+
+export const clearSessionApi = (sessionId) =>
+  apiRequest("/session", {
+    method: "DELETE",
+    headers: { "X-Session-ID": sessionId },
+    fallbackError: "Failed to clear session",
+  });

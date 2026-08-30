@@ -1,6 +1,7 @@
 from typing import List
 from app.api.dependencies import get_session
 from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
+from app.core.session_store import session_store
 from app.models.schemas import (
     ChatRequest,
     ChatResponse,
@@ -12,7 +13,7 @@ from app.services.indexing import (
     create_chunks_and_store,
 )
 from app.services.rag import build_rag_chain, parse_chat_history
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
 from langchain_community.vectorstores import FAISS
 
 router = APIRouter()
@@ -126,6 +127,11 @@ async def get_active_documents(session: dict = Depends(get_session)):
         max_pdfs=MAX_PDFS,
         max_file_size_mb=MAX_FILE_SIZE_MB,
     )
+
+
+@router.delete("/session", status_code=204)
+async def clear_session(x_session_id: str = Header(..., alias="X-Session-ID")):
+    session_store.clear_session(x_session_id)
 
 
 @router.delete("/files/{filename}", response_model=DocumentsResponse)

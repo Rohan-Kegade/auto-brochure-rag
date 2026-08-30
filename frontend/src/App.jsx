@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getOrCreateSessionId, createNewSessionId } from "./utils/session";
+import { clearSessionApi } from "./api/api";
 import { useFileManager } from "./hooks/useFileManager";
 import { useChat } from "./hooks/useChat";
 import { Toaster } from "sonner";
@@ -46,6 +47,7 @@ export default function App() {
   }, [addSystemNotice]);
 
   const handleConfirmNewSession = () => {
+    clearSessionApi(sessionId).catch(() => {});
     const newId = createNewSessionId();
     setSessionId(newId);
     fileManager.resetFiles();
