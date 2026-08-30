@@ -11,6 +11,7 @@ if not GOOGLE_API_KEY:
     )
 
 MAX_PDFS = 5
+MAX_FILE_SIZE_MB = 20
 EMBEDDING_MODEL = "gemini-embedding-2"
 LLM_MODEL = "gemini-3.5-flash-lite"
 CHUNK_SIZE = 1500

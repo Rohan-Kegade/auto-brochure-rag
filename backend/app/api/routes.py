@@ -1,6 +1,6 @@
 from typing import List
 from app.api.dependencies import get_session
-from app.core.config import MAX_PDFS
+from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
 from app.models.schemas import (
     ChatRequest,
     ChatResponse,
@@ -50,6 +50,15 @@ async def upload_documents(
                 continue
 
             file_bytes = await file.read()
+            if len(file_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
+                raise HTTPException(
+                    status_code=413,
+                    detail=(
+                        f"'{file.filename}' exceeds the {MAX_FILE_SIZE_MB} MB"
+                        " limit per PDF."
+                    ),
+                )
+
             chunks, new_vector_db = create_chunks_and_store(file_bytes, file.filename)
             if new_vector_db is None:
                 continue
