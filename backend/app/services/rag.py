@@ -87,13 +87,13 @@ def parse_chat_history(history_list: list) -> list:
     formatted = []
     for msg in history_list:
         msg_dict = msg.model_dump() if hasattr(msg, "model_dump") else msg
-        role = msg_dict.get("role") or msg_dict.get("sender")
-        content = msg_dict.get("content") or msg_dict.get("text")
+        role = msg_dict.get("role")
+        content = msg_dict.get("content")
         if not content:
             continue
 
         if role == "user":
             formatted.append(HumanMessage(content=content))
-        elif role in ["assistant", "ai"]:
+        elif role in ("assistant", "ai"):
             formatted.append(AIMessage(content=content))
     return formatted
