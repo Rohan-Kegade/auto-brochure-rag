@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { Upload, CheckCircle2, FileText } from "lucide-react";
 
 export function FileUploader({

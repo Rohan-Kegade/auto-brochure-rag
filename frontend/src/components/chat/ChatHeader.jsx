@@ -1,4 +1,3 @@
-import React from "react";
 import { RotateCcw } from "lucide-react";
 
 export function ChatHeader({ onOpenRestartModal }) {

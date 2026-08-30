@@ -1,4 +1,3 @@
-import React from "react";
 import { FileText, Sparkles } from "lucide-react";
 import { FileUploader } from "./FileUploader";
 import { ActiveFileList } from "./ActiveFileList";

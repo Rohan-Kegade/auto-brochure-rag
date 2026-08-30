@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getOrCreateSessionId, createNewSessionId } from "./utils/session";
 import { useFileManager } from "./hooks/useFileManager";
 import { useChat } from "./hooks/useChat";
