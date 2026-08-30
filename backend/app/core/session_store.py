@@ -31,6 +31,7 @@ class SessionStore:
                     "rag_chain": None,
                     "active_pdfs": set(),
                     "file_chunks": {},
+                    "file_ids": {},
                 }
 
             self._sessions.move_to_end(session_id)

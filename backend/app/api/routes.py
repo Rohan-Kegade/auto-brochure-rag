@@ -8,13 +8,9 @@ from app.models.schemas import (
     DocumentsResponse,
     UploadResponse,
 )
-from app.services.indexing import (
-    get_embeddings,
-    create_chunks_and_store,
-)
+from app.services.indexing import create_chunks_and_store
 from app.services.rag import build_rag_chain, parse_chat_history
 from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
-from langchain_community.vectorstores import FAISS
 
 router = APIRouter()
 
@@ -65,6 +61,9 @@ async def upload_documents(
                 continue
 
             session["file_chunks"][file.filename] = chunks
+            session["file_ids"][file.filename] = list(
+                new_vector_db.index_to_docstore_id.values()
+            )
 
             if session["vector_db"] is None:
                 session["vector_db"] = new_vector_db
@@ -141,22 +140,17 @@ async def delete_document(filename: str, session: dict = Depends(get_session)):
             status_code=404, detail=f"File '{filename}' not found in active session."
         )
 
-    # 1. Remove file and its chunks
     session["active_pdfs"].remove(filename)
     session["file_chunks"].pop(filename, None)
+    removed_ids = session["file_ids"].pop(filename, None)
 
-    # 2. Rebuild FAISS index from remaining files
-    if session["file_chunks"]:
-        all_remaining_chunks = []
-        for chunks in session["file_chunks"].values():
-            all_remaining_chunks.extend(chunks)
+    vector_db = session["vector_db"]
+    if vector_db is not None and removed_ids:
+        vector_db.delete(removed_ids)
 
-        session["vector_db"] = FAISS.from_documents(
-            all_remaining_chunks, get_embeddings()
-        )
-        session["rag_chain"] = build_rag_chain(session["vector_db"])
+    if session["active_pdfs"]:
+        session["rag_chain"] = build_rag_chain(vector_db)
     else:
-        # Reset when zero active files remain
         session["vector_db"] = None
         session["rag_chain"] = None
 
