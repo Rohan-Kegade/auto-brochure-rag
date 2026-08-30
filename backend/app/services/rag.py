@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -6,7 +8,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 from app.core.config import LLM_MODEL
 
-llm = ChatGoogleGenerativeAI(model=LLM_MODEL)
+
+@lru_cache(maxsize=1)
+def get_llm() -> ChatGoogleGenerativeAI:
+    return ChatGoogleGenerativeAI(model=LLM_MODEL)
 
 # Prompt to rewrite follow-up questions using chat history context
 CONTEXTUALIZE_Q_SYSTEM_PROMPT = """Given a chat history and the latest user question \
@@ -68,6 +73,7 @@ def format_docs(docs) -> str:
 
 def build_rag_chain(vector_store):
     """Constructs an LCEL RAG chain bound to the provided FAISS vector store."""
+    llm = get_llm()
     retriever = vector_store.as_retriever(search_kwargs={"k": 10})
 
     def contextualized_question(input_dict):

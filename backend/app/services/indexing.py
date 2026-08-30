@@ -1,4 +1,6 @@
 import io
+from functools import lru_cache
+
 import pdfplumber
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -7,10 +9,17 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app.core.config import CHUNK_OVERLAP, CHUNK_SIZE, EMBEDDING_MODEL
 
-embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
-)
+
+@lru_cache(maxsize=1)
+def get_embeddings() -> GoogleGenerativeAIEmbeddings:
+    return GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
+
+
+@lru_cache(maxsize=1)
+def get_text_splitter() -> RecursiveCharacterTextSplitter:
+    return RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+    )
 
 
 def load_pdf_bytes(file_bytes: bytes, filename: str) -> list[Document]:
@@ -69,8 +78,8 @@ def create_vector_store_from_bytes(file_bytes: bytes, filename: str) -> FAISS | 
     docs = load_pdf_bytes(file_bytes, filename)
     if not docs:
         return None
-    chunks = text_splitter.split_documents(docs)
-    return FAISS.from_documents(chunks, embeddings)
+    chunks = get_text_splitter().split_documents(docs)
+    return FAISS.from_documents(chunks, get_embeddings())
 
 
 def create_chunks_and_store(
@@ -79,6 +88,6 @@ def create_chunks_and_store(
     docs = load_pdf_bytes(file_bytes, filename)
     if not docs:
         return None, None
-    chunks = text_splitter.split_documents(docs)
-    vector_store = FAISS.from_documents(chunks, embeddings)
+    chunks = get_text_splitter().split_documents(docs)
+    vector_store = FAISS.from_documents(chunks, get_embeddings())
     return chunks, vector_store

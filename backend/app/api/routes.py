@@ -8,7 +8,7 @@ from app.models.schemas import (
     UploadResponse,
 )
 from app.services.indexing import (
-    embeddings,
+    get_embeddings,
     create_chunks_and_store,
 )
 from app.services.rag import build_rag_chain, parse_chat_history
@@ -145,7 +145,9 @@ async def delete_document(filename: str, session: dict = Depends(get_session)):
         for chunks in session["file_chunks"].values():
             all_remaining_chunks.extend(chunks)
 
-        session["vector_db"] = FAISS.from_documents(all_remaining_chunks, embeddings)
+        session["vector_db"] = FAISS.from_documents(
+            all_remaining_chunks, get_embeddings()
+        )
         session["rag_chain"] = build_rag_chain(session["vector_db"])
     else:
         # Reset when zero active files remain
