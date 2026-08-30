@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { MAX_PDFS } from "../constants/config";
+import { MAX_PDFS, MAX_FILE_SIZE_MB } from "../constants/config";
 import { fetchActiveFiles, uploadFilesApi, deleteFileApi } from "../api/api";
+import { getErrorMessage } from "../utils/errors";
 
 export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -20,6 +21,9 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       }
     } catch (err) {
       console.error(err.message);
+      toast.error(getErrorMessage(err, "Couldn't load your session."), {
+        id: "session-load-error",
+      });
     }
   }, [sessionId]);
 
@@ -41,11 +45,26 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       toast.error("Only PDF files are supported.");
     }
 
+    const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+    const sizedPdfs = validPdfs.filter((file) => file.size <= maxBytes);
+
+    if (sizedPdfs.length !== validPdfs.length) {
+      toast.error(`Each PDF must be ${MAX_FILE_SIZE_MB} MB or smaller.`);
+    }
+
     const existingNames = new Set(uploadedFiles.map((file) => file.name));
-    const newFiles = validPdfs.filter((file) => !existingNames.has(file.name));
+    const newFiles = sizedPdfs.filter((file) => !existingNames.has(file.name));
 
     if (!newFiles.length) {
-      toast.warning("The selected PDF is already active.");
+      // Only claim "already active" when files actually passed the type/size
+      // checks; otherwise the rejection was already reported above.
+      if (sizedPdfs.length > 0) {
+        toast.warning(
+          sizedPdfs.length === 1
+            ? "That PDF is already active."
+            : "Those PDFs are already active.",
+        );
+      }
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -62,7 +81,10 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
   };
 
   const uploadDocuments = async (fileInputRef) => {
-    if (!selectedFiles.length) return;
+    if (!selectedFiles.length) {
+      toast.warning("Select at least one PDF to add.");
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -72,18 +94,33 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       const newlyUploadedFiles = selectedFiles.filter((file) =>
         uploadedNames.includes(file.name),
       );
+      const skippedFiles = selectedFiles.filter(
+        (file) => !uploadedNames.includes(file.name),
+      );
 
       setUploadedFiles((prev) => [...prev, ...newlyUploadedFiles]);
       setSelectedFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
-      toast.success(
-        `${newlyUploadedFiles.length} brochure${newlyUploadedFiles.length > 1 ? "s" : ""} added successfully!`,
-      );
+      if (newlyUploadedFiles.length > 0) {
+        toast.success(
+          `${newlyUploadedFiles.length} brochure${newlyUploadedFiles.length > 1 ? "s" : ""} added successfully!`,
+        );
+      }
 
-      if (onUploadSuccess) onUploadSuccess(newlyUploadedFiles);
+      if (skippedFiles.length > 0) {
+        toast.warning(
+          skippedFiles.length === 1
+            ? `Couldn't add "${skippedFiles[0].name}" — it may be unreadable or already added.`
+            : `Couldn't add ${skippedFiles.length} files — they may be unreadable or already added.`,
+        );
+      }
+
+      if (newlyUploadedFiles.length > 0 && onUploadSuccess) {
+        onUploadSuccess(newlyUploadedFiles);
+      }
     } catch (err) {
-      toast.error(err.message || "Failed to upload brochure.");
+      toast.error(getErrorMessage(err, "Failed to upload brochure."));
     } finally {
       setIsUploading(false);
     }
@@ -98,7 +135,7 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
         onRemoveSuccess(fileName);
       }
     } catch (err) {
-      toast.error(err.message || `Failed to remove ${fileName}`);
+      toast.error(getErrorMessage(err, `Failed to remove ${fileName}`));
     }
   };
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { INITIAL_AI_MESSAGE } from "../constants/config";
 import { sendChatMessageApi } from "../api/api";
+import { getErrorMessage } from "../utils/errors";
 import { toast } from "sonner";
 
 export function useChat(sessionId, hasActivePdfs) {
@@ -34,9 +35,10 @@ export function useChat(sessionId, hasActivePdfs) {
       );
       setMessages((prev) => [...prev, { sender: "ai", text: data.answer }]);
     } catch (err) {
+      const message = getErrorMessage(err, "Unable to get a response.");
       setMessages((prev) => [
         ...prev,
-        { sender: "ai", text: `**Error:** ${err.message}` },
+        { sender: "ai", text: `**Error:** ${message}` },
       ]);
     } finally {
       setIsLoading(false);
