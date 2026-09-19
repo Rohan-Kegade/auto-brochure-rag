@@ -16,7 +16,10 @@ export default function App() {
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const showWelcome =
-    !chat.isBooting && !chat.isLoading && chat.messages.length === 0;
+    !chat.isBooting &&
+    !chat.isLoadingMessages &&
+    !chat.isLoading &&
+    chat.messages.length === 0;
 
   return (
     <div className="flex h-screen bg-slate-100 text-slate-800">
@@ -48,7 +51,9 @@ export default function App() {
           pickerOpen={pickerOpen}
           onPickerOpenChange={setPickerOpen}
         />
-        {showWelcome ? (
+        {chat.isLoadingMessages ? (
+          <div className="flex-1" />
+        ) : showWelcome ? (
           <WelcomeScreen
             activePdfCount={docs.activePdfCount}
             maxPdfs={docs.maxPdfs}

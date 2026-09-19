@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
-import { formatDate } from "../../utils/format";
+import { formatDateTime } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
 
@@ -54,7 +54,7 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
         <span className="min-w-0">
           <span className="block truncate">{chat.title}</span>
           <span className="block text-[11px] font-normal text-slate-400">
-            {formatDate(chat.created_at)}
+            {formatDateTime(chat.created_at)}
           </span>
         </span>
       </button>

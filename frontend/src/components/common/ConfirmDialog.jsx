@@ -15,9 +15,14 @@ export function ConfirmDialog({
 
   useEffect(() => {
     cancelRef.current?.focus();
-    const onKey = (e) => e.key === "Escape" && !busy && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // Capture phase, so Escape closes only this dialog and not one behind it.
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      if (!busy) onClose();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [onClose, busy]);
 
   const confirm = async () => {

@@ -1,4 +1,4 @@
-import { formatDate } from "../../utils/format";
+import { formatDateTime } from "../../utils/format";
 
 export function ChatHeader({ title, createdAt }) {
   return (
@@ -10,7 +10,7 @@ export function ChatHeader({ title, createdAt }) {
         {title}
       </h2>
       {createdAt && (
-        <p className="text-xs text-slate-400">Created {formatDate(createdAt)}</p>
+        <p className="text-xs text-slate-400">Created {formatDateTime(createdAt)}</p>
       )}
     </header>
   );

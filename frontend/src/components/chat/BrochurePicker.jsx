@@ -4,7 +4,7 @@ import { FileText, Search, Trash2, Upload, X } from "lucide-react";
 import { deleteDocumentApi, searchDocumentsApi } from "../../api/api";
 import { filterPdfs } from "../../hooks/useChatDocuments";
 import { getErrorMessage } from "../../utils/errors";
-import { confirmToast } from "../../utils/confirmToast";
+import { ConfirmDialog } from "../common/ConfirmDialog";
 import { formatBytes, formatDate } from "../../utils/format";
 
 const PAGE_SIZE = 20;
@@ -17,6 +17,7 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
   const [selected, setSelected] = useState(() => new Set());
   const [isAttaching, setIsAttaching] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,8 +61,6 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
   };
 
   const remove = async (doc) => {
-    const message = `Delete "${doc.filename}" from the library? It will be removed from every chat that uses it.`;
-    if (!(await confirmToast(message))) return;
     try {
       await deleteDocumentApi(doc.id);
       onLibraryDelete(doc.id);
@@ -126,7 +125,7 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
                 </span>
               )}
               <button
-                onClick={() => remove(doc)}
+                onClick={() => setPendingDelete(doc)}
                 title="Delete from library"
                 className="p-1 text-slate-300 hover:text-red-500 cursor-pointer shrink-0"
               >
@@ -151,6 +150,16 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
           {isAttaching ? "Adding..." : `Add ${selected.size || ""} to chat`}
         </button>
       </div>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title="Delete this brochure?"
+          detail={pendingDelete.filename}
+          description="It will be removed from your library and from every chat that uses it. This can't be undone."
+          onConfirm={() => remove(pendingDelete)}
+          onClose={() => setPendingDelete(null)}
+        />
+      )}
     </div>
   );
 }

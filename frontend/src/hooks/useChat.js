@@ -30,6 +30,8 @@ export function useChat() {
   const [chats, setChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState([]);
+  // Chat whose history has finished loading; until then show a loader, not "empty".
+  const [loadedChatId, setLoadedChatId] = useState(null);
   const [inputQuery, setInputQuery] = useState("");
   const [sendingChatId, setSendingChatId] = useState(null);
   const [isBooting, setIsBooting] = useState(true);
@@ -71,10 +73,14 @@ export function useChat() {
     let cancelled = false;
     fetchMessagesApi(activeChatId)
       .then((data) => {
-        if (!cancelled) setMessages(data.map(toMessage));
+        if (cancelled) return;
+        setMessages(data.map(toMessage));
+        setLoadedChatId(activeChatId);
       })
       .catch((err) => {
-        if (!cancelled) toast.error(getErrorMessage(err, "Couldn't load the messages."));
+        if (cancelled) return;
+        setLoadedChatId(activeChatId);
+        toast.error(getErrorMessage(err, "Couldn't load the messages."));
       });
     return () => {
       cancelled = true;
@@ -82,6 +88,8 @@ export function useChat() {
   }, [activeChatId]);
 
   const selectChat = useCallback((id) => {
+    // Re-selecting the open chat must not clear it: the load effect wouldn't rerun.
+    if (id === activeIdRef.current) return;
     setMessages([]);
     setActiveChatId(id);
   }, []);
@@ -147,6 +155,7 @@ export function useChat() {
       chatId = created.id;
       activeIdRef.current = chatId;
       skipLoadForRef.current = chatId;
+      setLoadedChatId(chatId);
       setChats((prev) => [created, ...prev]);
       setActiveChatId(chatId);
     }
@@ -205,6 +214,7 @@ export function useChat() {
     activeChat,
     activeChatId,
     messages,
+    isLoadingMessages: activeChatId !== null && loadedChatId !== activeChatId,
     inputQuery,
     isBooting,
     isLoading:

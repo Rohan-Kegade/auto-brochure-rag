@@ -10,3 +10,12 @@ export const formatDate = (iso) =>
     month: "short",
     year: "numeric",
   });
+
+export const formatDateTime = (iso) => {
+  const date = new Date(`${iso}Z`);
+  const time = date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${formatDate(iso)}, ${time}`;
+};
