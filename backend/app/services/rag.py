@@ -97,6 +97,31 @@ def build_rag_chain_from_retriever(retriever):
     return retrieval_chain | qa_prompt | llm | StrOutputParser()
 
 
+TITLE_SYSTEM_PROMPT = """Write a short title (at most 6 words) for a chat about car brochures. Include the name of the car or cars being discussed (e.g. "Creta vs Seltos safety features") whenever it can be worked out from the question, the answer or the brochure filenames. Reply with only the title: no quotes, no trailing punctuation."""
+
+title_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", TITLE_SYSTEM_PROMPT),
+        (
+            "human",
+            "Brochures: {filenames}\n\nUser question: {question}\n\nAssistant answer: {answer}",
+        ),
+    ]
+)
+
+
+def generate_chat_title(question: str, answer: str, filenames: list[str]) -> str:
+    """Ask the LLM for a short chat title. Raises if the model call fails."""
+    chain = title_prompt | get_llm() | StrOutputParser()
+    return chain.invoke(
+        {
+            "question": question[:500],
+            "answer": answer[:1000],
+            "filenames": ", ".join(filenames) or "none",
+        }
+    )
+
+
 def parse_chat_history(history_list: list) -> list:
     """Converts raw client message dicts/Pydantic schemas into standard LangChain Message objects."""
     formatted = []

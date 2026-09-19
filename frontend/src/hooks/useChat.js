@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { INITIAL_AI_MESSAGE } from "../constants/config";
+import { DEFAULT_CHAT_TITLE, INITIAL_AI_MESSAGE, MAX_TITLE_LENGTH } from "../constants/config";
 import {
   createChatApi,
   deleteChatApi,
@@ -10,6 +10,14 @@ import {
   sendMessageApi,
 } from "../api/api";
 import { getErrorMessage } from "../utils/errors";
+
+// Interim title shown until the server replaces it with an LLM-written one.
+const titleFrom = (text) => {
+  const clean = text.split(/\s+/).join(" ");
+  return clean.length <= MAX_TITLE_LENGTH
+    ? clean
+    : `${clean.slice(0, MAX_TITLE_LENGTH).trimEnd()}…`;
+};
 
 const DRAFT_SENDING = "__draft__";
 
@@ -115,11 +123,11 @@ export function useChat() {
 
     const pendingId = `pending-${Date.now()}`;
     let chatId = activeChatId;
+    let created;
 
     if (!chatId) {
       if (sendingChatId === DRAFT_SENDING) return;
       setSendingChatId(DRAFT_SENDING);
-      let created;
       try {
         created = await createChatApi();
         await prepareNewChat?.(created.id);
@@ -138,6 +146,14 @@ export function useChat() {
     setMessages((prev) => [...prev, { id: pendingId, sender: "user", text: question }]);
     setInputQuery("");
     setSendingChatId(chatId);
+
+    // First message of a chat: show it as the title right away.
+    const previousTitle = (created ?? chats.find((c) => c.id === chatId))?.title;
+    const isFirstMessage = previousTitle === DEFAULT_CHAT_TITLE;
+    if (isFirstMessage) {
+      const interim = titleFrom(question);
+      setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, title: interim } : c)));
+    }
 
     try {
       const data = await sendMessageApi(chatId, question);
@@ -159,6 +175,11 @@ export function useChat() {
       });
     } catch (err) {
       // The server saves nothing on failure, so hand the question back for a retry.
+      if (isFirstMessage) {
+        setChats((prev) =>
+          prev.map((c) => (c.id === chatId ? { ...c, title: previousTitle } : c)),
+        );
+      }
       if (activeIdRef.current === chatId) {
         setMessages((prev) => prev.filter((m) => m.id !== pendingId));
         setInputQuery(question);

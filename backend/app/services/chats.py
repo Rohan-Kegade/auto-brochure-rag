@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import timedelta
 
 from app.core.config import HISTORY_LIMIT, MAX_PDFS
@@ -15,11 +16,17 @@ from app.db.models import (
     _now,
 )
 from app.services import vectorstore
-from app.services.rag import build_rag_chain_from_retriever, parse_chat_history
+from app.services.rag import (
+    build_rag_chain_from_retriever,
+    generate_chat_title,
+    parse_chat_history,
+)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 MAX_TITLE_LENGTH = 40
+
+logger = logging.getLogger(__name__)
 
 
 async def list_chats(db: AsyncSession) -> list[Chat]:
@@ -129,12 +136,28 @@ def _title_from(text: str) -> str:
     return f"{text[:MAX_TITLE_LENGTH].rstrip()}…"
 
 
+async def _llm_title(question: str, answer: str, filenames: list[str]) -> str:
+    """LLM-written title, falling back to the question's first words."""
+    try:
+        title = " ".join(
+            (await asyncio.to_thread(generate_chat_title, question, answer, filenames))
+            .strip()
+            .strip("\"'`*# ")
+            .split()
+        )
+    except Exception:
+        logger.warning("Chat title generation failed", exc_info=True)
+        title = ""
+    return title[:MAX_TITLE_LENGTH].rstrip() or _title_from(question)
+
+
 async def send_message(
     db: AsyncSession, chat: Chat, question: str
 ) -> tuple[Message, Message]:
     """Answer `question` from the chat's attached documents and persist both
     messages. If answering fails nothing is saved, so the client can retry."""
-    document_ids = [d.id for d in await list_attached(db, chat.id)]
+    attached = await list_attached(db, chat.id)
+    document_ids = [d.id for d in attached]
     if not document_ids:
         raise DomainError("Please add at least one brochure to this chat first.")
 
@@ -166,7 +189,9 @@ async def send_message(
     )
     db.add_all([user_msg, ai_msg])
     if chat.title == DEFAULT_CHAT_TITLE:
-        chat.title = _title_from(question)
+        chat.title = await _llm_title(
+            question, answer, [d.filename for d in attached]
+        )
     chat.updated_at = _now()
     await db.commit()
     return user_msg, ai_msg
