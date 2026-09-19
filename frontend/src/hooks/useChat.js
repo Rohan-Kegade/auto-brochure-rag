@@ -35,6 +35,9 @@ export function useChat() {
   const [isBooting, setIsBooting] = useState(true);
 
   const activeIdRef = useRef(null);
+  // A chat created by the first send has no history to load; fetching it would
+  // race the send and briefly wipe the pending message.
+  const skipLoadForRef = useRef(null);
 
   useEffect(() => {
     activeIdRef.current = activeChatId;
@@ -61,6 +64,10 @@ export function useChat() {
 
   useEffect(() => {
     if (!activeChatId) return;
+    if (skipLoadForRef.current === activeChatId) {
+      skipLoadForRef.current = null;
+      return;
+    }
     let cancelled = false;
     fetchMessagesApi(activeChatId)
       .then((data) => {
@@ -139,6 +146,7 @@ export function useChat() {
       }
       chatId = created.id;
       activeIdRef.current = chatId;
+      skipLoadForRef.current = chatId;
       setChats((prev) => [created, ...prev]);
       setActiveChatId(chatId);
     }
