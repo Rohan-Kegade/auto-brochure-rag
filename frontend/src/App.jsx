@@ -4,6 +4,7 @@ import { useChat } from "./hooks/useChat";
 import { Toaster } from "sonner";
 import { Sidebar } from "./components/sidebar/Sidebar";
 import { ChatHeader } from "./components/chat/ChatHeader";
+import { BrochureBar } from "./components/chat/BrochureBar";
 import { MessageList } from "./components/chat/MessageList";
 import { ChatInput } from "./components/chat/ChatInput";
 
@@ -26,7 +27,11 @@ export default function App() {
   );
 
   const {
+    chats,
+    activeChat,
     messages,
+    newChat,
+    selectChat,
     inputQuery,
     isLoading,
     setInputQuery,
@@ -41,20 +46,25 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-100 text-slate-800">
       <Sidebar
-        selectedFiles={fileManager.selectedFiles}
-        uploadedFiles={fileManager.uploadedFiles}
-        isUploading={fileManager.isUploading}
-        activePdfCount={fileManager.activePdfCount}
-        hasActivePdfs={fileManager.hasActivePdfs}
-        maxPdfsReached={fileManager.maxPdfsReached}
-        maxPdfs={fileManager.maxPdfs}
-        onFileChange={fileManager.handleFileChange}
-        onUpload={fileManager.uploadDocuments}
-        onRemoveFile={fileManager.removeFile}
+        chats={chats}
+        activeChatId={activeChat.id}
+        onNewChat={newChat}
+        onSelectChat={selectChat}
       />
 
-      <main className="flex-1 flex flex-col bg-slate-50">
-        <ChatHeader />
+      <main className="flex-1 flex flex-col bg-slate-50 min-w-0">
+        <ChatHeader title={activeChat.title} />
+        <BrochureBar
+          selectedFiles={fileManager.selectedFiles}
+          uploadedFiles={fileManager.uploadedFiles}
+          isUploading={fileManager.isUploading}
+          activePdfCount={fileManager.activePdfCount}
+          maxPdfsReached={fileManager.maxPdfsReached}
+          maxPdfs={fileManager.maxPdfs}
+          onFileChange={fileManager.handleFileChange}
+          onUpload={fileManager.uploadDocuments}
+          onRemoveFile={fileManager.removeFile}
+        />
         <MessageList messages={messages} isLoading={isLoading} />
         <ChatInput
           inputQuery={inputQuery}
