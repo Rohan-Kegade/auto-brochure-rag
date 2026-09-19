@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
+from app.api.chats import router as chats_router
 from app.api.routes import router
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -51,3 +52,4 @@ async def health():
 
 
 app.include_router(router)
+app.include_router(chats_router)

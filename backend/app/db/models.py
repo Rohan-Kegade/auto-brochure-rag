@@ -15,10 +15,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-# Values for Document.status and Message.role.
+# Values for Document.status, Message.role and the default Chat.title.
 DOC_PROCESSING = "processing"
 DOC_READY = "ready"
 DOC_FAILED = "failed"
+DEFAULT_CHAT_TITLE = "New chat"
 ROLE_USER = "user"
 ROLE_AI = "ai"
 
@@ -37,7 +38,7 @@ class Chat(Base):
     __table_args__ = (Index("ix_chats_updated_at", "updated_at"),)
 
     id: Mapped[str] = mapped_column(CHAR(36), primary_key=True, default=_uuid)
-    title: Mapped[str] = mapped_column(String(255), default="New chat")
+    title: Mapped[str] = mapped_column(String(255), default=DEFAULT_CHAT_TITLE)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=_now, onupdate=_now

@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import List, Literal
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ChatMessage(BaseModel):
@@ -30,3 +32,29 @@ class DocumentsResponse(BaseModel):
     indexed_files: List[str]
     max_pdfs: int
     max_file_size_mb: int
+
+
+class ChatCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+
+
+class ChatUpdate(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+
+
+class ChatOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class MessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    role: Literal["user", "ai"]
+    content: str
+    created_at: datetime
