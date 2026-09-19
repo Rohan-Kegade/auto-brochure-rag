@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { MessageSquare, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { formatDate } from "../../utils/format";
 import { confirmToast } from "../../utils/confirmToast";
 import { Logo } from "../common/Logo";
 
@@ -50,12 +51,16 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
         onClick={() => onSelect(chat.id)}
         onDoubleClick={startEditing}
         title={chat.title}
-        className={`flex-1 min-w-0 flex items-center gap-2.5 px-3 py-2 text-left text-sm cursor-pointer ${
+        className={`flex-1 min-w-0 flex items-center px-3 py-2 text-left text-sm cursor-pointer ${
           active ? "text-indigo-700 font-medium" : "text-slate-600"
         }`}
       >
-        <MessageSquare className="w-4 h-4 shrink-0" />
-        <span className="truncate">{chat.title}</span>
+        <span className="min-w-0">
+          <span className="block truncate">{chat.title}</span>
+          <span className="block text-[11px] font-normal text-slate-400">
+            {formatDate(chat.created_at)}
+          </span>
+        </span>
       </button>
       <div className="hidden group-hover:flex focus-within:flex items-center pr-1 shrink-0">
         <button

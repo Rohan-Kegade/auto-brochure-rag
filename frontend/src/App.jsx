@@ -32,6 +32,7 @@ export default function App() {
       <main className="flex-1 flex flex-col bg-slate-50 min-w-0">
         <ChatHeader
           title={chat.isBooting ? "Loading…" : (chat.activeChat?.title ?? DEFAULT_CHAT_TITLE)}
+          createdAt={chat.activeChat?.created_at}
         />
         <BrochureBar
           chatId={chat.activeChatId}
