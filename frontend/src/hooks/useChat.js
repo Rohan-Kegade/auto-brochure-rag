@@ -173,24 +173,40 @@ export function useChat() {
       setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, title: interim } : c)));
     }
 
+    // Tokens arrive far faster than the screen refreshes; re-parsing the markdown
+    // for each one is what makes streaming feel laggy. Apply them once per frame.
+    let pending = "";
+    let frame = null;
+    const flush = () => {
+      frame = null;
+      const text = pending;
+      pending = "";
+      if (!text || activeIdRef.current !== chatId) return;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.id === streamingId) {
+          return [...prev.slice(0, -1), { ...last, text: last.text + text }];
+        }
+        return [...prev, { id: streamingId, sender: "ai", text, streaming: true }];
+      });
+    };
+
     try {
       const data = await streamMessageApi(chatId, question, {
         onToken: (text) => {
-          if (activeIdRef.current !== chatId) return;
-          setMessages((prev) => {
-            const last = prev[prev.length - 1];
-            if (last?.id === streamingId) {
-              return [...prev.slice(0, -1), { ...last, text: last.text + text }];
-            }
-            return [...prev, { id: streamingId, sender: "ai", text, streaming: true }];
-          });
+          pending += text;
+          if (frame === null) frame = requestAnimationFrame(flush);
         },
       });
+      if (frame !== null) cancelAnimationFrame(frame);
+      pending = "";
       if (activeIdRef.current === chatId) {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== pendingId && m.id !== streamingId),
-          toMessage(data.user_message),
-          toMessage(data.ai_message),
+          // Keep the temporary keys so React updates these in place instead of
+          // unmounting and remounting them (a visible flash) when the answer lands.
+          { ...toMessage(data.user_message), key: pendingId },
+          { ...toMessage(data.ai_message), key: streamingId },
         ]);
       }
       // Answering bumps the chat to the top and may set its title.
@@ -203,6 +219,8 @@ export function useChat() {
         ];
       });
     } catch (err) {
+      if (frame !== null) cancelAnimationFrame(frame);
+      pending = "";
       // The server saves nothing on failure, so hand the question back for a retry.
       if (isFirstMessage) {
         setChats((prev) =>

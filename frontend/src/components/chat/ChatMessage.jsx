@@ -1,7 +1,9 @@
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export function ChatMessage({ message }) {
+// Memoised so a streaming answer doesn't re-render (and re-parse) every earlier message.
+export const ChatMessage = memo(function ChatMessage({ message }) {
   const isUser = message.sender === "user";
 
   return (
@@ -55,4 +57,4 @@ export function ChatMessage({ message }) {
       </div>
     </div>
   );
-}
+});
