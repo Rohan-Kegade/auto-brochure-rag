@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Pencil, Search, Plus, Sparkles, Trash2 } from "lucide-react";
 import { formatDay } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
@@ -105,6 +105,13 @@ export function Sidebar({
   onRenameChat,
   onDeleteChat,
 }) {
+  const [query, setQuery] = useState("");
+
+  const needle = query.trim().toLowerCase();
+  const visibleChats = needle
+    ? chats.filter((c) => c.title.toLowerCase().includes(needle))
+    : chats;
+
   return (
     <aside className="w-72 border-r border-slate-200 bg-white p-4 flex flex-col shadow-xs">
       <div className="flex items-center gap-2 mb-5 px-2">
@@ -127,13 +134,25 @@ export function Sidebar({
         </button>
       </div>
 
+      <div className="px-2 mb-3 relative">
+        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-5 top-1/2 -translate-y-1/2" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Escape" && setQuery("")}
+          placeholder="Search chats..."
+          aria-label="Search chats"
+          className="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        />
+      </div>
+
       <nav className="flex-1 min-h-0 overflow-y-auto">
-        {groupByDay(chats).map(({ label, items }) => (
+        {groupByDay(visibleChats).map(({ label, items }) => (
           <section key={label} className="mb-3">
             <h3 className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
               {label}
             </h3>
-            <div className="space-y-1 pl-3">
+            <div className="space-y-1 pl-1.5">
               {items.map((chat) => (
                 <ChatRow
                   key={chat.id}
@@ -147,6 +166,9 @@ export function Sidebar({
             </div>
           </section>
         ))}
+        {needle && visibleChats.length === 0 && (
+          <p className="px-3 py-4 text-sm text-slate-400 italic">No chats match your search.</p>
+        )}
       </nav>
 
       <div className="text-[11px] text-slate-400 border-t border-slate-100 pt-4 mt-2 flex items-center justify-between">
