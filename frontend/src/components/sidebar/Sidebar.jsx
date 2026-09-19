@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { formatDate } from "../../utils/format";
-import { confirmToast } from "../../utils/confirmToast";
+import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
 
 function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
@@ -18,11 +18,7 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
     if (draft.trim() && draft.trim() !== chat.title) onRename(chat.id, draft);
   };
 
-  const handleDelete = async () => {
-    if (await confirmToast(`Delete "${chat.title}"? Its messages will be lost.`)) {
-      onDelete(chat.id);
-    }
-  };
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   if (editing) {
     return (
@@ -71,13 +67,22 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
           <Pencil className="w-3.5 h-3.5" />
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => setConfirmOpen(true)}
           title="Delete"
           className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
+      {confirmOpen && (
+        <ConfirmDialog
+          title="Delete this chat?"
+          detail={chat.title}
+          description="Its messages will be permanently deleted. Your uploaded brochures stay in the library."
+          onConfirm={() => onDelete(chat.id)}
+          onClose={() => setConfirmOpen(false)}
+        />
+      )}
     </div>
   );
 }
