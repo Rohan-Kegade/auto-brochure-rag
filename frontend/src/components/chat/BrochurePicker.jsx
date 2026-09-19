@@ -10,7 +10,15 @@ import { formatBytes, formatDate } from "../../utils/format";
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
 
-function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }) {
+function LibraryTab({
+  chatId,
+  pendingIds,
+  slotsLeft,
+  onAttach,
+  onDetach,
+  onLibraryDelete,
+  onDone,
+}) {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState({ items: [], total: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -55,9 +63,13 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
     setIsAttaching(false);
     if (ok) {
       toast.success(`${selected.size} brochure${selected.size > 1 ? "s" : ""} added to this chat.`);
-      setSelected(new Set());
-      setReloadKey((k) => k + 1);
+      onDone();
     }
+  };
+
+  const removeFromChat = async (doc) => {
+    await onDetach(doc);
+    setReloadKey((k) => k + 1);
   };
 
   const remove = async (doc) => {
@@ -120,9 +132,17 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
                 </div>
               </div>
               {isAttached && (
-                <span className="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
-                  In this chat
-                </span>
+                <>
+                  <span className="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
+                    In this chat
+                  </span>
+                  <button
+                    onClick={() => removeFromChat(doc)}
+                    className="text-[11px] font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 px-2 py-0.5 rounded-full shrink-0 transition-colors cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </>
               )}
               <button
                 onClick={() => setPendingDelete(doc)}
@@ -138,6 +158,9 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
 
       <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
         <span className="text-xs text-slate-400">
+          {selected.size > 0 && (
+            <span className="font-medium text-indigo-600">{selected.size} selected · </span>
+          )}
           {result.total > result.items.length
             ? `Showing ${result.items.length} of ${result.total}. Refine your search to see more.`
             : `${result.total} in library`}
@@ -145,9 +168,9 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
         <button
           onClick={attachSelected}
           disabled={selected.size === 0 || isAttaching}
-          className="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          {isAttaching ? "Adding..." : `Add ${selected.size || ""} to chat`}
+          {isAttaching ? "Adding..." : "Add to chat"}
         </button>
       </div>
 
@@ -213,15 +236,15 @@ function UploadTab({ slotsLeft, isUploading, onUpload, onDone }) {
         <button
           onClick={submit}
           disabled={files.length === 0 || isUploading}
-          className="py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
+          className="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
         >
           {isUploading ? (
             <>
-              <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               Processing...
             </>
           ) : (
-            `Upload ${files.length || ""}`
+            "Upload"
           )}
         </button>
       </div>
@@ -235,6 +258,7 @@ export function BrochurePicker({
   slotsLeft,
   isUploading,
   onAttach,
+  onDetach,
   onUpload,
   onLibraryDelete,
   onClose,
@@ -287,7 +311,9 @@ export function BrochurePicker({
             pendingIds={pendingIds}
             slotsLeft={slotsLeft}
             onAttach={onAttach}
+            onDetach={onDetach}
             onLibraryDelete={onLibraryDelete}
+            onDone={onClose}
           />
         ) : (
           <UploadTab
