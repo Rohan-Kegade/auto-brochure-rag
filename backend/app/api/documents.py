@@ -1,6 +1,7 @@
 from typing import List
 
 from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
+from app.core.errors import DomainError
 from app.db.session import get_db
 from app.models.schemas import (
     DocumentList,
@@ -8,6 +9,7 @@ from app.models.schemas import (
     UploadItem,
     UploadResponse,
 )
+from app.services import chats as chat_service
 from app.services import documents as document_service
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,8 +38,15 @@ async def list_documents(
 @router.post("", response_model=UploadResponse)
 async def upload_documents(
     files: List[UploadFile] = File(...),
+    chat_id: str | None = Query(default=None, description="Attach the uploads to this chat"),
     db: AsyncSession = Depends(get_db),
 ):
+    chat = None
+    if chat_id:
+        chat = await chat_service.get_chat(db, chat_id)
+        if chat is None:
+            raise HTTPException(status_code=404, detail="Chat not found.")
+
     if not files:
         raise HTTPException(status_code=400, detail="Please upload at least one PDF.")
     if len(files) > MAX_PDFS:
@@ -68,16 +77,22 @@ async def upload_documents(
             continue
 
         result = await document_service.ingest_pdf(db, name, file_bytes)
+        doc_out = (
+            DocumentOut.model_validate(result.document) if result.document else None
+        )
+        attach_error = None
+        if chat is not None and result.document is not None:
+            try:
+                await chat_service.attach_documents(db, chat, [result.document.id])
+                doc_out.attached = True
+            except DomainError as exc:
+                attach_error = f"Added to the library but not to this chat: {exc.detail}"
         results.append(
             UploadItem(
                 filename=name,
                 outcome=result.outcome,
-                error=result.error,
-                document=(
-                    DocumentOut.model_validate(result.document)
-                    if result.document
-                    else None
-                ),
+                error=result.error or attach_error,
+                document=doc_out,
             )
         )
 

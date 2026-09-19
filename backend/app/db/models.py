@@ -13,6 +13,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
+from sqlalchemy.dialects.mysql import DATETIME as MYSQL_DATETIME
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # Values for Document.status, Message.role and the default Chat.title.
@@ -104,6 +105,7 @@ class Message(Base):
     )
     role: Mapped[str] = mapped_column(String(8))
     content: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+    # Microsecond precision so a question and its answer keep their order.
+    created_at: Mapped[datetime] = mapped_column(MYSQL_DATETIME(fsp=6), default=_now)
 
     chat: Mapped[Chat] = relationship(back_populates="messages")

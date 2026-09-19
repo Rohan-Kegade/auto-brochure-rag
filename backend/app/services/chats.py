@@ -1,6 +1,25 @@
-from app.db.models import DEFAULT_CHAT_TITLE, Chat, Message
+import asyncio
+from datetime import timedelta
+
+from app.core.config import HISTORY_LIMIT, MAX_PDFS
+from app.core.errors import DomainError, NotFoundError
+from app.db.models import (
+    DEFAULT_CHAT_TITLE,
+    DOC_READY,
+    ROLE_AI,
+    ROLE_USER,
+    Chat,
+    ChatDocument,
+    Document,
+    Message,
+    _now,
+)
+from app.services import vectorstore
+from app.services.rag import build_rag_chain_from_retriever, parse_chat_history
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+MAX_TITLE_LENGTH = 40
 
 
 async def list_chats(db: AsyncSession) -> list[Chat]:
@@ -38,3 +57,116 @@ async def list_messages(db: AsyncSession, chat_id: str) -> list[Message]:
         .order_by(Message.created_at, Message.id)
     )
     return list(result.scalars())
+
+
+# --- attached documents -----------------------------------------------------
+
+
+async def list_attached(db: AsyncSession, chat_id: str) -> list[Document]:
+    result = await db.execute(
+        select(Document)
+        .join(ChatDocument, ChatDocument.document_id == Document.id)
+        .where(ChatDocument.chat_id == chat_id)
+        .order_by(ChatDocument.attached_at, Document.id)
+    )
+    return list(result.scalars())
+
+
+async def attach_documents(
+    db: AsyncSession, chat: Chat, document_ids: list[str]
+) -> list[Document]:
+    """Attach library documents to a chat. Already-attached ones are ignored.
+    Returns the chat's full list of attached documents."""
+    ids = list(dict.fromkeys(document_ids))
+    found = {
+        doc.id: doc
+        for doc in (
+            await db.execute(select(Document).where(Document.id.in_(ids)))
+        ).scalars()
+    }
+    missing = [i for i in ids if i not in found]
+    if missing:
+        raise NotFoundError(f"Document not found: {missing[0]}")
+    not_ready = [d.filename for d in found.values() if d.status != DOC_READY]
+    if not_ready:
+        raise DomainError(f"Document is not ready yet: {not_ready[0]}")
+
+    attached_ids = set(
+        (
+            await db.execute(
+                select(ChatDocument.document_id).where(ChatDocument.chat_id == chat.id)
+            )
+        ).scalars()
+    )
+    new_ids = [i for i in ids if i not in attached_ids]
+    if len(attached_ids) + len(new_ids) > MAX_PDFS:
+        remaining = MAX_PDFS - len(attached_ids)
+        raise DomainError(
+            f"A chat can have at most {MAX_PDFS} PDFs. You can add {remaining} more."
+        )
+
+    for doc_id in new_ids:
+        db.add(ChatDocument(chat_id=chat.id, document_id=doc_id))
+    await db.commit()
+    return await list_attached(db, chat.id)
+
+
+async def detach_document(db: AsyncSession, chat: Chat, document_id: str) -> None:
+    link = await db.get(ChatDocument, (chat.id, document_id))
+    if link is None:
+        raise NotFoundError("That document is not attached to this chat.")
+    await db.delete(link)
+    await db.commit()
+
+
+# --- asking questions -------------------------------------------------------
+
+
+def _title_from(text: str) -> str:
+    text = " ".join(text.split())
+    if len(text) <= MAX_TITLE_LENGTH:
+        return text
+    return f"{text[:MAX_TITLE_LENGTH].rstrip()}…"
+
+
+async def send_message(
+    db: AsyncSession, chat: Chat, question: str
+) -> tuple[Message, Message]:
+    """Answer `question` from the chat's attached documents and persist both
+    messages. If answering fails nothing is saved, so the client can retry."""
+    document_ids = [d.id for d in await list_attached(db, chat.id)]
+    if not document_ids:
+        raise DomainError("Please add at least one brochure to this chat first.")
+
+    recent = (
+        await db.execute(
+            select(Message)
+            .where(Message.chat_id == chat.id)
+            .order_by(Message.created_at.desc(), Message.id)
+            .limit(HISTORY_LIMIT)
+        )
+    ).scalars()
+    history = parse_chat_history(
+        [{"role": m.role, "content": m.content} for m in reversed(list(recent))]
+    )
+
+    chain = build_rag_chain_from_retriever(vectorstore.get_retriever(document_ids))
+    answer = await asyncio.to_thread(
+        chain.invoke, {"input": question, "chat_history": history}
+    )
+
+    now = _now()
+    user_msg = Message(chat_id=chat.id, role=ROLE_USER, content=question, created_at=now)
+    ai_msg = Message(
+        chat_id=chat.id,
+        role=ROLE_AI,
+        content=answer,
+        # Clocks can be coarse; force the answer strictly after the question.
+        created_at=now + timedelta(microseconds=1),
+    )
+    db.add_all([user_msg, ai_msg])
+    if chat.title == DEFAULT_CHAT_TITLE:
+        chat.title = _title_from(question)
+    chat.updated_at = _now()
+    await db.commit()
+    return user_msg, ai_msg

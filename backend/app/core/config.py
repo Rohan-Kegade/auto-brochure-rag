@@ -22,3 +22,4 @@ LLM_MODEL = "gemini-3.5-flash-lite"
 CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 150
 RETRIEVAL_K = 10
+HISTORY_LIMIT = 20  # most recent messages sent to the model as history

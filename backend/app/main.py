@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.api.chats import router as chats_router
 from app.api.documents import router as documents_router
+from app.core.errors import DomainError
 from app.services.vectorstore import ensure_collection
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +38,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(DomainError)
+async def domain_error_handler(request: Request, exc: DomainError):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 @app.exception_handler(Exception)

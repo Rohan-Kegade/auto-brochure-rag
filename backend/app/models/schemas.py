@@ -4,21 +4,6 @@ from typing import List, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class ChatMessage(BaseModel):
-    role: Literal["user", "assistant", "ai"]
-    content: str = Field(min_length=1)
-
-
-class ChatRequest(BaseModel):
-    message: str
-    history: List[ChatMessage] = []
-
-
-class ChatResponse(BaseModel):
-    query: str
-    answer: str
-
-
 class ChatCreate(BaseModel):
     title: str | None = Field(default=None, max_length=255)
 
@@ -73,3 +58,17 @@ class UploadItem(BaseModel):
 
 class UploadResponse(BaseModel):
     results: List[UploadItem]
+
+
+class AttachRequest(BaseModel):
+    document_ids: List[str] = Field(min_length=1)
+
+
+class SendMessageRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=4000)
+
+
+class SendMessageResponse(BaseModel):
+    user_message: MessageOut
+    ai_message: MessageOut
+    title: str
