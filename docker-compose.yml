@@ -1,0 +1,13 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: specsense-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333" # REST
+      - "6334:6334" # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:

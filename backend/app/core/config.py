@@ -10,6 +10,10 @@ if not GOOGLE_API_KEY:
         "environment (see backend/.env.sample)."
     )
 
+# Persistence. DATABASE_URL is validated where the database is first used.
+DATABASE_URL = os.getenv("DATABASE_URL")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+
 MAX_PDFS = 5
 MAX_FILE_SIZE_MB = 20
 EMBEDDING_MODEL = "gemini-embedding-2"
