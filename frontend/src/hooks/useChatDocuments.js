@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MAX_FILE_SIZE_MB, MAX_PDFS } from "../constants/config";
 import {
@@ -12,20 +12,37 @@ import { getErrorMessage } from "../utils/errors";
 const isPdf = (file) =>
   file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
-/** Documents attached to one chat, plus the actions that change them. */
+/**
+ * Documents attached to one chat, plus the actions that change them.
+ *
+ * With no `chatId` (a draft chat) documents are only held locally as `draft`;
+ * `commitDraft` attaches them once the chat is actually created.
+ */
 export function useChatDocuments(chatId) {
   const [loaded, setLoaded] = useState({ chatId: null, documents: [] });
+  const [draft, setDraft] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const justCommittedRef = useRef(null);
 
   // Ignore results that belong to a chat we've since navigated away from.
-  const documents = loaded.chatId === chatId ? loaded.documents : [];
+  const documents = chatId
+    ? loaded.chatId === chatId
+      ? loaded.documents
+      : []
+    : draft;
   const setDocuments = useCallback(
-    (docs) => setLoaded({ chatId, documents: docs }),
+    (docs) => (chatId ? setLoaded({ chatId, documents: docs }) : setDraft(docs)),
     [chatId],
   );
 
   useEffect(() => {
     if (!chatId) return;
+    // Documents for a chat we just created are already in state; refetching
+    // could race the commit and overwrite them.
+    if (justCommittedRef.current === chatId) {
+      justCommittedRef.current = null;
+      return;
+    }
     let cancelled = false;
     fetchChatDocumentsApi(chatId)
       .then((docs) => {
@@ -43,7 +60,11 @@ export function useChatDocuments(chatId) {
     };
   }, [chatId]);
 
-  const attach = async (documentIds) => {
+  const attach = async (documentIds, docs = []) => {
+    if (!chatId) {
+      setDraft((prev) => [...prev, ...docs.filter((d) => !prev.some((p) => p.id === d.id))]);
+      return true;
+    }
     try {
       setDocuments(await attachDocumentsApi(chatId, documentIds));
       return true;
@@ -54,6 +75,10 @@ export function useChatDocuments(chatId) {
   };
 
   const detach = async (doc) => {
+    if (!chatId) {
+      setDraft((prev) => prev.filter((d) => d.id !== doc.id));
+      return;
+    }
     try {
       await detachDocumentApi(chatId, doc.id);
       setDocuments(documents.filter((d) => d.id !== doc.id));
@@ -67,7 +92,9 @@ export function useChatDocuments(chatId) {
     setIsUploading(true);
     try {
       const { results } = await uploadDocumentsApi(files, chatId);
-      const added = results.filter((r) => r.document?.attached);
+      const added = results.filter((r) =>
+        chatId ? r.document?.attached : r.document?.status === "ready",
+      );
       results
         .filter((r) => r.error)
         .forEach((r) => toast.warning(`${r.filename}: ${r.error}`));
@@ -75,7 +102,16 @@ export function useChatDocuments(chatId) {
         toast.success(
           `${added.length} brochure${added.length > 1 ? "s" : ""} added to this chat.`,
         );
-        setDocuments(await fetchChatDocumentsApi(chatId));
+        if (chatId) {
+          setDocuments(await fetchChatDocumentsApi(chatId));
+        } else {
+          setDraft((prev) => [
+            ...prev,
+            ...added
+              .map((r) => r.document)
+              .filter((d) => !prev.some((p) => p.id === d.id)),
+          ]);
+        }
       }
       return added.length > 0;
     } catch (err) {
@@ -84,6 +120,18 @@ export function useChatDocuments(chatId) {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  /** Attach the draft's documents to the chat that was just created for them. */
+  const commitDraft = async (newChatId) => {
+    if (draft.length === 0) return;
+    const attached = await attachDocumentsApi(
+      newChatId,
+      draft.map((d) => d.id),
+    );
+    justCommittedRef.current = newChatId;
+    setLoaded({ chatId: newChatId, documents: attached });
+    setDraft([]);
   };
 
   /** Drop a document that was deleted from the library from the attached list. */
@@ -101,6 +149,7 @@ export function useChatDocuments(chatId) {
     detach,
     upload,
     forget,
+    commitDraft,
   };
 }
 

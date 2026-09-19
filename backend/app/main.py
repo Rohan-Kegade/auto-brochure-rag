@@ -1,3 +1,10 @@
+import os
+
+# Must run before numpy is imported: OpenBLAS otherwise allocates buffers for every
+# CPU thread and can fail with "Memory allocation still failed" on small machines.
+for _var in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
 import asyncio
 import logging
 from contextlib import asynccontextmanager

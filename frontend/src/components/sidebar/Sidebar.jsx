@@ -91,16 +91,19 @@ export function Sidebar({
         <h1 className="text-xl font-bold text-slate-900">SpecSense</h1>
       </div>
 
-      <button
-        onClick={onNewChat}
-        className="w-full mb-4 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-      >
-        <Plus className="w-4 h-4" />
-        New chat
-      </button>
-
-      <div className="px-2 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Chats
+      <div className="px-2 mb-2 flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Chats
+        </span>
+        <button
+          onClick={onNewChat}
+          title="New chat"
+          aria-label="New chat"
+          className="flex items-center gap-1 pl-1.5 pr-2.5 py-1 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          New
+        </button>
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto space-y-1">

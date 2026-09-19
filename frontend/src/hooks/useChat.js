@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { DEFAULT_CHAT_TITLE, INITIAL_AI_MESSAGE } from "../constants/config";
+import { INITIAL_AI_MESSAGE } from "../constants/config";
 import {
   createChatApi,
   deleteChatApi,
@@ -11,12 +11,12 @@ import {
 } from "../api/api";
 import { getErrorMessage } from "../utils/errors";
 
+const DRAFT_SENDING = "__draft__";
+
 const toMessage = (m) => ({ id: m.id, sender: m.role, text: m.content });
 
-const loadInitialChats = async () => {
-  const list = await fetchChatsApi();
-  return list.length ? list : [await createChatApi()];
-};
+// No chat is created up front: a new chat is only a draft (no active id) until
+// the first message is sent, so empty chats never reach the database.
 
 export function useChat() {
   const [chats, setChats] = useState([]);
@@ -27,21 +27,18 @@ export function useChat() {
   const [isBooting, setIsBooting] = useState(true);
 
   const activeIdRef = useRef(null);
-  const bootRef = useRef(null);
 
   useEffect(() => {
     activeIdRef.current = activeChatId;
   }, [activeChatId]);
 
-  // Shared promise so React StrictMode's double effect doesn't create two chats.
   useEffect(() => {
     let cancelled = false;
-    bootRef.current ??= loadInitialChats();
-    bootRef.current
+    fetchChatsApi()
       .then((list) => {
         if (cancelled) return;
         setChats(list);
-        setActiveChatId(list[0].id);
+        setActiveChatId(list[0]?.id ?? null);
       })
       .catch((err) => {
         if (!cancelled) toast.error(getErrorMessage(err, "Couldn't load your chats."));
@@ -74,20 +71,11 @@ export function useChat() {
     setActiveChatId(id);
   }, []);
 
-  const newChat = async () => {
-    // Reuse an untouched chat instead of stacking blank ones.
-    const blank = chats.find((c) => c.title === DEFAULT_CHAT_TITLE);
-    if (blank) {
-      if (blank.id !== activeChatId) selectChat(blank.id);
-      return;
-    }
-    try {
-      const chat = await createChatApi();
-      setChats((prev) => [chat, ...prev]);
-      selectChat(chat.id);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't create a new chat."));
-    }
+  // Start a draft; nothing is saved until the first message is sent.
+  const newChat = () => {
+    setMessages([]);
+    setInputQuery("");
+    setActiveChatId(null);
   };
 
   const renameChat = async (id, title) => {
@@ -109,28 +97,44 @@ export function useChat() {
       return;
     }
     const remaining = chats.filter((c) => c.id !== id);
-    if (remaining.length === 0) {
-      try {
-        const fresh = await createChatApi();
-        setChats([fresh]);
-        selectChat(fresh.id);
-      } catch (err) {
-        setChats([]);
-        toast.error(getErrorMessage(err, "Couldn't create a new chat."));
-      }
-      return;
-    }
     setChats(remaining);
-    if (id === activeChatId) selectChat(remaining[0].id);
+    if (id === activeChatId) {
+      if (remaining.length > 0) selectChat(remaining[0].id);
+      else newChat();
+    }
   };
 
-  const sendMessage = async (e) => {
+  /**
+   * `prepareNewChat(chatId)` runs only when this send creates the chat (a draft),
+   * to attach the draft's documents. If it fails the new chat is discarded.
+   */
+  const sendMessage = async (e, prepareNewChat) => {
     e.preventDefault();
     const question = inputQuery.trim();
-    const chatId = activeChatId;
-    if (!question || !chatId || sendingChatId === chatId) return;
+    if (!question || (activeChatId && sendingChatId === activeChatId)) return;
 
     const pendingId = `pending-${Date.now()}`;
+    let chatId = activeChatId;
+
+    if (!chatId) {
+      if (sendingChatId === DRAFT_SENDING) return;
+      setSendingChatId(DRAFT_SENDING);
+      let created;
+      try {
+        created = await createChatApi();
+        await prepareNewChat?.(created.id);
+      } catch (err) {
+        if (created) deleteChatApi(created.id).catch(() => {});
+        setSendingChatId(null);
+        toast.error(getErrorMessage(err, "Couldn't start the chat."));
+        return;
+      }
+      chatId = created.id;
+      activeIdRef.current = chatId;
+      setChats((prev) => [created, ...prev]);
+      setActiveChatId(chatId);
+    }
+
     setMessages((prev) => [...prev, { id: pendingId, sender: "user", text: question }]);
     setInputQuery("");
     setSendingChatId(chatId);
@@ -174,7 +178,8 @@ export function useChat() {
     messages: messages.length ? messages : [INITIAL_AI_MESSAGE],
     inputQuery,
     isBooting,
-    isLoading: sendingChatId !== null && sendingChatId === activeChatId,
+    isLoading:
+      sendingChatId !== null && sendingChatId === (activeChatId ?? DRAFT_SENDING),
     setInputQuery,
     sendMessage,
     newChat,

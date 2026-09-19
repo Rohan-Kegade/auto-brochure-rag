@@ -9,7 +9,7 @@ import { formatBytes, formatDate } from "../../utils/format";
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
 
-function LibraryTab({ chatId, slotsLeft, onAttach, onLibraryDelete }) {
+function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }) {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState({ items: [], total: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +46,10 @@ function LibraryTab({ chatId, slotsLeft, onAttach, onLibraryDelete }) {
 
   const attachSelected = async () => {
     setIsAttaching(true);
-    const ok = await onAttach([...selected]);
+    const ok = await onAttach(
+      [...selected],
+      result.items.filter((d) => selected.has(d.id)),
+    );
     setIsAttaching(false);
     if (ok) {
       toast.success(`${selected.size} brochure${selected.size > 1 ? "s" : ""} added to this chat.`);
@@ -92,7 +95,8 @@ function LibraryTab({ chatId, slotsLeft, onAttach, onLibraryDelete }) {
           </li>
         )}
         {result.items.map((doc) => {
-          const disabled = doc.attached || doc.status !== "ready";
+          const isAttached = doc.attached || pendingIds.includes(doc.id);
+          const disabled = isAttached || doc.status !== "ready";
           return (
             <li
               key={doc.id}
@@ -115,7 +119,7 @@ function LibraryTab({ chatId, slotsLeft, onAttach, onLibraryDelete }) {
                   {doc.status !== "ready" && ` · ${doc.status}`}
                 </div>
               </div>
-              {doc.attached && (
+              {isAttached && (
                 <span className="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
                   In this chat
                 </span>
@@ -217,6 +221,7 @@ function UploadTab({ slotsLeft, isUploading, onUpload, onDone }) {
 
 export function BrochurePicker({
   chatId,
+  pendingIds,
   slotsLeft,
   isUploading,
   onAttach,
@@ -269,6 +274,7 @@ export function BrochurePicker({
         {tab === "library" ? (
           <LibraryTab
             chatId={chatId}
+            pendingIds={pendingIds}
             slotsLeft={slotsLeft}
             onAttach={onAttach}
             onLibraryDelete={onLibraryDelete}

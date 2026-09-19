@@ -1,4 +1,5 @@
 import { Toaster } from "sonner";
+import { DEFAULT_CHAT_TITLE } from "./constants/config";
 import { useChat } from "./hooks/useChat";
 import { useChatDocuments } from "./hooks/useChatDocuments";
 import { Sidebar } from "./components/sidebar/Sidebar";
@@ -24,7 +25,7 @@ export default function App() {
 
       <main className="flex-1 flex flex-col bg-slate-50 min-w-0">
         <ChatHeader
-          title={chat.isBooting ? "Loading…" : (chat.activeChat?.title ?? "")}
+          title={chat.isBooting ? "Loading…" : (chat.activeChat?.title ?? DEFAULT_CHAT_TITLE)}
         />
         <BrochureBar
           chatId={chat.activeChatId}
@@ -45,7 +46,7 @@ export default function App() {
           activePdfCount={docs.activePdfCount}
           isLoading={chat.isLoading}
           onInputChange={chat.setInputQuery}
-          onSubmit={chat.sendMessage}
+          onSubmit={(e) => chat.sendMessage(e, docs.commitDraft)}
         />
       </main>
 

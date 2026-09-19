@@ -54,7 +54,7 @@ export function BrochureBar({
       <div className="ml-auto">
         <button
           onClick={() => setPickerOpen(true)}
-          disabled={!chatId || maxPdfsReached}
+          disabled={maxPdfsReached}
           title={maxPdfsReached ? `Maximum of ${maxPdfs} brochures reached` : ""}
           className="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium text-xs rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
         >
@@ -66,6 +66,7 @@ export function BrochureBar({
       {pickerOpen && (
         <BrochurePicker
           chatId={chatId}
+          pendingIds={documents.map((d) => d.id)}
           slotsLeft={maxPdfs - activePdfCount}
           isUploading={isUploading}
           onAttach={onAttach}
