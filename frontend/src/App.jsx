@@ -15,6 +15,21 @@ export default function App() {
   const docs = useChatDocuments(chat.activeChatId);
 
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("sidebarCollapsed") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const setCollapsed = (value) => {
+    setSidebarCollapsed(value);
+    try {
+      localStorage.setItem("sidebarCollapsed", value ? "1" : "0");
+    } catch {
+      // Remembering the choice is a convenience; ignore storage failures.
+    }
+  };
   const showWelcome =
     !chat.isBooting &&
     !chat.isLoadingMessages &&
@@ -30,6 +45,8 @@ export default function App() {
         onSelectChat={chat.selectChat}
         onRenameChat={chat.renameChat}
         onDeleteChat={chat.deleteChat}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setCollapsed(!sidebarCollapsed)}
       />
 
       <main className="flex-1 flex flex-col bg-slate-50 min-w-0">

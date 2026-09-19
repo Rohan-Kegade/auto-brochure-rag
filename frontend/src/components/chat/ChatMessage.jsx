@@ -9,21 +9,21 @@ export const ChatMessage = memo(function ChatMessage({ message }) {
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-4xl px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-xs ${
+        className={`max-w-4xl px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-xs ${
           isUser
             ? "bg-indigo-600 text-white rounded-br-none"
             : "bg-white text-slate-800 border border-slate-200 rounded-bl-none overflow-hidden"
         }`}
       >
         {!isUser ? (
-          <div className="prose prose-slate prose-sm max-w-none">
+          <div className="prose prose-slate prose-sm text-[13px]! max-w-none">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
                 table: ({ node, ...props }) => (
                   <div className="overflow-x-auto my-3 border border-slate-200 rounded-lg shadow-xs">
                     <table
-                      className="min-w-full divide-y divide-slate-200 text-xs text-left m-0"
+                      className="min-w-full divide-y divide-slate-200 text-[11px] text-left m-0"
                       {...props}
                     />
                   </div>

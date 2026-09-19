@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, Search, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Sparkles, Trash2 } from "lucide-react";
 import { formatDay } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
@@ -104,6 +104,8 @@ export function Sidebar({
   onSelectChat,
   onRenameChat,
   onDeleteChat,
+  collapsed,
+  onToggleCollapsed,
 }) {
   const [query, setQuery] = useState("");
 
@@ -113,10 +115,57 @@ export function Sidebar({
     : chats;
 
   return (
-    <aside className="w-72 border-r border-slate-200 bg-white p-4 flex flex-col shadow-xs">
+    // The aside animates its width between the full sidebar and a narrow icon rail.
+    <aside
+      className={`shrink-0 overflow-hidden bg-white border-r border-slate-200 shadow-xs transition-[width] duration-200 ease-in-out ${
+        collapsed ? "w-16" : "w-72"
+      }`}
+    >
+    {collapsed ? (
+      <div className="w-16 h-full py-4 flex flex-col items-center gap-3">
+        <Logo />
+        <button
+          onClick={onToggleCollapsed}
+          title="Expand sidebar"
+          aria-label="Expand sidebar"
+          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <PanelLeftOpen className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onNewChat}
+          title="New chat"
+          aria-label="New chat"
+          className="p-2 text-slate-600 border border-slate-200 rounded-md hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onToggleCollapsed}
+          title="Search chats"
+          aria-label="Search chats"
+          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+        <Sparkles
+          className="w-3.5 h-3.5 text-indigo-500 mt-auto"
+          aria-label="AI Enabled"
+        />
+      </div>
+    ) : (
+    <div className="w-72 h-full p-4 flex flex-col">
       <div className="flex items-center gap-2 mb-5 px-2">
         <Logo />
-        <h1 className="text-xl font-bold text-slate-900">SpecSense</h1>
+        <h1 className="text-xl font-bold text-slate-900 flex-1">SpecSense</h1>
+        <button
+          onClick={onToggleCollapsed}
+          title="Collapse sidebar"
+          aria-label="Collapse sidebar"
+          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <PanelLeftClose className="w-4 h-4" />
+        </button>
       </div>
 
       <div className="px-2 mb-2 flex items-center justify-between">
@@ -176,6 +225,8 @@ export function Sidebar({
           <Sparkles className="w-3 h-3 text-indigo-500" /> AI Enabled
         </span>
       </div>
+    </div>
+    )}
     </aside>
   );
 }
