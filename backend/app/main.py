@@ -1,8 +1,10 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
 from app.api.chats import router as chats_router
 from app.api.routes import router
+from app.services.vectorstore import ensure_collection
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -17,6 +19,11 @@ logger = logging.getLogger("autobrochure")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("SpecSense starting up")
+    try:
+        await asyncio.to_thread(ensure_collection)
+    except Exception:
+        # Don't block startup; the collection is required once documents move to Qdrant.
+        logger.exception("Could not prepare the Qdrant collection (is Qdrant running?)")
     yield
     logger.info("SpecSense shutting down")
 

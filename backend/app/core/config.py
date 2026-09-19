@@ -13,6 +13,7 @@ if not GOOGLE_API_KEY:
 # Persistence. DATABASE_URL is validated where the database is first used.
 DATABASE_URL = os.getenv("DATABASE_URL")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+QDRANT_COLLECTION = "brochure_chunks"
 
 MAX_PDFS = 5
 MAX_FILE_SIZE_MB = 20
@@ -20,3 +21,4 @@ EMBEDDING_MODEL = "gemini-embedding-2"
 LLM_MODEL = "gemini-3.5-flash-lite"
 CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 150
+RETRIEVAL_K = 10

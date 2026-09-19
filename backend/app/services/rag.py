@@ -6,7 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnableBranch, RunnablePassthrough
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from app.core.config import LLM_MODEL
+from app.core.config import LLM_MODEL, RETRIEVAL_K
 
 
 @lru_cache(maxsize=1)
@@ -72,9 +72,15 @@ def format_docs(docs) -> str:
 
 
 def build_rag_chain(vector_store):
-    """Constructs an LCEL RAG chain bound to the provided FAISS vector store."""
+    """Constructs an LCEL RAG chain bound to the provided vector store."""
+    return build_rag_chain_from_retriever(
+        vector_store.as_retriever(search_kwargs={"k": RETRIEVAL_K})
+    )
+
+
+def build_rag_chain_from_retriever(retriever):
+    """Constructs an LCEL RAG chain that retrieves context with `retriever`."""
     llm = get_llm()
-    retriever = vector_store.as_retriever(search_kwargs={"k": 10})
 
     contextualized_question = RunnableBranch(
         (
