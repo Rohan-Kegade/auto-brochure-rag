@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { DEFAULT_CHAT_TITLE, INITIAL_AI_MESSAGE, MAX_TITLE_LENGTH } from "../constants/config";
+import { DEFAULT_CHAT_TITLE, MAX_TITLE_LENGTH } from "../constants/config";
 import {
   createChatApi,
   deleteChatApi,
@@ -116,9 +116,9 @@ export function useChat() {
    * `prepareNewChat(chatId)` runs only when this send creates the chat (a draft),
    * to attach the draft's documents. If it fails the new chat is discarded.
    */
-  const sendMessage = async (e, prepareNewChat) => {
-    e.preventDefault();
-    const question = inputQuery.trim();
+  const sendMessage = async (e, prepareNewChat, questionOverride) => {
+    e?.preventDefault();
+    const question = (questionOverride ?? inputQuery).trim();
     if (!question || (activeChatId && sendingChatId === activeChatId)) return;
 
     const pendingId = `pending-${Date.now()}`;
@@ -144,7 +144,7 @@ export function useChat() {
     }
 
     setMessages((prev) => [...prev, { id: pendingId, sender: "user", text: question }]);
-    setInputQuery("");
+    if (questionOverride === undefined) setInputQuery("");
     setSendingChatId(chatId);
 
     // First message of a chat: show it as the title right away.
@@ -182,7 +182,7 @@ export function useChat() {
       }
       if (activeIdRef.current === chatId) {
         setMessages((prev) => prev.filter((m) => m.id !== pendingId));
-        setInputQuery(question);
+        if (questionOverride === undefined) setInputQuery(question);
       }
       toast.error(getErrorMessage(err, "Unable to get a response."));
     } finally {
@@ -196,7 +196,7 @@ export function useChat() {
     chats,
     activeChat,
     activeChatId,
-    messages: messages.length ? messages : [INITIAL_AI_MESSAGE],
+    messages,
     inputQuery,
     isBooting,
     isLoading:

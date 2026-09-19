@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FileText, Plus, X } from "lucide-react";
+import { FileText, X } from "lucide-react";
+import { AddBrochureButton } from "./AddBrochureButton";
 import { BrochurePicker } from "./BrochurePicker";
 
 export function BrochureBar({
@@ -13,9 +13,9 @@ export function BrochureBar({
   onUpload,
   onDetach,
   onLibraryDelete,
+  pickerOpen,
+  onPickerOpenChange,
 }) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-
   return (
     <div className="border-b border-slate-200 bg-white px-6 py-2.5 flex items-center gap-2 flex-wrap">
       <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 mr-1">
@@ -52,15 +52,11 @@ export function BrochureBar({
       ))}
 
       <div className="ml-auto">
-        <button
-          onClick={() => setPickerOpen(true)}
+        <AddBrochureButton
+          onClick={() => onPickerOpenChange(true)}
           disabled={maxPdfsReached}
-          title={maxPdfsReached ? `Maximum of ${maxPdfs} brochures reached` : ""}
-          className="py-1.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium text-xs rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          Add Brochure
-        </button>
+          maxPdfs={maxPdfs}
+        />
       </div>
 
       {pickerOpen && (
@@ -72,7 +68,7 @@ export function BrochureBar({
           onAttach={onAttach}
           onUpload={onUpload}
           onLibraryDelete={onLibraryDelete}
-          onClose={() => setPickerOpen(false)}
+          onClose={() => onPickerOpenChange(false)}
         />
       )}
     </div>
