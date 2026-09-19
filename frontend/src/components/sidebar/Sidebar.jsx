@@ -1,8 +1,23 @@
 import { useState } from "react";
 import { Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
-import { formatDateTime } from "../../utils/format";
+import { formatDay } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
+
+// Group chats under a day heading, keeping the list's existing order.
+function groupByDay(chats) {
+  const groups = new Map();
+  // Newest first, so the most recent day (and chat) is at the top.
+  const newestFirst = [...chats].sort((a, b) =>
+    b.created_at.localeCompare(a.created_at),
+  );
+  for (const chat of newestFirst) {
+    const label = formatDay(chat.created_at);
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(chat);
+  }
+  return [...groups].map(([label, items]) => ({ label, items }));
+}
 
 function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
   const [editing, setEditing] = useState(false);
@@ -48,15 +63,10 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
         onDoubleClick={startEditing}
         title={chat.title}
         className={`flex-1 min-w-0 flex items-center px-3 py-2 text-left text-sm cursor-pointer ${
-          active ? "text-indigo-700 font-medium" : "text-slate-600"
+          active ? "text-indigo-700 font-medium" : "text-slate-700"
         }`}
       >
-        <span className="min-w-0">
-          <span className="block truncate">{chat.title}</span>
-          <span className="block text-[11px] font-normal text-slate-400">
-            {formatDateTime(chat.created_at)}
-          </span>
-        </span>
+        <span className="truncate">{chat.title}</span>
       </button>
       <div className="hidden group-hover:flex focus-within:flex items-center pr-1 shrink-0">
         <button
@@ -103,7 +113,7 @@ export function Sidebar({
       </div>
 
       <div className="px-2 mb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-900">
           Chats
         </span>
         <button
@@ -117,16 +127,25 @@ export function Sidebar({
         </button>
       </div>
 
-      <nav className="flex-1 min-h-0 overflow-y-auto space-y-1">
-        {chats.map((chat) => (
-          <ChatRow
-            key={chat.id}
-            chat={chat}
-            active={chat.id === activeChatId}
-            onSelect={onSelectChat}
-            onRename={onRenameChat}
-            onDelete={onDeleteChat}
-          />
+      <nav className="flex-1 min-h-0 overflow-y-auto">
+        {groupByDay(chats).map(({ label, items }) => (
+          <section key={label} className="mb-3">
+            <h3 className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
+              {label}
+            </h3>
+            <div className="space-y-1 pl-3">
+              {items.map((chat) => (
+                <ChatRow
+                  key={chat.id}
+                  chat={chat}
+                  active={chat.id === activeChatId}
+                  onSelect={onSelectChat}
+                  onRename={onRenameChat}
+                  onDelete={onDeleteChat}
+                />
+              ))}
+            </div>
+          </section>
         ))}
       </nav>
 
