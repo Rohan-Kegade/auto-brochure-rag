@@ -7,7 +7,7 @@ import {
   fetchChatsApi,
   fetchMessagesApi,
   renameChatApi,
-  sendMessageApi,
+  streamMessageApi,
 } from "../api/api";
 import { getErrorMessage } from "../utils/errors";
 
@@ -137,6 +137,7 @@ export function useChat() {
     if (!question || (activeChatId && sendingChatId === activeChatId)) return;
 
     const pendingId = `pending-${Date.now()}`;
+    const streamingId = `streaming-${pendingId}`;
     let chatId = activeChatId;
     let created;
 
@@ -173,10 +174,21 @@ export function useChat() {
     }
 
     try {
-      const data = await sendMessageApi(chatId, question);
+      const data = await streamMessageApi(chatId, question, {
+        onToken: (text) => {
+          if (activeIdRef.current !== chatId) return;
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.id === streamingId) {
+              return [...prev.slice(0, -1), { ...last, text: last.text + text }];
+            }
+            return [...prev, { id: streamingId, sender: "ai", text, streaming: true }];
+          });
+        },
+      });
       if (activeIdRef.current === chatId) {
         setMessages((prev) => [
-          ...prev.filter((m) => m.id !== pendingId),
+          ...prev.filter((m) => m.id !== pendingId && m.id !== streamingId),
           toMessage(data.user_message),
           toMessage(data.ai_message),
         ]);
@@ -198,7 +210,9 @@ export function useChat() {
         );
       }
       if (activeIdRef.current === chatId) {
-        setMessages((prev) => prev.filter((m) => m.id !== pendingId));
+        setMessages((prev) =>
+          prev.filter((m) => m.id !== pendingId && m.id !== streamingId),
+        );
         if (questionOverride === undefined) setInputQuery(question);
       }
       toast.error(getErrorMessage(err, "Unable to get a response."));

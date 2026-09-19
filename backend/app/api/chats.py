@@ -1,7 +1,10 @@
+import json
+import logging
 from typing import List
 
 from app.db.models import Chat
-from app.db.session import get_db
+from app.core.errors import DomainError
+from app.db.session import SessionLocal, get_db
 from app.models.schemas import (
     AttachRequest,
     ChatCreate,
@@ -14,7 +17,10 @@ from app.models.schemas import (
 )
 from app.services import chats as chat_service
 from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
@@ -76,6 +82,61 @@ async def send_message(
         user_message=MessageOut.model_validate(user_msg),
         ai_message=MessageOut.model_validate(ai_msg),
         title=chat.title,
+    )
+
+
+def _event(payload: dict) -> bytes:
+    return (json.dumps(payload) + "\n").encode()
+
+
+@router.post("/{chat_id}/messages/stream")
+async def stream_message(
+    body: SendMessageRequest,
+    chat: Chat = Depends(get_chat_or_404),
+    db: AsyncSession = Depends(get_db),
+):
+    """Newline-delimited JSON events: `token` chunks, then one `done` (or `error`)."""
+    question = body.message.strip()
+    if not question:
+        raise HTTPException(status_code=422, detail="Message cannot be blank.")
+    await chat_service.ensure_can_answer(db, chat)
+    chat_id = chat.id
+
+    async def events():
+        # The request's session may be closed once the response starts, so the
+        # stream uses its own.
+        try:
+            async with SessionLocal() as stream_db:
+                stream_chat = await chat_service.get_chat(stream_db, chat_id)
+                async for item in chat_service.stream_message(
+                    stream_db, stream_chat, question
+                ):
+                    if isinstance(item, str):
+                        yield _event({"type": "token", "text": item})
+                    else:
+                        user_msg, ai_msg = item
+                        yield _event(
+                            {
+                                "type": "done",
+                                "user_message": MessageOut.model_validate(
+                                    user_msg
+                                ).model_dump(mode="json"),
+                                "ai_message": MessageOut.model_validate(
+                                    ai_msg
+                                ).model_dump(mode="json"),
+                                "title": stream_chat.title,
+                            }
+                        )
+        except DomainError as exc:
+            yield _event({"type": "error", "detail": exc.detail})
+        except Exception:
+            logger.exception("Streaming answer failed for chat %s", chat_id)
+            yield _event({"type": "error", "detail": "Unable to get a response."})
+
+    return StreamingResponse(
+        events(),
+        media_type="application/x-ndjson",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
 

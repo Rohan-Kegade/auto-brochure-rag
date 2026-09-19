@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from collections.abc import AsyncIterator
 from datetime import timedelta
 
 from app.core.config import HISTORY_LIMIT, MAX_PDFS
@@ -151,11 +152,9 @@ async def _llm_title(question: str, answer: str, filenames: list[str]) -> str:
     return title[:MAX_TITLE_LENGTH].rstrip() or _title_from(question)
 
 
-async def send_message(
-    db: AsyncSession, chat: Chat, question: str
-) -> tuple[Message, Message]:
-    """Answer `question` from the chat's attached documents and persist both
-    messages. If answering fails nothing is saved, so the client can retry."""
+async def _prepare_answer(db: AsyncSession, chat: Chat, question: str):
+    """Everything needed to answer `question`: the RAG chain, its input and the
+    chat's attached documents."""
     attached = await list_attached(db, chat.id)
     document_ids = [d.id for d in attached]
     if not document_ids:
@@ -174,10 +173,16 @@ async def send_message(
     )
 
     chain = build_rag_chain_from_retriever(vectorstore.get_retriever(document_ids))
-    answer = await asyncio.to_thread(
-        chain.invoke, {"input": question, "chat_history": history}
-    )
+    return chain, {"input": question, "chat_history": history}, attached
 
+
+async def _save_exchange(
+    db: AsyncSession,
+    chat: Chat,
+    question: str,
+    answer: str,
+    attached: list[Document],
+) -> tuple[Message, Message]:
     now = _now()
     user_msg = Message(chat_id=chat.id, role=ROLE_USER, content=question, created_at=now)
     ai_msg = Message(
@@ -189,9 +194,39 @@ async def send_message(
     )
     db.add_all([user_msg, ai_msg])
     if chat.title == DEFAULT_CHAT_TITLE:
-        chat.title = await _llm_title(
-            question, answer, [d.filename for d in attached]
-        )
+        chat.title = await _llm_title(question, answer, [d.filename for d in attached])
     chat.updated_at = _now()
     await db.commit()
     return user_msg, ai_msg
+
+
+async def send_message(
+    db: AsyncSession, chat: Chat, question: str
+) -> tuple[Message, Message]:
+    """Answer `question` from the chat's attached documents and persist both
+    messages. If answering fails nothing is saved, so the client can retry."""
+    chain, chain_input, attached = await _prepare_answer(db, chat, question)
+    answer = await asyncio.to_thread(chain.invoke, chain_input)
+    return await _save_exchange(db, chat, question, answer, attached)
+
+
+async def ensure_can_answer(db: AsyncSession, chat: Chat) -> None:
+    if not await list_attached(db, chat.id):
+        raise DomainError("Please add at least one brochure to this chat first.")
+
+
+async def stream_message(
+    db: AsyncSession, chat: Chat, question: str
+) -> AsyncIterator[str | tuple[Message, Message]]:
+    """Like `send_message`, but yields the answer's text chunks as they arrive,
+    then finally the saved (user, ai) messages. Nothing is saved if it fails."""
+    chain, chain_input, attached = await _prepare_answer(db, chat, question)
+    parts: list[str] = []
+    async for chunk in chain.astream(chain_input):
+        if chunk:
+            parts.append(chunk)
+            yield chunk
+    answer = "".join(parts).strip()
+    if not answer:
+        raise DomainError("The model returned an empty answer. Please try again.")
+    yield await _save_exchange(db, chat, question, answer, attached)

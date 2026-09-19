@@ -5,7 +5,9 @@ export function MessageList({ messages, isLoading }) {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Smooth scrolling can't keep up with a streaming answer growing token by token.
+    const streaming = messages[messages.length - 1]?.streaming;
+    chatEndRef.current?.scrollIntoView({ behavior: streaming ? "auto" : "smooth" });
   }, [messages, isLoading]);
 
   return (

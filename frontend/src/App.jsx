@@ -62,7 +62,13 @@ export default function App() {
             onPickSuggestion={(text) => chat.sendMessage(null, docs.commitDraft, text)}
           />
         ) : (
-          <MessageList messages={chat.messages} isLoading={chat.isLoading} />
+          <MessageList
+            messages={chat.messages}
+            // Dots only until the first streamed token arrives.
+            isLoading={
+              chat.isLoading && chat.messages[chat.messages.length - 1]?.sender !== "ai"
+            }
+          />
         )}
         <ChatInput
           inputQuery={chat.inputQuery}

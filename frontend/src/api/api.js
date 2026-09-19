@@ -1,59 +1,59 @@
-import { API_BASE_URL } from "../constants/config";
-
-const MAX_RETRIES = 2;
-const RETRY_BASE_DELAY_MS = 400;
-
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const isOffline = () =>
-  typeof navigator !== "undefined" && navigator.onLine === false;
-
-const parseJson = async (response) => {
-  try {
-    return await response.json();
-  } catch {
-    return {};
-  }
-};
-
-const apiRequest = async (
-  path,
-  { retry = false, fallbackError = "Something went wrong.", ...options } = {},
-) => {
-  if (isOffline()) {
-    throw new Error(
-      "You appear to be offline. Check your connection and try again.",
-    );
-  }
-
-  const attempts = retry ? MAX_RETRIES + 1 : 1;
-  let lastError;
-
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    if (attempt > 0) {
-      await wait(RETRY_BASE_DELAY_MS * 2 ** (attempt - 1));
-    }
-
-    let response;
-    try {
-      response = await fetch(`${API_BASE_URL}${path}`, options);
-    } catch (err) {
-      lastError = err;
-      continue;
-    }
-
-    if (response.ok) return parseJson(response);
-
-    const data = await parseJson(response);
-    const error = new Error(data.detail || fallbackError);
-    if (response.status === 429 || response.status >= 500) {
-      lastError = error;
-      continue;
-    }
-    throw error;
-  }
-
-  throw lastError;
+import { API_BASE_URL } from "../constants/config";
+
+const MAX_RETRIES = 2;
+const RETRY_BASE_DELAY_MS = 400;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isOffline = () =>
+  typeof navigator !== "undefined" && navigator.onLine === false;
+
+const parseJson = async (response) => {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+};
+
+const apiRequest = async (
+  path,
+  { retry = false, fallbackError = "Something went wrong.", ...options } = {},
+) => {
+  if (isOffline()) {
+    throw new Error(
+      "You appear to be offline. Check your connection and try again.",
+    );
+  }
+
+  const attempts = retry ? MAX_RETRIES + 1 : 1;
+  let lastError;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (attempt > 0) {
+      await wait(RETRY_BASE_DELAY_MS * 2 ** (attempt - 1));
+    }
+
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}${path}`, options);
+    } catch (err) {
+      lastError = err;
+      continue;
+    }
+
+    if (response.ok) return parseJson(response);
+
+    const data = await parseJson(response);
+    const error = new Error(data.detail || fallbackError);
+    if (response.status === 429 || response.status >= 500) {
+      lastError = error;
+      continue;
+    }
+    throw error;
+  }
+
+  throw lastError;
 };
 
 const jsonRequest = (method, body) => ({
@@ -91,12 +91,54 @@ export const fetchMessagesApi = (chatId) =>
     fallbackError: "Couldn't load the messages.",
   });
 
-// Not retried: a retry would run the model twice.
-export const sendMessageApi = (chatId, message) =>
-  apiRequest(`/chats/${chatId}/messages`, {
+/**
+ * Send a message and stream the answer. `onToken(text)` is called for each
+ * chunk; resolves with the saved messages and title once the answer is done.
+ * Not retried: a retry would run the model twice.
+ */
+export const streamMessageApi = async (chatId, message, { onToken } = {}) => {
+  if (isOffline()) {
+    throw new Error(
+      "You appear to be offline. Check your connection and try again.",
+    );
+  }
+
+  const response = await fetch(`${API_BASE_URL}/chats/${chatId}/messages/stream`, {
     ...jsonRequest("POST", { message }),
-    fallbackError: "Unable to get a response.",
   });
+  if (!response.ok) {
+    const data = await parseJson(response);
+    throw new Error(data.detail || "Unable to get a response.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result = null;
+
+  const handle = (line) => {
+    if (!line.trim()) return;
+    const event = JSON.parse(line);
+    if (event.type === "token") onToken?.(event.text);
+    else if (event.type === "done") result = event;
+    else if (event.type === "error") {
+      throw new Error(event.detail || "Unable to get a response.");
+    }
+  };
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+    lines.forEach(handle);
+  }
+  handle(buffer);
+
+  if (!result) throw new Error("The response was interrupted. Please try again.");
+  return result;
+};
 
 // --- documents attached to a chat ---
 
