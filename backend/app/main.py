@@ -3,7 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from app.api.chats import router as chats_router
-from app.api.routes import router
+from app.api.documents import router as documents_router
 from app.services.vectorstore import ensure_collection
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,5 +58,5 @@ async def health():
     return {"status": "healthy"}
 
 
-app.include_router(router)
+app.include_router(documents_router)
 app.include_router(chats_router)

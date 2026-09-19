@@ -5,12 +5,10 @@ pydantic==2.13.4
 
 # LangChain
 langchain-core==1.5.6
-langchain-community==0.4.2
 langchain-text-splitters==1.1.2
 langchain-google-genai==4.3.4
 
 # Vector store
-# faiss-cpu is removed in step 5, once the Qdrant-backed code replaces it
 langchain-qdrant==1.1.0
 qdrant-client==1.19.1
 

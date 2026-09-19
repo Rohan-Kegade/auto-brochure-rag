@@ -2,7 +2,6 @@ import io
 from functools import lru_cache
 
 import pdfplumber
-from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -73,21 +72,9 @@ def load_pdf_bytes(file_bytes: bytes, filename: str) -> list[Document]:
     return docs
 
 
-def create_vector_store_from_bytes(file_bytes: bytes, filename: str) -> FAISS | None:
-    """Splits parsed PDF content into chunks and builds a FAISS vector store."""
+def build_chunks(file_bytes: bytes, filename: str) -> list[Document]:
+    """Parses a PDF and splits it into chunks ready for embedding."""
     docs = load_pdf_bytes(file_bytes, filename)
     if not docs:
-        return None
-    chunks = get_text_splitter().split_documents(docs)
-    return FAISS.from_documents(chunks, get_embeddings())
-
-
-def create_chunks_and_store(
-    file_bytes: bytes, filename: str
-) -> tuple[list[Document], FAISS] | tuple[None, None]:
-    docs = load_pdf_bytes(file_bytes, filename)
-    if not docs:
-        return None, None
-    chunks = get_text_splitter().split_documents(docs)
-    vector_store = FAISS.from_documents(chunks, get_embeddings())
-    return chunks, vector_store
+        return []
+    return get_text_splitter().split_documents(docs)

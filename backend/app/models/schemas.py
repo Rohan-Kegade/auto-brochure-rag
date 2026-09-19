@@ -19,21 +19,6 @@ class ChatResponse(BaseModel):
     answer: str
 
 
-class UploadResponse(BaseModel):
-    status: str
-    uploaded: List[str]
-    active_pdf_count: int
-    active_pdfs: List[str]
-
-
-class DocumentsResponse(BaseModel):
-    active_pdf_count: int
-    active_pdfs: List[str]
-    indexed_files: List[str]
-    max_pdfs: int
-    max_file_size_mb: int
-
-
 class ChatCreate(BaseModel):
     title: str | None = Field(default=None, max_length=255)
 
@@ -58,3 +43,33 @@ class MessageOut(BaseModel):
     role: Literal["user", "ai"]
     content: str
     created_at: datetime
+
+
+class DocumentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    filename: str
+    size_bytes: int
+    chunk_count: int
+    status: str
+    created_at: datetime
+    attached: bool = False
+
+
+class DocumentList(BaseModel):
+    items: List[DocumentOut]
+    total: int
+    limit: int
+    offset: int
+
+
+class UploadItem(BaseModel):
+    filename: str
+    outcome: Literal["created", "existing", "failed"]
+    document: DocumentOut | None = None
+    error: str | None = None
+
+
+class UploadResponse(BaseModel):
+    results: List[UploadItem]
