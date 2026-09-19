@@ -4,6 +4,7 @@ import { FileText, Search, Trash2, Upload, X } from "lucide-react";
 import { deleteDocumentApi, searchDocumentsApi } from "../../api/api";
 import { filterPdfs } from "../../hooks/useChatDocuments";
 import { getErrorMessage } from "../../utils/errors";
+import { confirmToast } from "../../utils/confirmToast";
 import { formatBytes, formatDate } from "../../utils/format";
 
 const PAGE_SIZE = 20;
@@ -60,7 +61,7 @@ function LibraryTab({ chatId, pendingIds, slotsLeft, onAttach, onLibraryDelete }
 
   const remove = async (doc) => {
     const message = `Delete "${doc.filename}" from the library? It will be removed from every chat that uses it.`;
-    if (!window.confirm(message)) return;
+    if (!(await confirmToast(message))) return;
     try {
       await deleteDocumentApi(doc.id);
       onLibraryDelete(doc.id);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MessageSquare, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { confirmToast } from "../../utils/confirmToast";
 import { Logo } from "../common/Logo";
 
 function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
@@ -16,8 +17,8 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
     if (draft.trim() && draft.trim() !== chat.title) onRename(chat.id, draft);
   };
 
-  const handleDelete = () => {
-    if (window.confirm(`Delete "${chat.title}"? Its messages will be lost.`)) {
+  const handleDelete = async () => {
+    if (await confirmToast(`Delete "${chat.title}"? Its messages will be lost.`)) {
       onDelete(chat.id);
     }
   };

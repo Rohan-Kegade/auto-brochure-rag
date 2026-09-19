@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- brochure page with folded corner -->
+  <path fill="#fff" stroke="#4338ca" stroke-width="2" stroke-linejoin="round" d="M18 9h19l11 11v31a3 3 0 0 1-3 3H18a3 3 0 0 1-3-3V12a3 3 0 0 1 3-3z"/>
+  <path fill="#c7d2fe" d="M37 9l11 11H40a3 3 0 0 1-3-3z"/>
+  <!-- title lines -->
+  <rect x="20" y="15" width="12" height="2.5" rx="1.25" fill="#a5b4fc"/>
+  <rect x="20" y="20" width="8" height="2" rx="1" fill="#c7d2fe"/>
+  <!-- car -->
+  <g transform="translate(0 -1)">
+    <path fill="#4338ca" d="M18 42v-4a2 2 0 0 1 2-2h1.5l3-5.5a2 2 0 0 1 1.7-1h10.6a2 2 0 0 1 1.5.7L42 36h2a2 2 0 0 1 2 2v4z"/>
+    <path fill="#fff" d="M25.500 31.500h4.500V36h-7.500zM32 31.500h4l3 4.500h-7z"/>
+    <circle cx="25" cy="42.500" r="3.800" fill="#312e81" stroke="#fff" stroke-width="1.800"/>
+    <circle cx="39" cy="42.500" r="3.800" fill="#312e81" stroke="#fff" stroke-width="1.800"/>
+  </g>
+  <!-- question / answer bubble -->
+  <path fill="#fde68a" stroke="#4338ca" stroke-width="2" d="M44 46h8a5 5 0 0 1 5 5v0a5 5 0 0 1-5 5h-3l-4 4v-4h-1a5 5 0 0 1-5-5v0a5 5 0 0 1 5-5z"/>
+  <circle cx="44" cy="51" r="1.500" fill="#4338ca"/>
+  <circle cx="48.500" cy="51" r="1.500" fill="#4338ca"/>
+  <circle cx="53" cy="51" r="1.500" fill="#4338ca"/>
+</svg>
