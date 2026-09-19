@@ -16,7 +16,7 @@ export const ChatMessage = memo(function ChatMessage({ message }) {
         }`}
       >
         {!isUser ? (
-          <div className="prose prose-slate prose-sm text-[13px]! max-w-none">
+          <div className="prose prose-slate dark:prose-invert prose-sm text-[13px]! max-w-none">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{

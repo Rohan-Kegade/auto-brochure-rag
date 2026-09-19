@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Class-based dark mode (matches the .dark palette below). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Slightly smaller type scale app-wide (spacing is unchanged). text-sm matches
    the 13px chat messages. */
 @theme {
@@ -11,6 +14,39 @@
   --text-xl: 1.125rem;
   --text-2xl: 1.3125rem;
   --text-3xl: 1.625rem;
+}
+
+/* Dark theme: the components use fixed light-palette classes, so instead of
+   dark: variants everywhere the palette variables are remapped under .dark. */
+.dark {
+  color-scheme: dark;
+  --color-white: #1a2436;
+  --color-slate-50: #131c2e;
+  --color-slate-100: #0d1524;
+  --color-slate-200: #2a3648;
+  --color-slate-300: #3a4759;
+  --color-slate-400: #7c8aa0;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #a9b6c8;
+  --color-slate-700: #cbd5e1;
+  --color-slate-800: #e2e8f0;
+  --color-slate-900: #f1f5f9;
+  --color-slate-950: #f8fafc;
+  --color-indigo-50: #1e2447;
+  --color-indigo-100: #2a3163;
+  --color-indigo-200: #3b4590;
+  --color-indigo-700: #a5b4fc;
+  --color-indigo-800: #c7d2fe;
+  --color-red-50: #3b1219;
+}
+
+/* Text/borders that sit on coloured buttons must stay white, not follow the
+   remapped surface colour. */
+.dark .text-white {
+  color: #fff;
+}
+.dark .border-white {
+  border-color: #fff;
 }
 
 body {

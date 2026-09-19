@@ -176,10 +176,9 @@ export function Sidebar({
           onClick={onNewChat}
           title="New chat"
           aria-label="New chat"
-          className="flex items-center gap-1 pl-1.5 pr-2.5 py-1 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors cursor-pointer"
+          className="p-1.5 text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
-          New
         </button>
       </div>
 

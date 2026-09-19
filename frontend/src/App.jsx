@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { DEFAULT_CHAT_TITLE } from "./constants/config";
 import { useChat } from "./hooks/useChat";
 import { useChatDocuments } from "./hooks/useChatDocuments";
+import { useTheme } from "./hooks/useTheme";
 import { Sidebar } from "./components/sidebar/Sidebar";
 import { ChatHeader } from "./components/chat/ChatHeader";
 import { BrochureBar } from "./components/chat/BrochureBar";
@@ -13,6 +14,7 @@ import { ChatInput } from "./components/chat/ChatInput";
 export default function App() {
   const chat = useChat();
   const docs = useChatDocuments(chat.activeChatId);
+  const { theme, toggleTheme } = useTheme();
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -53,6 +55,8 @@ export default function App() {
         <ChatHeader
           title={chat.isBooting ? "Loading…" : (chat.activeChat?.title ?? DEFAULT_CHAT_TITLE)}
           createdAt={chat.activeChat?.created_at}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
         <BrochureBar
           chatId={chat.activeChatId}
@@ -97,7 +101,7 @@ export default function App() {
         />
       </main>
 
-      <Toaster position="top-center" richColors closeButton />
+      <Toaster theme={theme} position="top-center" richColors closeButton />
     </div>
   );
 }
