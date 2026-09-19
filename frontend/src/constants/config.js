@@ -3,7 +3,9 @@ export const API_BASE_URL =
 
 export const MAX_PDFS = 5;
 export const MAX_FILE_SIZE_MB = 20;
+export const DEFAULT_CHAT_TITLE = "New chat";
 export const INITIAL_AI_MESSAGE = {
+  id: "welcome",
   sender: "ai",
   text: "Hello! Add one or more car brochures to get started.",
 };

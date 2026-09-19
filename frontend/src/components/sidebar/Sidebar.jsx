@@ -1,7 +1,89 @@
-import { MessageSquare, Plus, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { MessageSquare, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { Logo } from "../common/Logo";
 
-export function Sidebar({ chats, activeChatId, onNewChat, onSelectChat }) {
+function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+
+  const startEditing = () => {
+    setDraft(chat.title);
+    setEditing(true);
+  };
+
+  const commit = () => {
+    setEditing(false);
+    if (draft.trim() && draft.trim() !== chat.title) onRename(chat.id, draft);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Delete "${chat.title}"? Its messages will be lost.`)) {
+      onDelete(chat.id);
+    }
+  };
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        maxLength={255}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+          if (e.key === "Escape") setEditing(false);
+        }}
+        className="w-full px-3 py-2 rounded-lg text-sm border border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`group flex items-center rounded-lg transition-colors ${
+        active ? "bg-indigo-50" : "hover:bg-slate-50"
+      }`}
+    >
+      <button
+        onClick={() => onSelect(chat.id)}
+        onDoubleClick={startEditing}
+        title={chat.title}
+        className={`flex-1 min-w-0 flex items-center gap-2.5 px-3 py-2 text-left text-sm cursor-pointer ${
+          active ? "text-indigo-700 font-medium" : "text-slate-600"
+        }`}
+      >
+        <MessageSquare className="w-4 h-4 shrink-0" />
+        <span className="truncate">{chat.title}</span>
+      </button>
+      <div className="hidden group-hover:flex focus-within:flex items-center pr-1 shrink-0">
+        <button
+          onClick={startEditing}
+          title="Rename"
+          className="p-1.5 text-slate-400 hover:text-indigo-600 cursor-pointer"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={handleDelete}
+          title="Delete"
+          className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function Sidebar({
+  chats,
+  activeChatId,
+  onNewChat,
+  onSelectChat,
+  onRenameChat,
+  onDeleteChat,
+}) {
   return (
     <aside className="w-72 border-r border-slate-200 bg-white p-4 flex flex-col shadow-xs">
       <div className="flex items-center gap-2 mb-5 px-2">
@@ -22,24 +104,16 @@ export function Sidebar({ chats, activeChatId, onNewChat, onSelectChat }) {
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto space-y-1">
-        {chats.map((chat) => {
-          const active = chat.id === activeChatId;
-          return (
-            <button
-              key={chat.id}
-              onClick={() => onSelectChat(chat.id)}
-              title={chat.title}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-colors cursor-pointer ${
-                active
-                  ? "bg-indigo-50 text-indigo-700 font-medium"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <MessageSquare className="w-4 h-4 shrink-0" />
-              <span className="truncate">{chat.title}</span>
-            </button>
-          );
-        })}
+        {chats.map((chat) => (
+          <ChatRow
+            key={chat.id}
+            chat={chat}
+            active={chat.id === activeChatId}
+            onSelect={onSelectChat}
+            onRename={onRenameChat}
+            onDelete={onDeleteChat}
+          />
+        ))}
       </nav>
 
       <div className="text-[11px] text-slate-400 border-t border-slate-100 pt-4 mt-2 flex items-center justify-between">
