@@ -1,6 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { getOrCreateSessionId, createNewSessionId } from "./utils/session";
-import { clearSessionApi } from "./api/api";
+import { useEffect, useRef } from "react";
 import { useFileManager } from "./hooks/useFileManager";
 import { useChat } from "./hooks/useChat";
 import { Toaster } from "sonner";
@@ -8,16 +6,11 @@ import { Sidebar } from "./components/sidebar/Sidebar";
 import { ChatHeader } from "./components/chat/ChatHeader";
 import { MessageList } from "./components/chat/MessageList";
 import { ChatInput } from "./components/chat/ChatInput";
-import { ConfirmModal } from "./components/common/ConfirmModal";
 
 export default function App() {
-  const [sessionId, setSessionId] = useState(getOrCreateSessionId);
-  const [showNewSessionModal, setShowNewSessionModal] = useState(false);
-
   const addSystemNoticeRef = useRef(null);
 
   const fileManager = useFileManager(
-    sessionId,
     (newlyUploadedFiles) => {
       const noticeText =
         newlyUploadedFiles.length === 1
@@ -27,7 +20,7 @@ export default function App() {
     },
     (removedFileName) => {
       addSystemNoticeRef.current?.(
-        `**${removedFileName}** was removed from the session.`,
+        `**${removedFileName}** was removed.`,
       );
     },
   );
@@ -39,20 +32,11 @@ export default function App() {
     setInputQuery,
     sendMessage,
     addSystemNotice,
-    resetChat,
-  } = useChat(sessionId, fileManager.hasActivePdfs);
+  } = useChat(fileManager.hasActivePdfs);
 
   useEffect(() => {
     addSystemNoticeRef.current = addSystemNotice;
   }, [addSystemNotice]);
-
-  const handleConfirmNewSession = () => {
-    clearSessionApi(sessionId).catch(() => {});
-    const newId = createNewSessionId();
-    setSessionId(newId);
-    fileManager.resetFiles();
-    resetChat();
-  };
 
   return (
     <div className="flex h-screen bg-slate-100 text-slate-800">
@@ -70,7 +54,7 @@ export default function App() {
       />
 
       <main className="flex-1 flex flex-col bg-slate-50">
-        <ChatHeader onOpenRestartModal={() => setShowNewSessionModal(true)} />
+        <ChatHeader />
         <MessageList messages={messages} isLoading={isLoading} />
         <ChatInput
           inputQuery={inputQuery}
@@ -82,13 +66,6 @@ export default function App() {
         />
       </main>
 
-      <ConfirmModal
-        isOpen={showNewSessionModal}
-        onClose={() => setShowNewSessionModal(false)}
-        onConfirm={handleConfirmNewSession}
-        title="Start New Session?"
-        message="This will clear your active brochures and chat history. Are you sure you want to proceed?"
-      />
       <Toaster position="top-center" richColors closeButton />
     </div>
   );

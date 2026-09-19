@@ -35,3 +35,7 @@ Thumbs.db
 # Local data / uploads
 *.pdf
 !**/sample*.pdf
+
+# Local planning / data
+plan.md
+.data/

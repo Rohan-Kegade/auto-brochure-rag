@@ -15,12 +15,12 @@ logger = logging.getLogger("autobrochure")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("AutoBrochure-RAG Engine starting up")
+    logger.info("SpecSense starting up")
     yield
-    logger.info("AutoBrochure-RAG Engine shutting down")
+    logger.info("SpecSense shutting down")
 
 
-app = FastAPI(title="AutoBrochure-RAG Engine", lifespan=lifespan)
+app = FastAPI(title="SpecSense", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -42,7 +42,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.get("/")
 async def root():
-    return {"service": "AutoBrochure-RAG Engine", "status": "ok"}
+    return {"service": "SpecSense", "status": "ok"}
 
 
 @app.get("/health")

@@ -1,4 +1,5 @@
-import { FileText, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { Logo } from "../common/Logo";
 import { FileUploader } from "./FileUploader";
 import { ActiveFileList } from "./ActiveFileList";
 
@@ -18,10 +19,8 @@ export function Sidebar({
     <aside className="w-80 border-r border-slate-200 bg-white p-6 flex flex-col justify-between shadow-xs">
       <div>
         <div className="flex items-center gap-2 mb-7">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-xs">
-            <FileText className="w-5 h-5" />
-          </div>
-          <h1 className="text-xl font-bold text-slate-900">AutoAdvisor</h1>
+          <Logo />
+          <h1 className="text-xl font-bold text-slate-900">SpecSense</h1>
         </div>
 
         <FileUploader

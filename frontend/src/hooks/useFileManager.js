@@ -4,7 +4,7 @@ import { MAX_PDFS, MAX_FILE_SIZE_MB } from "../constants/config";
 import { fetchActiveFiles, uploadFilesApi, deleteFileApi } from "../api/api";
 import { getErrorMessage } from "../utils/errors";
 
-export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
+export function useFileManager(onUploadSuccess, onRemoveSuccess) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -20,7 +20,7 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
 
   const syncActiveFiles = useCallback(async () => {
     try {
-      const data = await fetchActiveFiles(sessionId);
+      const data = await fetchActiveFiles();
       if (data.indexed_files) {
         setUploadedFiles(data.indexed_files.map((name) => ({ name })));
       }
@@ -30,11 +30,11 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
       });
     } catch (err) {
       console.error(err.message);
-      toast.error(getErrorMessage(err, "Couldn't load your session."), {
-        id: "session-load-error",
+      toast.error(getErrorMessage(err, "Couldn't load your files."), {
+        id: "files-load-error",
       });
     }
-  }, [sessionId]);
+  }, []);
 
   useEffect(() => {
     syncActiveFiles();
@@ -97,7 +97,7 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
 
     setIsUploading(true);
     try {
-      const data = await uploadFilesApi(sessionId, selectedFiles);
+      const data = await uploadFilesApi(selectedFiles);
       const uploadedNames =
         data.uploaded || selectedFiles.map((file) => file.name);
       const newlyUploadedFiles = selectedFiles.filter((file) =>
@@ -137,7 +137,7 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
 
   const removeFile = async (fileName) => {
     try {
-      await deleteFileApi(sessionId, fileName);
+      await deleteFileApi(fileName);
       setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
       toast.info(`Removed ${fileName}`);
       if (onRemoveSuccess) {
@@ -146,11 +146,6 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
     } catch (err) {
       toast.error(getErrorMessage(err, `Failed to remove ${fileName}`));
     }
-  };
-
-  const resetFiles = () => {
-    setUploadedFiles([]);
-    setSelectedFiles([]);
   };
 
   return {
@@ -164,6 +159,5 @@ export function useFileManager(sessionId, onUploadSuccess, onRemoveSuccess) {
     handleFileChange,
     uploadDocuments,
     removeFile,
-    resetFiles,
   };
 }

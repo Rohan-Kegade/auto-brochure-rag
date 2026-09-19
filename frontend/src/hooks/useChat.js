@@ -4,7 +4,7 @@ import { sendChatMessageApi } from "../api/api";
 import { getErrorMessage } from "../utils/errors";
 import { toast } from "sonner";
 
-export function useChat(sessionId, hasActivePdfs) {
+export function useChat(hasActivePdfs) {
   const [messages, setMessages] = useState([INITIAL_AI_MESSAGE]);
   const [inputQuery, setInputQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,11 +28,7 @@ export function useChat(sessionId, hasActivePdfs) {
     setIsLoading(true);
 
     try {
-      const data = await sendChatMessageApi(
-        sessionId,
-        userMessage,
-        historyPayload,
-      );
+      const data = await sendChatMessageApi(userMessage, historyPayload);
       setMessages((prev) => [...prev, { sender: "ai", text: data.answer }]);
     } catch (err) {
       const message = getErrorMessage(err, "Unable to get a response.");
@@ -49,11 +45,6 @@ export function useChat(sessionId, hasActivePdfs) {
     setMessages((prev) => [...prev, { sender: "ai", text }]);
   };
 
-  const resetChat = () => {
-    setMessages([INITIAL_AI_MESSAGE]);
-    setInputQuery("");
-  };
-
   return {
     messages,
     inputQuery,
@@ -61,6 +52,5 @@ export function useChat(sessionId, hasActivePdfs) {
     setInputQuery,
     sendMessage,
     addSystemNotice,
-    resetChat,
   };
 }

@@ -56,47 +56,36 @@ const apiRequest = async (
   throw lastError;
 };
 
-export const fetchActiveFiles = (sessionId) =>
+export const fetchActiveFiles = () =>
   apiRequest("/files", {
-    headers: { "X-Session-ID": sessionId },
     retry: true,
-    fallbackError: "Failed to sync active session files.",
+    fallbackError: "Failed to sync active files.",
   });
 
-export const uploadFilesApi = (sessionId, files) => {
+export const uploadFilesApi = (files) => {
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
 
   return apiRequest("/upload", {
     method: "POST",
-    headers: { "X-Session-ID": sessionId },
     body: formData,
     fallbackError: "Unable to add the brochures.",
   });
 };
 
-export const sendChatMessageApi = (sessionId, message, history) =>
+export const sendChatMessageApi = (message, history) =>
   apiRequest("/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Session-ID": sessionId,
     },
     body: JSON.stringify({ message, history }),
     retry: true,
     fallbackError: "Unable to get a response.",
   });
 
-export const deleteFileApi = (sessionId, fileName) =>
+export const deleteFileApi = (fileName) =>
   apiRequest(`/files/${encodeURIComponent(fileName)}`, {
     method: "DELETE",
-    headers: { "X-Session-ID": sessionId },
     fallbackError: "Failed to remove file",
-  });
-
-export const clearSessionApi = (sessionId) =>
-  apiRequest("/session", {
-    method: "DELETE",
-    headers: { "X-Session-ID": sessionId },
-    fallbackError: "Failed to clear session",
   });

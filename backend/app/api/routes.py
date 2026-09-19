@@ -1,7 +1,6 @@
 from typing import List
-from app.api.dependencies import get_session
 from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
-from app.core.session_store import session_store
+from app.core.state import state, write_lock
 from app.models.schemas import (
     ChatRequest,
     ChatResponse,
@@ -10,7 +9,7 @@ from app.models.schemas import (
 )
 from app.services.indexing import create_chunks_and_store
 from app.services.rag import build_rag_chain, parse_chat_history
-from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
 router = APIRouter()
 
@@ -18,15 +17,13 @@ router = APIRouter()
 @router.post("/upload", response_model=UploadResponse)
 async def upload_documents(
     files: List[UploadFile] = File(...),
-    session: dict = Depends(get_session),
-    x_session_id: str = Header(..., alias="X-Session-ID"),
 ):
     if not files:
         raise HTTPException(status_code=400, detail="Please upload at least one PDF.")
 
-    async with session_store.write_lock(x_session_id):
-        if len(files) + len(session["active_pdfs"]) > MAX_PDFS:
-            remaining = MAX_PDFS - len(session["active_pdfs"])
+    async with write_lock:
+        if len(files) + len(state["active_pdfs"]) > MAX_PDFS:
+            remaining = MAX_PDFS - len(state["active_pdfs"])
             raise HTTPException(
                 status_code=400,
                 detail=(
@@ -45,7 +42,7 @@ async def upload_documents(
                         detail=f"Only PDF files are supported: {file.filename}",
                     )
 
-                if file.filename in session["active_pdfs"]:
+                if file.filename in state["active_pdfs"]:
                     continue
 
                 file_bytes = await file.read()
@@ -64,31 +61,31 @@ async def upload_documents(
                 if new_vector_db is None:
                     continue
 
-                session["file_chunks"][file.filename] = chunks
-                session["file_ids"][file.filename] = list(
+                state["file_chunks"][file.filename] = chunks
+                state["file_ids"][file.filename] = list(
                     new_vector_db.index_to_docstore_id.values()
                 )
 
-                if session["vector_db"] is None:
-                    session["vector_db"] = new_vector_db
+                if state["vector_db"] is None:
+                    state["vector_db"] = new_vector_db
                 else:
-                    session["vector_db"].merge_from(new_vector_db)
+                    state["vector_db"].merge_from(new_vector_db)
 
-                session["active_pdfs"].add(file.filename)
+                state["active_pdfs"].add(file.filename)
                 uploaded_names.append(file.filename)
 
-            if session["vector_db"] is None:
+            if state["vector_db"] is None:
                 raise HTTPException(
                     status_code=400, detail="No valid PDFs were processed."
                 )
 
-            session["rag_chain"] = build_rag_chain(session["vector_db"])
+            state["rag_chain"] = build_rag_chain(state["vector_db"])
 
             return UploadResponse(
                 status="Success",
                 uploaded=uploaded_names,
-                active_pdf_count=len(session["active_pdfs"]),
-                active_pdfs=list(session["active_pdfs"]),
+                active_pdf_count=len(state["active_pdfs"]),
+                active_pdfs=list(state["active_pdfs"]),
             )
 
         except HTTPException:
@@ -98,18 +95,15 @@ async def upload_documents(
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat_with_brochure(
-    request: ChatRequest,
-    session: dict = Depends(get_session),
-):
-    if session["rag_chain"] is None:
+async def chat_with_brochure(request: ChatRequest):
+    if state["rag_chain"] is None:
         raise HTTPException(
             status_code=400, detail="Please upload at least one brochure first."
         )
 
     try:
         formatted_history = parse_chat_history(request.history)
-        answer = session["rag_chain"].invoke(
+        answer = state["rag_chain"].invoke(
             {
                 "input": request.message,
                 "chat_history": formatted_history,
@@ -123,8 +117,8 @@ async def chat_with_brochure(
 
 
 @router.get("/files", response_model=DocumentsResponse)
-async def get_active_documents(session: dict = Depends(get_session)):
-    active_list = list(session["active_pdfs"])
+async def get_active_documents():
+    active_list = list(state["active_pdfs"])
     return DocumentsResponse(
         active_pdf_count=len(active_list),
         active_pdfs=active_list,
@@ -134,39 +128,30 @@ async def get_active_documents(session: dict = Depends(get_session)):
     )
 
 
-@router.delete("/session", status_code=204)
-async def clear_session(x_session_id: str = Header(..., alias="X-Session-ID")):
-    session_store.clear_session(x_session_id)
-
-
 @router.delete("/files/{filename}", response_model=DocumentsResponse)
-async def delete_document(
-    filename: str,
-    session: dict = Depends(get_session),
-    x_session_id: str = Header(..., alias="X-Session-ID"),
-):
-    async with session_store.write_lock(x_session_id):
-        if filename not in session["active_pdfs"]:
+async def delete_document(filename: str):
+    async with write_lock:
+        if filename not in state["active_pdfs"]:
             raise HTTPException(
                 status_code=404,
-                detail=f"File '{filename}' not found in active session.",
+                detail=f"File '{filename}' not found in the active files.",
             )
 
-        session["active_pdfs"].remove(filename)
-        session["file_chunks"].pop(filename, None)
-        removed_ids = session["file_ids"].pop(filename, None)
+        state["active_pdfs"].remove(filename)
+        state["file_chunks"].pop(filename, None)
+        removed_ids = state["file_ids"].pop(filename, None)
 
-        vector_db = session["vector_db"]
+        vector_db = state["vector_db"]
         if vector_db is not None and removed_ids:
             vector_db.delete(removed_ids)
 
-        if session["active_pdfs"]:
-            session["rag_chain"] = build_rag_chain(vector_db)
+        if state["active_pdfs"]:
+            state["rag_chain"] = build_rag_chain(vector_db)
         else:
-            session["vector_db"] = None
-            session["rag_chain"] = None
+            state["vector_db"] = None
+            state["rag_chain"] = None
 
-        active_list = list(session["active_pdfs"])
+        active_list = list(state["active_pdfs"])
     return DocumentsResponse(
         active_pdf_count=len(active_list),
         active_pdfs=active_list,
