@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime, timezone
 
-from app.db.base import Base
 from sqlalchemy import (
     CHAR,
     BigInteger,
@@ -14,9 +13,12 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.dialects.mysql import DATETIME as MYSQL_DATETIME
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-# Values for Document.status, Message.role and the default Chat.title.
+class Base(DeclarativeBase):
+    pass
+
+
 DOC_PROCESSING = "processing"
 DOC_READY = "ready"
 DOC_FAILED = "failed"

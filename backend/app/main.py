@@ -9,10 +9,10 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from app.api.chats import router as chats_router
-from app.api.documents import router as documents_router
+from app.routes.chats import router as chats_router
+from app.routes.documents import router as documents_router
 from app.core.errors import DomainError
-from app.services.indexing import ensure_collection
+from app.rag.indexing import create_collection_if_missing
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -28,9 +28,9 @@ logger = logging.getLogger("autobrochure")
 async def lifespan(app: FastAPI):
     logger.info("SpecSense starting up")
     try:
-        await asyncio.to_thread(ensure_collection)
+        await asyncio.to_thread(create_collection_if_missing)
     except Exception:
-        # Don't block startup; the collection is required once documents move to Qdrant.
+        # Don't block startup: Qdrant may simply not be running yet.
         logger.exception("Could not prepare the Qdrant collection (is Qdrant running?)")
     yield
     logger.info("SpecSense shutting down")

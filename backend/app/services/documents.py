@@ -3,7 +3,7 @@ import hashlib
 import logging
 
 from app.db.models import DOC_FAILED, DOC_PROCESSING, DOC_READY, ChatDocument, Document
-from app.services import indexing
+from app.rag import indexing
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -91,7 +91,7 @@ async def ingest_pdf(
 
         if existing is not None:
             # A previous attempt failed or was interrupted: clear leftovers and retry.
-            await asyncio.to_thread(indexing.delete_document, existing.id)
+            await asyncio.to_thread(indexing.delete_document_chunks, existing.id)
             doc = existing
             doc.filename = filename
             doc.size_bytes = len(file_bytes)
@@ -120,7 +120,7 @@ async def ingest_pdf(
                 logger.exception("Indexing failed for %s", filename)
             # Drop any partial vectors, then record the failure.
             try:
-                await asyncio.to_thread(indexing.delete_document, doc.id)
+                await asyncio.to_thread(indexing.delete_document_chunks, doc.id)
             except Exception:
                 logger.exception("Cleanup failed for %s", doc.id)
             doc.status = DOC_FAILED
@@ -137,6 +137,6 @@ async def ingest_pdf(
 async def delete_document(db: AsyncSession, doc: Document) -> None:
     """Remove a document from the library, its chat attachments and its vectors."""
     # Vectors first: if this fails the row is kept, so the delete can be retried.
-    await asyncio.to_thread(indexing.delete_document, doc.id)
+    await asyncio.to_thread(indexing.delete_document_chunks, doc.id)
     await db.delete(doc)  # chat_documents rows go via ON DELETE CASCADE
     await db.commit()

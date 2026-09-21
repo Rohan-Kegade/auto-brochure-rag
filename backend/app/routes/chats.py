@@ -5,7 +5,7 @@ from typing import List
 from app.db.models import Chat
 from app.core.errors import DomainError
 from app.db.session import SessionLocal, get_db
-from app.models.schemas import (
+from app.routes.schemas import (
     AttachRequest,
     ChatCreate,
     ChatOut,
@@ -13,7 +13,6 @@ from app.models.schemas import (
     DocumentOut,
     MessageOut,
     SendMessageRequest,
-    SendMessageResponse,
 )
 from app.services import chats as chat_service
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -66,23 +65,6 @@ async def list_messages(
     chat: Chat = Depends(get_chat_or_404), db: AsyncSession = Depends(get_db)
 ):
     return await chat_service.list_messages(db, chat.id)
-
-
-@router.post("/{chat_id}/messages", response_model=SendMessageResponse)
-async def send_message(
-    body: SendMessageRequest,
-    chat: Chat = Depends(get_chat_or_404),
-    db: AsyncSession = Depends(get_db),
-):
-    question = body.message.strip()
-    if not question:
-        raise HTTPException(status_code=422, detail="Message cannot be blank.")
-    user_msg, ai_msg = await chat_service.send_message(db, chat, question)
-    return SendMessageResponse(
-        user_message=MessageOut.model_validate(user_msg),
-        ai_message=MessageOut.model_validate(ai_msg),
-        title=chat.title,
-    )
 
 
 def _event(payload: dict) -> bytes:

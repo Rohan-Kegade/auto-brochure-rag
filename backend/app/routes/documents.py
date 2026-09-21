@@ -3,7 +3,7 @@ from typing import List
 from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
 from app.core.errors import DomainError
 from app.db.session import get_db
-from app.models.schemas import (
+from app.routes.schemas import (
     DocumentList,
     DocumentOut,
     UploadItem,

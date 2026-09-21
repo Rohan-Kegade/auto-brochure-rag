@@ -2,8 +2,7 @@ import asyncio
 import os
 
 from alembic import context
-from app.db import models  # noqa: F401  (registers tables on Base.metadata)
-from app.db.base import Base
+from app.db.models import Base
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine
 

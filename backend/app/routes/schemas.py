@@ -66,9 +66,3 @@ class AttachRequest(BaseModel):
 
 class SendMessageRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
-
-
-class SendMessageResponse(BaseModel):
-    user_message: MessageOut
-    ai_message: MessageOut
-    title: str

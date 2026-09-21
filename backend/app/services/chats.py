@@ -1,5 +1,3 @@
-import asyncio
-import logging
 from collections.abc import AsyncIterator
 from datetime import timedelta
 
@@ -16,18 +14,11 @@ from app.db.models import (
     Message,
     _now,
 )
-from app.services import vectorstore
-from app.services.rag import (
-    build_rag_chain_from_retriever,
-    generate_chat_title,
-    parse_chat_history,
-)
+from app.rag.retrieval import build_retrieval_chain
+from app.services.titles import make_chat_title
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-MAX_TITLE_LENGTH = 40
-
-logger = logging.getLogger(__name__)
 
 
 async def list_chats(db: AsyncSession) -> list[Chat]:
@@ -130,30 +121,19 @@ async def detach_document(db: AsyncSession, chat: Chat, document_id: str) -> Non
 # --- asking questions -------------------------------------------------------
 
 
-def _title_from(text: str) -> str:
-    text = " ".join(text.split())
-    if len(text) <= MAX_TITLE_LENGTH:
-        return text
-    return f"{text[:MAX_TITLE_LENGTH].rstrip()}…"
-
-
-async def _llm_title(question: str, answer: str, filenames: list[str]) -> str:
-    """LLM-written title, falling back to the question's first words."""
-    try:
-        title = " ".join(
-            (await asyncio.to_thread(generate_chat_title, question, answer, filenames))
-            .strip()
-            .strip("\"'`*# ")
-            .split()
-        )
-    except Exception:
-        logger.warning("Chat title generation failed", exc_info=True)
-        title = ""
-    return title[:MAX_TITLE_LENGTH].rstrip() or _title_from(question)
+def _to_langchain_messages(messages: list[Message]) -> list[BaseMessage]:
+    """Turn saved messages into the message objects LangChain prompts expect."""
+    result = []
+    for msg in messages:
+        if msg.role == ROLE_USER:
+            result.append(HumanMessage(content=msg.content))
+        elif msg.role == ROLE_AI:
+            result.append(AIMessage(content=msg.content))
+    return result
 
 
 async def _prepare_answer(db: AsyncSession, chat: Chat, question: str):
-    """Everything needed to answer `question`: the RAG chain, its input and the
+    """Everything needed to answer `question`: the retrieval chain, its input and the
     chat's attached documents."""
     attached = await list_attached(db, chat.id)
     document_ids = [d.id for d in attached]
@@ -168,11 +148,9 @@ async def _prepare_answer(db: AsyncSession, chat: Chat, question: str):
             .limit(HISTORY_LIMIT)
         )
     ).scalars()
-    history = parse_chat_history(
-        [{"role": m.role, "content": m.content} for m in reversed(list(recent))]
-    )
+    history = _to_langchain_messages(list(recent)[::-1])
 
-    chain = build_rag_chain_from_retriever(vectorstore.get_retriever(document_ids))
+    chain = build_retrieval_chain(document_ids)
     return chain, {"input": question, "chat_history": history}, attached
 
 
@@ -194,20 +172,10 @@ async def _save_exchange(
     )
     db.add_all([user_msg, ai_msg])
     if chat.title == DEFAULT_CHAT_TITLE:
-        chat.title = await _llm_title(question, answer, [d.filename for d in attached])
+        chat.title = await make_chat_title(question, answer, [d.filename for d in attached])
     chat.updated_at = _now()
     await db.commit()
     return user_msg, ai_msg
-
-
-async def send_message(
-    db: AsyncSession, chat: Chat, question: str
-) -> tuple[Message, Message]:
-    """Answer `question` from the chat's attached documents and persist both
-    messages. If answering fails nothing is saved, so the client can retry."""
-    chain, chain_input, attached = await _prepare_answer(db, chat, question)
-    answer = await asyncio.to_thread(chain.invoke, chain_input)
-    return await _save_exchange(db, chat, question, answer, attached)
 
 
 async def ensure_can_answer(db: AsyncSession, chat: Chat) -> None:
@@ -218,8 +186,9 @@ async def ensure_can_answer(db: AsyncSession, chat: Chat) -> None:
 async def stream_message(
     db: AsyncSession, chat: Chat, question: str
 ) -> AsyncIterator[str | tuple[Message, Message]]:
-    """Like `send_message`, but yields the answer's text chunks as they arrive,
-    then finally the saved (user, ai) messages. Nothing is saved if it fails."""
+    """Answer `question` from the chat's attached documents. Yields the answer's
+    text chunks as they arrive, then finally the saved (user, ai) messages.
+    Nothing is saved if it fails, so the client can retry."""
     chain, chain_input, attached = await _prepare_answer(db, chat, question)
     parts: list[str] = []
     async for chunk in chain.astream(chain_input):
