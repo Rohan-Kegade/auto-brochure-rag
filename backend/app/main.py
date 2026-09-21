@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from app.api.chats import router as chats_router
 from app.api.documents import router as documents_router
 from app.core.errors import DomainError
-from app.services.vectorstore import ensure_collection
+from app.services.indexing import ensure_collection
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
