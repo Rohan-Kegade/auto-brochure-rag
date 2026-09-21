@@ -17,5 +17,9 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // `({ node, ...props })` is how react-markdown's `node` prop is kept off the DOM.
+      'no-unused-vars': ['error', { ignoreRestSiblings: true }],
+    },
   },
 ])
