@@ -37,6 +37,9 @@ export function useChat() {
   const [isBooting, setIsBooting] = useState(true);
 
   const activeIdRef = useRef(null);
+  // Unsent input per chat, so text typed in one chat never follows you into another.
+  const draftsRef = useRef(new Map());
+  const inputRef = useRef("");
   // A chat created by the first send has no history to load; fetching it would
   // race the send and briefly wipe the pending message.
   const skipLoadForRef = useRef(null);
@@ -44,6 +47,20 @@ export function useChat() {
   useEffect(() => {
     activeIdRef.current = activeChatId;
   }, [activeChatId]);
+
+  useEffect(() => {
+    inputRef.current = inputQuery;
+  }, [inputQuery]);
+
+  // Park the current input under the open chat and bring up `nextId`'s draft.
+  const swapDraft = useCallback((nextId) => {
+    const drafts = draftsRef.current;
+    if (inputRef.current) drafts.set(activeIdRef.current, inputRef.current);
+    else drafts.delete(activeIdRef.current);
+    const next = drafts.get(nextId) ?? "";
+    inputRef.current = next;
+    setInputQuery(next);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,14 +107,15 @@ export function useChat() {
   const selectChat = useCallback((id) => {
     // Re-selecting the open chat must not clear it: the load effect wouldn't rerun.
     if (id === activeIdRef.current) return;
+    swapDraft(id);
     setMessages([]);
     setActiveChatId(id);
-  }, []);
+  }, [swapDraft]);
 
   // Start a draft; nothing is saved until the first message is sent.
   const newChat = () => {
+    swapDraft(null);
     setMessages([]);
-    setInputQuery("");
     setActiveChatId(null);
   };
 
@@ -125,6 +143,8 @@ export function useChat() {
       if (remaining.length > 0) selectChat(remaining[0].id);
       else newChat();
     }
+    // After switching away, which parks the open chat's input under its id.
+    draftsRef.current.delete(id);
   };
 
   /**
