@@ -37,9 +37,20 @@ backend/
 
 ```powershell
 cd backend
-pip install -r evals/requirements.txt   # app deps + eval-only deps
+python -m venv .venv                            # once
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r evals/requirements.txt  # app deps + eval-only deps
 ```
 
+Every command below runs from `backend/` with the venv active. Use
+`python -m <tool>` rather than the `.exe` launchers in `.venv\Scripts\`:
+Windows Smart App Control blocks those unsigned launchers.
+
+- **API key:** the retrieval, generator and RAG Triad evals call Gemini, so
+  `backend/.env` needs `GOOGLE_API_KEY` (see `backend/.env.sample`). No eval
+  needs MySQL or a Qdrant server.
+- **Free-tier Gemini keys** are rate-limited (as low as 5 requests per minute
+  per model): pass `--rpm` to the Gemini-backed evals to stay under the quota.
 - **Brochures:** put the PDFs listed in `data/corpus.yaml` into `data/`.
   They are gitignored (official manufacturer brochures, 1-15 MB each). A
   run fails with the missing file names if any are absent.
@@ -233,12 +244,15 @@ two.
 
 ## Adding an eval for another component
 
-Follow the same shape, e.g. for retrieval:
+Follow the same shape, e.g. for a component called `reranker`:
 
-1. `goldens/retrieval.yaml`: gold data referring to brochures by their
-   `data/corpus.yaml` id.
-2. `evals/retrieval/eval_retrieval.py`: loads it with
-   `evals.common.dataset.load_gold("retrieval")`, writes to
-   `evals.common.paths.results_dir("retrieval")`.
+1. `goldens/reranker.yaml`: gold data referring to brochures by their
+   `data/corpus.yaml` id. Load it with
+   `evals.common.dataset.load_gold("reranker", key=...)`, or with
+   `load_cases(component="reranker")` if it is a list of `cases`.
+2. `evals/reranker/eval_reranker.py`: the entry point, run as
+   `python -m evals.reranker.eval_reranker`. Write results to
+   `evals.common.paths.results_dir("reranker")`.
 3. Import production code from `app` (the `evals` package puts `src/` on the
-   import path).
+   import path). For LLM-judged metrics, use the judge and rate limiting in
+   `evals.common.gemini`.

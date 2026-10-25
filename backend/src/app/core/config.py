@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,7 +14,13 @@ if not GOOGLE_API_KEY:
 
 # Persistence. DATABASE_URL is validated where the database is first used.
 DATABASE_URL = os.getenv("DATABASE_URL")
-QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+# Vector store. With QDRANT_URL set (e.g. http://localhost:6333 for the docker
+# compose service) the app talks to a Qdrant server. Without it, Qdrant runs
+# inside the app process and keeps its data in QDRANT_PATH: no server needed,
+# but only one process may open that folder at a time.
+QDRANT_URL = os.getenv("QDRANT_URL") or None
+BACKEND_DIR = Path(__file__).resolve().parents[3]
+QDRANT_PATH = os.getenv("QDRANT_PATH") or str(BACKEND_DIR / ".data" / "qdrant")
 QDRANT_COLLECTION = "brochure_chunks"
 
 MAX_PDFS = 5

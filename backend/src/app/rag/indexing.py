@@ -28,6 +28,7 @@ from app.core.config import (
     CHUNK_SIZE,
     EMBEDDING_MODEL,
     QDRANT_COLLECTION,
+    QDRANT_PATH,
     QDRANT_URL,
 )
 
@@ -51,7 +52,11 @@ def get_embedding_model() -> GoogleGenerativeAIEmbeddings:
 
 @lru_cache(maxsize=1)
 def get_qdrant_client() -> QdrantClient:
-    return QdrantClient(url=QDRANT_URL)
+    """A Qdrant server when QDRANT_URL is set, else an in-process Qdrant
+    persisted to QDRANT_PATH (see app.core.config)."""
+    if QDRANT_URL:
+        return QdrantClient(url=QDRANT_URL)
+    return QdrantClient(path=QDRANT_PATH)
 
 
 def get_vector_store() -> QdrantVectorStore:
@@ -89,11 +94,12 @@ def create_collection_if_missing() -> None:
             "Created Qdrant collection %s (dim=%d)", QDRANT_COLLECTION, vector_size
         )
 
-    client.create_payload_index(
-        collection_name=QDRANT_COLLECTION,
-        field_name=DOCUMENT_ID_FIELD,
-        field_schema=models.PayloadSchemaType.KEYWORD,
-    )  # safe to repeat
+    if QDRANT_URL:  # in-process Qdrant has no payload indexes
+        client.create_payload_index(
+            collection_name=QDRANT_COLLECTION,
+            field_name=DOCUMENT_ID_FIELD,
+            field_schema=models.PayloadSchemaType.KEYWORD,
+        )  # safe to repeat
 
 
 def delete_document_chunks(document_id: str) -> None:

@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from app.routes.chats import router as chats_router
 from app.routes.documents import router as documents_router
 from app.core.errors import DomainError
-from app.rag.indexing import create_collection_if_missing
+from app.rag.indexing import create_collection_if_missing, get_qdrant_client
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -34,6 +34,8 @@ async def lifespan(app: FastAPI):
         logger.exception("Could not prepare the Qdrant collection (is Qdrant running?)")
     yield
     logger.info("SpecSense shutting down")
+    # Releases the in-process Qdrant's lock on its data folder (no-op for a server).
+    get_qdrant_client().close()
 
 
 app = FastAPI(title="SpecSense", lifespan=lifespan)
