@@ -50,6 +50,8 @@ export function useChatDocuments(chatId) {
       })
       .catch((err) => {
         if (!cancelled) {
+          // Settle as empty so the UI doesn't wait on this chat forever.
+          setLoaded({ chatId, documents: [] });
           toast.error(getErrorMessage(err, "Couldn't load the brochures."), {
             id: "docs-load-error",
           });
@@ -140,6 +142,8 @@ export function useChatDocuments(chatId) {
 
   return {
     documents,
+    // Until a chat's documents arrive, `documents` is empty but not "no documents".
+    isLoading: Boolean(chatId) && loaded.chatId !== chatId,
     isUploading,
     activePdfCount: documents.length,
     hasActivePdfs: documents.length > 0,

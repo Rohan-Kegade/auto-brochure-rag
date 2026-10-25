@@ -61,6 +61,7 @@ export default function App() {
         <BrochureBar
           chatId={chat.activeChatId}
           documents={docs.documents}
+          isLoadingDocuments={docs.isLoading}
           activePdfCount={docs.activePdfCount}
           maxPdfs={docs.maxPdfs}
           maxPdfsReached={docs.maxPdfsReached}
@@ -95,6 +96,7 @@ export default function App() {
           inputQuery={chat.inputQuery}
           hasActivePdfs={docs.hasActivePdfs}
           activePdfCount={docs.activePdfCount}
+          isLoadingDocuments={docs.isLoading}
           isLoading={chat.isLoading}
           onInputChange={chat.setInputQuery}
           onSubmit={(e) => chat.sendMessage(e, docs.commitDraft)}

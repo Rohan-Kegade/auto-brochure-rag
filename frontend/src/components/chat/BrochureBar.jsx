@@ -5,6 +5,7 @@ import { BrochurePicker } from "./BrochurePicker";
 export function BrochureBar({
   chatId,
   documents,
+  isLoadingDocuments,
   activePdfCount,
   maxPdfs,
   maxPdfsReached,
@@ -32,7 +33,7 @@ export function BrochureBar({
         }}
         className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {documents.length === 0 && (
+        {documents.length === 0 && !isLoadingDocuments && (
           <span className="text-[11px] text-slate-400 italic">No files active</span>
         )}
 
