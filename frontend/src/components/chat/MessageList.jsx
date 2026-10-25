@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 import { ChatMessage } from "./ChatMessage";
 
 // How close to the bottom (px) still counts as "following" the conversation.
@@ -8,6 +8,7 @@ export function MessageList({ messages, isLoading }) {
   const chatEndRef = useRef(null);
   const containerRef = useRef(null);
   const stickRef = useRef(true);
+  const prevCountRef = useRef(0);
 
   const handleScroll = () => {
     const el = containerRef.current;
@@ -16,8 +17,19 @@ export function MessageList({ messages, isLoading }) {
       el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD;
   };
 
-  useEffect(() => {
+  // Layout effect so an opened chat paints already scrolled to the bottom.
+  useLayoutEffect(() => {
+    const prevCount = prevCountRef.current;
+    prevCountRef.current = messages.length;
     const last = messages[messages.length - 1];
+    // A chat's history just loaded: jump straight to the latest message
+    // instead of visibly scrolling down from the top.
+    if (prevCount === 0 && messages.length > 0) {
+      stickRef.current = true;
+      const el = containerRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+      return;
+    }
     // Sending a message always jumps to it; otherwise don't drag the user back
     // down if they scrolled up to read.
     if (last?.sender === "user") stickRef.current = true;
