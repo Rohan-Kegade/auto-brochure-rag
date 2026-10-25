@@ -28,7 +28,7 @@ def _verdict(v) -> str:
     return str(v.verdict).strip().lower()
 
 
-def _unsupported_claims(metric) -> list[dict]:
+def unsupported_claims(metric) -> list[dict]:
     claims = getattr(metric, "claims", None) or []
     verdicts = getattr(metric, "verdicts", None) or []
     return [
@@ -38,7 +38,7 @@ def _unsupported_claims(metric) -> list[dict]:
     ]
 
 
-def _irrelevant_statements(metric) -> list[dict]:
+def irrelevant_statements(metric) -> list[dict]:
     statements = getattr(metric, "statements", None) or []
     verdicts = getattr(metric, "verdicts", None) or []
     return [
@@ -90,8 +90,8 @@ async def judge_case(
         "reasons": reasons,
         "errors": errors,
         "claims": len(getattr(faithfulness, "claims", None) or []),
-        "unsupported_claims": _unsupported_claims(faithfulness),
-        "irrelevant_statements": _irrelevant_statements(metrics["answer_relevancy"]),
+        "unsupported_claims": unsupported_claims(faithfulness),
+        "irrelevant_statements": irrelevant_statements(metrics["answer_relevancy"]),
     }
 
 

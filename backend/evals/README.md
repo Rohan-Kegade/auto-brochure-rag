@@ -27,6 +27,10 @@ backend/
       eval_generator.py      entry point
       metrics.py  report.py
       results/               generations.json, scores.json, report.md
+    rag_triad/
+      eval_rag_triad.py      entry point
+      metrics.py  report.py
+      results/               runs.json, scores.json, report.md
 ```
 
 ## Setup
@@ -186,6 +190,46 @@ The judge defaults to the app's own generator model (gemini-3.1-flash-lite),
 so the model grades its own answers; `--judge` swaps in a stronger one.
 **Results** are in `generator/results/report.md`, with every unsupported
 claim and off-topic statement of the lowest-scoring answers.
+
+## RAG Triad eval
+
+The whole pipeline, end to end. Each question in `goldens/retrieval.yaml`
+goes through the app's own steps, as `build_retrieval_chain` runs them for a
+first message (no chat history, so no question rewrite): `build_search` over
+the retrieval eval's local Qdrant store, then `build_answer` on whatever came
+back. DeepEval judges the three legs of the triad. No expected answer is
+used, so the scores also apply to questions that have no gold answer.
+
+```powershell
+cd backend
+python -m evals.rag_triad.eval_rag_triad                   # all questions, all 5 brochures searched
+python -m evals.rag_triad.eval_rag_triad --scope own       # search only each question's brochures
+python -m evals.rag_triad.eval_rag_triad --k 10            # more chunks per search (app: 5)
+python -m evals.rag_triad.eval_rag_triad --cases venue-boot safari-adas
+python -m evals.rag_triad.eval_rag_triad --rescore         # re-judge saved runs only
+python -m evals.rag_triad.eval_rag_triad --rpm 5           # free-tier Gemini key
+```
+
+Each question costs 1 search, 1 generation and about k + 8 judge calls
+(context relevance judges every chunk separately): about 14 Gemini calls at
+k = 5, about 900 for a full run. `--rpm` caps generation and judging alike.
+
+**Metrics** (full definitions in `rag_triad/metrics.py`):
+
+| Leg | Checks | Low score points at |
+|---|---|---|
+| Context relevance | question ↔ retrieved chunks: how much of what was retrieved is relevant? | the retriever |
+| Groundedness | answer ↔ retrieved chunks: what share of the answer's claims do the chunks support? | the generator making things up |
+| Answer relevance | answer ↔ question: what share of the answer addresses the question? | the generator drifting off-topic, or refusing |
+
+Groundedness runs with `penalize_ambiguous_claims`, as in the generator
+eval. The report also counts **refusals** ("I couldn't find enough
+information…"): every question has an answer in the brochures, so a refusal
+means the pipeline failed to surface it. Each case names its **weakest leg**,
+and the report lists the per-chunk relevance, unsupported claims and
+off-topic statements behind the lowest scores. The component evals tell you
+*why* a leg is weak: retrieval for context relevance, generator for the other
+two.
 
 ## Adding an eval for another component
 

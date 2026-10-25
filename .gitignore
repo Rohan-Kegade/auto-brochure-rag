@@ -46,3 +46,4 @@ backend/evals/*/results/outputs/
 backend/evals/retrieval/results/qdrant/
 backend/evals/retrieval/results/retrievals.json
 backend/evals/generator/results/generations.json
+backend/evals/rag_triad/results/runs.json
