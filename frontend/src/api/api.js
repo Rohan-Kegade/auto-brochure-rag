@@ -92,25 +92,27 @@ export const fetchMessagesApi = (chatId) =>
   });
 
 /**
- * Send a message and stream the answer. `onToken(text)` is called for each
- * chunk; resolves with the saved messages and title once the answer is done.
+ * POST to a streaming answer endpoint. `onToken(text)` is called for each chunk;
+ * resolves with the saved messages and title once the answer is done.
  * Not retried: a retry would run the model twice.
+ *
+ * Errors carry `questionSaved`: once the server accepts the request the
+ * question is saved, so a later failure leaves it in the chat to retry.
  */
-export const streamMessageApi = async (chatId, message, { onToken } = {}) => {
+const streamAnswer = async (path, body, { onToken } = {}) => {
   if (isOffline()) {
     throw new Error(
       "You appear to be offline. Check your connection and try again.",
     );
   }
 
-  const response = await fetch(`${API_BASE_URL}/chats/${chatId}/messages/stream`, {
-    ...jsonRequest("POST", { message }),
-  });
+  const response = await fetch(`${API_BASE_URL}${path}`, jsonRequest("POST", body));
   if (!response.ok) {
     const data = await parseJson(response);
     throw new Error(data.detail || "Unable to get a response.");
   }
 
+  const fail = (message) => Object.assign(new Error(message), { questionSaved: true });
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -122,23 +124,35 @@ export const streamMessageApi = async (chatId, message, { onToken } = {}) => {
     if (event.type === "token") onToken?.(event.text);
     else if (event.type === "done") result = event;
     else if (event.type === "error") {
-      throw new Error(event.detail || "Unable to get a response.");
+      throw fail(event.detail || "Unable to get a response.");
     }
   };
 
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop();
-    lines.forEach(handle);
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+      lines.forEach(handle);
+    }
+    handle(buffer);
+  } catch (err) {
+    throw err.questionSaved ? err : fail(err.message);
   }
-  handle(buffer);
 
-  if (!result) throw new Error("The response was interrupted. Please try again.");
+  if (!result) throw fail("The response was interrupted. Please try again.");
   return result;
 };
+
+/** Send a message and stream its answer. */
+export const streamMessageApi = (chatId, message, options) =>
+  streamAnswer(`/chats/${chatId}/messages/stream`, { message }, options);
+
+/** Answer the chat's latest question again after its answer failed. */
+export const retryMessageApi = (chatId, options) =>
+  streamAnswer(`/chats/${chatId}/messages/retry/stream`, {}, options);
 
 // --- documents attached to a chat ---
 

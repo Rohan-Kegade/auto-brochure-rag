@@ -15,7 +15,7 @@ from app.db.models import (
     _now,
 )
 from app.rag.retrieval import build_retrieval_chain
-from app.services.titles import make_chat_title
+from app.services.titles import make_chat_title, title_from_question
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -132,7 +132,18 @@ def _to_langchain_messages(messages: list[Message]) -> list[BaseMessage]:
     return result
 
 
-async def _prepare_answer(db: AsyncSession, chat: Chat, question: str):
+def _answered_only(messages: list[Message]) -> list[Message]:
+    """Drop questions that never got an answer (their answer failed), so the
+    model sees clean question/answer pairs."""
+    return [
+        msg
+        for i, msg in enumerate(messages)
+        if msg.role != ROLE_USER
+        or (i + 1 < len(messages) and messages[i + 1].role == ROLE_AI)
+    ]
+
+
+async def _prepare_answer(db: AsyncSession, chat: Chat, question: Message):
     """Everything needed to answer `question`: the retrieval chain, its input and the
     chat's attached documents."""
     attached = await list_attached(db, chat.id)
@@ -143,39 +154,74 @@ async def _prepare_answer(db: AsyncSession, chat: Chat, question: str):
     recent = (
         await db.execute(
             select(Message)
-            .where(Message.chat_id == chat.id)
+            .where(Message.chat_id == chat.id, Message.id != question.id)
             .order_by(Message.created_at.desc(), Message.id)
             .limit(HISTORY_LIMIT)
         )
     ).scalars()
-    history = _to_langchain_messages(list(recent)[::-1])
+    history = _to_langchain_messages(_answered_only(list(recent)[::-1]))
 
     chain = build_retrieval_chain(document_ids)
-    return chain, {"input": question, "chat_history": history}, attached
+    return chain, {"input": question.content, "chat_history": history}, attached
 
 
-async def _save_exchange(
+async def save_question(db: AsyncSession, chat: Chat, question: str) -> Message:
+    """Save the question before answering it, so it (and the chat's interim title)
+    survive a failed answer and can be retried."""
+    msg = Message(chat_id=chat.id, role=ROLE_USER, content=question, created_at=_now())
+    db.add(msg)
+    if chat.title == DEFAULT_CHAT_TITLE:
+        chat.title = title_from_question(question)
+    chat.updated_at = _now()
+    await db.commit()
+    return msg
+
+
+async def unanswered_question(db: AsyncSession, chat: Chat) -> Message | None:
+    """The chat's latest message if it is a question still waiting for an answer."""
+    last = (
+        await db.execute(
+            select(Message)
+            .where(Message.chat_id == chat.id)
+            .order_by(Message.created_at.desc(), Message.id.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    return last if last is not None and last.role == ROLE_USER else None
+
+
+async def _has_interim_title(db: AsyncSession, chat: Chat) -> bool:
+    """True until the chat's first answer: its title is still the one taken from
+    its first question, waiting to be replaced by an LLM-written one."""
+    messages = await list_messages(db, chat.id)
+    if any(m.role == ROLE_AI for m in messages):
+        return False
+    first = next((m for m in messages if m.role == ROLE_USER), None)
+    return first is not None and chat.title == title_from_question(first.content)
+
+
+async def _save_answer(
     db: AsyncSession,
     chat: Chat,
-    question: str,
+    question: Message,
     answer: str,
     attached: list[Document],
-) -> tuple[Message, Message]:
-    now = _now()
-    user_msg = Message(chat_id=chat.id, role=ROLE_USER, content=question, created_at=now)
+) -> Message:
+    if await _has_interim_title(db, chat):
+        chat.title = await make_chat_title(
+            question.content, answer, [d.filename for d in attached]
+        )
     ai_msg = Message(
         chat_id=chat.id,
         role=ROLE_AI,
         content=answer,
         # Clocks can be coarse; force the answer strictly after the question.
-        created_at=now + timedelta(microseconds=1),
+        created_at=max(_now(), question.created_at + timedelta(microseconds=1)),
     )
-    db.add_all([user_msg, ai_msg])
-    if chat.title == DEFAULT_CHAT_TITLE:
-        chat.title = await make_chat_title(question, answer, [d.filename for d in attached])
+    db.add(ai_msg)
     chat.updated_at = _now()
     await db.commit()
-    return user_msg, ai_msg
+    return ai_msg
 
 
 async def ensure_can_answer(db: AsyncSession, chat: Chat) -> None:
@@ -183,12 +229,12 @@ async def ensure_can_answer(db: AsyncSession, chat: Chat) -> None:
         raise DomainError("Please add at least one brochure to this chat first.")
 
 
-async def stream_message(
-    db: AsyncSession, chat: Chat, question: str
-) -> AsyncIterator[str | tuple[Message, Message]]:
-    """Answer `question` from the chat's attached documents. Yields the answer's
-    text chunks as they arrive, then finally the saved (user, ai) messages.
-    Nothing is saved if it fails, so the client can retry."""
+async def stream_answer(
+    db: AsyncSession, chat: Chat, question: Message
+) -> AsyncIterator[str | Message]:
+    """Answer a saved `question` from the chat's attached documents. Yields the
+    answer's text chunks as they arrive, then finally the saved answer. Nothing
+    more is saved if it fails, so the question can be retried."""
     chain, chain_input, attached = await _prepare_answer(db, chat, question)
     parts: list[str] = []
     async for chunk in chain.astream(chain_input):
@@ -198,4 +244,4 @@ async def stream_message(
     answer = "".join(parts).strip()
     if not answer:
         raise DomainError("The model returned an empty answer. Please try again.")
-    yield await _save_exchange(db, chat, question, answer, attached)
+    yield await _save_answer(db, chat, question, answer, attached)

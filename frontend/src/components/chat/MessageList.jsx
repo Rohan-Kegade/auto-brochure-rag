@@ -4,7 +4,7 @@ import { ChatMessage } from "./ChatMessage";
 // How close to the bottom (px) still counts as "following" the conversation.
 const STICK_THRESHOLD = 80;
 
-export function MessageList({ messages, isLoading }) {
+export function MessageList({ messages, isLoading, onRetry }) {
   const chatEndRef = useRef(null);
   const containerRef = useRef(null);
   const stickRef = useRef(true);
@@ -45,8 +45,12 @@ export function MessageList({ messages, isLoading }) {
       onScroll={handleScroll}
       className="flex-1 overflow-y-auto py-6 px-6 sm:px-10 lg:px-20 space-y-4"
     >
-      {messages.map((msg) => (
-        <ChatMessage key={msg.key ?? msg.id} message={msg} />
+      {messages.map((msg, i) => (
+        <ChatMessage
+          key={msg.key ?? msg.id}
+          message={msg}
+          onRetry={msg.failed && i === messages.length - 1 ? onRetry : undefined}
+        />
       ))}
 
       {isLoading && !messages[messages.length - 1]?.streaming && (

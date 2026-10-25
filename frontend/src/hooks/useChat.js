@@ -7,6 +7,7 @@ import {
   fetchChatsApi,
   fetchMessagesApi,
   renameChatApi,
+  retryMessageApi,
   streamMessageApi,
 } from "../api/api";
 import { getErrorMessage } from "../utils/errors";
@@ -22,6 +23,13 @@ const titleFrom = (text) => {
 const DRAFT_SENDING = "__draft__";
 
 const toMessage = (m) => ({ id: m.id, sender: m.role, text: m.content });
+
+// A saved question with no answer after it is one whose answer failed.
+const fromServer = (list) =>
+  list.map((m, i) => ({
+    ...toMessage(m),
+    failed: m.role === "user" && list[i + 1]?.role !== "ai",
+  }));
 
 // No chat is created up front: a new chat is only a draft (no active id) until
 // the first message is sent, so empty chats never reach the database.
@@ -40,6 +48,9 @@ export function useChat() {
   // Unsent input per chat, so text typed in one chat never follows you into another.
   const draftsRef = useRef(new Map());
   const inputRef = useRef("");
+  // Exchanges still being answered, by chat. The server saves an exchange only
+  // once the answer completes, so these must survive switching chats.
+  const inFlightRef = useRef(new Map());
   // A chat created by the first send has no history to load; fetching it would
   // race the send and briefly wipe the pending message.
   const skipLoadForRef = useRef(null);
@@ -91,7 +102,24 @@ export function useChat() {
     fetchMessagesApi(activeChatId)
       .then((data) => {
         if (cancelled) return;
-        setMessages(data.map(toMessage));
+        let saved = fromServer(data);
+        const inFlight = inFlightRef.current.get(activeChatId);
+        const unsaved = [];
+        if (inFlight) {
+          // The question being answered is already saved; show it as in flight.
+          const last = saved[saved.length - 1];
+          if (last?.failed && last.text === inFlight.question) saved = saved.slice(0, -1);
+          unsaved.push({ id: inFlight.pendingId, sender: "user", text: inFlight.question });
+          if (inFlight.answer) {
+            unsaved.push({
+              id: inFlight.streamingId,
+              sender: "ai",
+              text: inFlight.answer,
+              streaming: true,
+            });
+          }
+        }
+        setMessages([...saved, ...unsaved]);
         setLoadedChatId(activeChatId);
       })
       .catch((err) => {
@@ -148,50 +176,15 @@ export function useChat() {
   };
 
   /**
-   * `prepareNewChat(chatId)` runs only when this send creates the chat (a draft),
-   * to attach the draft's documents. If it fails the new chat is discarded.
+   * Stream the answer to the question shown as `pendingId` into the chat. If it
+   * fails after the server saved the question, the question stays, marked failed;
+   * otherwise `onUnsaved` runs (by default it is marked failed as well).
    */
-  const sendMessage = async (e, prepareNewChat, questionOverride) => {
-    e?.preventDefault();
-    const question = (questionOverride ?? inputQuery).trim();
-    if (!question || (activeChatId && sendingChatId === activeChatId)) return;
-
-    const pendingId = `pending-${Date.now()}`;
+  const streamReply = async ({ chatId, pendingId, question, request, onUnsaved }) => {
     const streamingId = `streaming-${pendingId}`;
-    let chatId = activeChatId;
-    let created;
-
-    if (!chatId) {
-      if (sendingChatId === DRAFT_SENDING) return;
-      setSendingChatId(DRAFT_SENDING);
-      try {
-        created = await createChatApi();
-        await prepareNewChat?.(created.id);
-      } catch (err) {
-        if (created) deleteChatApi(created.id).catch(() => {});
-        setSendingChatId(null);
-        toast.error(getErrorMessage(err, "Couldn't start the chat."));
-        return;
-      }
-      chatId = created.id;
-      activeIdRef.current = chatId;
-      skipLoadForRef.current = chatId;
-      setLoadedChatId(chatId);
-      setChats((prev) => [created, ...prev]);
-      setActiveChatId(chatId);
-    }
-
-    setMessages((prev) => [...prev, { id: pendingId, sender: "user", text: question }]);
-    if (questionOverride === undefined) setInputQuery("");
+    const inFlight = { pendingId, streamingId, question, answer: "" };
+    inFlightRef.current.set(chatId, inFlight);
     setSendingChatId(chatId);
-
-    // First message of a chat: show it as the title right away.
-    const previousTitle = (created ?? chats.find((c) => c.id === chatId))?.title;
-    const isFirstMessage = previousTitle === DEFAULT_CHAT_TITLE;
-    if (isFirstMessage) {
-      const interim = titleFrom(question);
-      setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, title: interim } : c)));
-    }
 
     // Tokens arrive far faster than the screen refreshes; re-parsing the markdown
     // for each one is what makes streaming feel laggy. Apply them once per frame.
@@ -201,7 +194,9 @@ export function useChat() {
       frame = null;
       const text = pending;
       pending = "";
-      if (!text || activeIdRef.current !== chatId) return;
+      if (!text) return;
+      inFlight.answer += text;
+      if (activeIdRef.current !== chatId) return;
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last?.id === streamingId) {
@@ -212,7 +207,7 @@ export function useChat() {
     };
 
     try {
-      const data = await streamMessageApi(chatId, question, {
+      const data = await request({
         onToken: (text) => {
           pending += text;
           if (frame === null) frame = requestAnimationFrame(flush);
@@ -241,22 +236,105 @@ export function useChat() {
     } catch (err) {
       if (frame !== null) cancelAnimationFrame(frame);
       pending = "";
-      // The server saves nothing on failure, so hand the question back for a retry.
-      if (isFirstMessage) {
-        setChats((prev) =>
-          prev.map((c) => (c.id === chatId ? { ...c, title: previousTitle } : c)),
-        );
-      }
+      // A partial answer isn't saved, so drop it. A chat we've left reloads from
+      // the server, which marks the saved question failed by itself.
       if (activeIdRef.current === chatId) {
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== pendingId && m.id !== streamingId),
-        );
-        if (questionOverride === undefined) setInputQuery(question);
+        setMessages((prev) => prev.filter((m) => m.id !== streamingId));
       }
+      const markFailed = () => {
+        if (activeIdRef.current !== chatId) return;
+        setMessages((prev) =>
+          prev.map((m) => (m.id === pendingId ? { ...m, failed: true } : m)),
+        );
+      };
+      if (err.questionSaved || !onUnsaved) markFailed();
+      else onUnsaved();
       toast.error(getErrorMessage(err, "Unable to get a response."));
     } finally {
+      inFlightRef.current.delete(chatId);
       setSendingChatId((current) => (current === chatId ? null : current));
     }
+  };
+
+  /**
+   * `prepareNewChat(chatId)` runs only when this send creates the chat (a draft),
+   * to attach the draft's documents. If it fails the new chat is discarded.
+   */
+  const sendMessage = async (e, prepareNewChat, questionOverride) => {
+    e?.preventDefault();
+    const question = (questionOverride ?? inputQuery).trim();
+    if (!question || (activeChatId && sendingChatId === activeChatId)) return;
+
+    const pendingId = `pending-${Date.now()}`;
+    let chatId = activeChatId;
+    let created;
+
+    if (!chatId) {
+      if (sendingChatId === DRAFT_SENDING) return;
+      setSendingChatId(DRAFT_SENDING);
+      try {
+        created = await createChatApi();
+        await prepareNewChat?.(created.id);
+      } catch (err) {
+        if (created) deleteChatApi(created.id).catch(() => {});
+        setSendingChatId(null);
+        toast.error(getErrorMessage(err, "Couldn't start the chat."));
+        return;
+      }
+      chatId = created.id;
+      activeIdRef.current = chatId;
+      skipLoadForRef.current = chatId;
+      setLoadedChatId(chatId);
+      setChats((prev) => [created, ...prev]);
+      setActiveChatId(chatId);
+    }
+
+    setMessages((prev) => [...prev, { id: pendingId, sender: "user", text: question }]);
+    if (questionOverride === undefined) setInputQuery("");
+
+    // First message of a chat: show it as the title right away.
+    const previousTitle = (created ?? chats.find((c) => c.id === chatId))?.title;
+    const isFirstMessage = previousTitle === DEFAULT_CHAT_TITLE;
+    if (isFirstMessage) {
+      const interim = titleFrom(question);
+      setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, title: interim } : c)));
+    }
+
+    await streamReply({
+      chatId,
+      pendingId,
+      question,
+      request: (options) => streamMessageApi(chatId, question, options),
+      // Rejected before the server saved the question: hand it back to resend.
+      onUnsaved: () => {
+        if (isFirstMessage) {
+          setChats((prev) =>
+            prev.map((c) => (c.id === chatId ? { ...c, title: previousTitle } : c)),
+          );
+        }
+        if (activeIdRef.current === chatId) {
+          setMessages((prev) => prev.filter((m) => m.id !== pendingId));
+          if (questionOverride === undefined) setInputQuery(question);
+        } else if (questionOverride === undefined && !draftsRef.current.get(chatId)) {
+          // Switched away meanwhile: leave the question in that chat's input.
+          draftsRef.current.set(chatId, question);
+        }
+      },
+    });
+  };
+
+  /** Answer the open chat's last question again after its answer failed. */
+  const retryMessage = () => {
+    const chatId = activeChatId;
+    const last = messages[messages.length - 1];
+    if (!chatId || !last?.failed || sendingChatId === chatId) return;
+    setMessages((prev) => prev.map((m) => (m.id === last.id ? { ...m, failed: false } : m)));
+    streamReply({
+      chatId,
+      pendingId: last.id,
+      question: last.text,
+      request: (options) => retryMessageApi(chatId, options),
+    });
   };
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
@@ -273,6 +351,7 @@ export function useChat() {
       sendingChatId !== null && sendingChatId === (activeChatId ?? DRAFT_SENDING),
     setInputQuery,
     sendMessage,
+    retryMessage,
     newChat,
     selectChat,
     renameChat,

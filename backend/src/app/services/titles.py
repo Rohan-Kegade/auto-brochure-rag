@@ -40,7 +40,7 @@ def _ask_llm_for_title(question: str, answer: str, filenames: list[str]) -> str:
     )
 
 
-def _title_from_question(question: str) -> str:
+def title_from_question(question: str) -> str:
     text = " ".join(question.split())
     if len(text) <= MAX_TITLE_LENGTH:
         return text
@@ -59,4 +59,4 @@ async def make_chat_title(question: str, answer: str, filenames: list[str]) -> s
     except Exception:
         logger.warning("Chat title generation failed", exc_info=True)
         title = ""
-    return title[:MAX_TITLE_LENGTH].rstrip() or _title_from_question(question)
+    return title[:MAX_TITLE_LENGTH].rstrip() or title_from_question(question)

@@ -90,6 +90,7 @@ export default function App() {
             isLoading={
               chat.isLoading && chat.messages[chat.messages.length - 1]?.sender !== "ai"
             }
+            onRetry={chat.retryMessage}
           />
         )}
         <ChatInput
