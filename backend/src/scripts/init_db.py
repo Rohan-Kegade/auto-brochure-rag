@@ -1,6 +1,6 @@
 """Create the MySQL database named in DATABASE_URL if it does not exist.
 
-Usage (from backend/):  python -m scripts.init_db
+Usage (from backend/src/):  python -m scripts.init_db
 Then create the tables:  alembic upgrade head
 """
 
@@ -18,7 +18,7 @@ load_dotenv()
 async def main() -> None:
     raw = os.getenv("DATABASE_URL")
     if not raw:
-        raise SystemExit("DATABASE_URL is not set (see backend/.env.sample).")
+        raise SystemExit("DATABASE_URL is not set (see backend/src/.env.sample).")
 
     url = make_url(raw)
     db_name = url.database

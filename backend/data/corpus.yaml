@@ -1,0 +1,28 @@
+# Brochures every component eval runs against. The PDFs sit next to this file
+# (gitignored). Files in goldens/ refer to these by `id`.
+documents:
+  - id: venue
+    file: venue-digital-brochure-2025.pdf
+    make: Hyundai
+    model: Venue
+    pages: 20
+  - id: sorento
+    file: The_Kia_Sorento_Brochure_Desktop.pdf
+    make: Kia
+    model: Sorento
+    pages: 9
+  - id: punch
+    file: new-tata-punch-brochure.pdf
+    make: Tata
+    model: Punch
+    pages: 30
+  - id: xpres
+    file: xpres-brochure.pdf
+    make: Tata
+    model: Xpres
+    pages: 4
+  - id: safari
+    file: safari-master-brochure.pdf
+    make: Tata
+    model: Safari
+    pages: 36

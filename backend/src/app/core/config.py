@@ -6,8 +6,8 @@ load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
     raise RuntimeError(
-        "GOOGLE_API_KEY is not set. Add it to backend/.env or the deployment "
-        "environment (see backend/.env.sample)."
+        "GOOGLE_API_KEY is not set. Add it to backend/src/.env or the deployment "
+        "environment (see backend/src/.env.sample)."
     )
 
 # Persistence. DATABASE_URL is validated where the database is first used.

@@ -1,0 +1,100 @@
+# Gold facts for the document-loader eval, read off the rendered brochure
+# pages by hand (never copied from any loader's output, so no loader is
+# favoured). Page numbers are 1-based PDF pages.
+#
+# Each fact has:
+#   doc, page   where the fact is printed
+#   label       the table row label (omit for plain text facts)
+#   values      what must be extracted, left-to-right as printed
+#   match       "ordered" (default): values appear in this order on the row
+#               "contiguous": values appear back-to-back (for S / - matrices
+#               where single letters would otherwise match anywhere)
+#
+# The kind is derived from the shape:
+#   text  no label             -> was the text extracted on the right page?
+#   cell  label + one value    -> did the value stay on its label's row?
+#   row   label + many values  -> did the row's columns stay in order?
+
+facts:
+  # --- Hyundai Venue ------------------------------------------------------
+  # p17: two-level spec table, values merged across engine columns.
+  - {id: venue-length, doc: venue, page: 17, label: "Length (mm)", values: ["3 995"]}
+  - {id: venue-width, doc: venue, page: 17, label: "Width (mm)", values: ["1 800"]}
+  - {id: venue-wheelbase, doc: venue, page: 17, label: "Wheelbase (mm)", values: ["2 520"]}
+  - {id: venue-fuel-tank, doc: venue, page: 17, label: "Fuel tank capacity", values: ["45"]}
+  - {id: venue-displacement, doc: venue, page: 17, label: "Displacement", values: ["1 197", "998", "1 493"]}
+  - {id: venue-power, doc: venue, page: 17, label: "Max. Power", values: ["61 kW (83 PS)", "88.3 kW (120 PS)", "85 kW (116 PS)"]}
+  - {id: venue-torque, doc: venue, page: 17, label: "Max. Torque", values: ["114.7 Nm", "172 Nm", "250 Nm"]}
+  - {id: venue-spare, doc: venue, page: 17, label: "Spare wheel", values: ["195/65 R15 (D = 380.2 mm) Steel wheel"]}
+  - {id: venue-rear-suspension, doc: venue, page: 17, values: ["Coupled torsion beam axle with coil spring"]}
+  # p18-19: variant x feature matrices (S / - cells across 8 trims).
+  - {id: venue-turbo-trims, doc: venue, page: 18, label: "Turbo GDi petrol", values: ["MT", "-", "MT/DCT", "DCT", "-", "-", "MT/DCT", "DCT"], match: contiguous}
+  - {id: venue-diesel-trims, doc: venue, page: 18, label: "CRDi diesel", values: ["MT", "-", "MT/AT", "-", "-", "MT", "-", "AT"], match: contiguous}
+  - {id: venue-tpms, doc: venue, page: 18, label: "Tyre pressure monitoring system (TPMS) highline", values: ["-", "S", "S", "S", "S", "S", "S", "S"], match: contiguous}
+  - {id: venue-auto-headlamps, doc: venue, page: 18, label: "Automatic headlamps", values: ["-", "-", "-", "S", "S", "S", "S", "S"], match: contiguous}
+  - {id: venue-lka, doc: venue, page: 18, label: "Lane Keeping Assist (LKA)", values: ["-", "-", "-", "-", "-", "-", "-", "S"], match: contiguous}
+  - {id: venue-horizon-lamp, doc: venue, page: 18, label: "Horizon LED positioning lamp", values: ["-", "-", "-", "-", "-", "S", "S", "S"], match: contiguous}
+  - {id: venue-bose, doc: venue, page: 19, label: "Bose premium sound 8 speaker system", values: ["-", "-", "-", "-", "-", "-", "-", "S"], match: contiguous}
+  - {id: venue-bluelink, doc: venue, page: 19, label: "Hyundai Bluelink (Connected car technology)", values: ["-", "-", "-", "-", "S", "S", "S", "S"], match: contiguous}
+  - {id: venue-ventilated-seats, doc: venue, page: 19, label: "Front row ventilated seats", values: ["-", "-", "-", "-", "-", "-", "S", "S"], match: contiguous}
+  - {id: venue-front-tweeters, doc: venue, page: 19, label: "Front tweeters", values: ["-", "-", "-", "S", "S", "S", "S", "S"], match: contiguous}
+  - {id: venue-remote-start, doc: venue, page: 19, label: "Remote engine start with smart key", values: ["-", "-", "1.0 T-PL only", "1.0 T-PL only", "-", "S", "S", "S"], match: contiguous}
+  - {id: venue-isg, doc: venue, page: 19, label: "Idle stop & go (ISG)", values: ["-", "-", "-", "-", "-", "-", "-", "1.0 T-PL only"], match: contiguous}
+  # p8: marketing prose and photo captions.
+  - {id: venue-boot-caption, doc: venue, page: 8, values: ["Spacious boot (375 litres)"]}
+  - {id: venue-prose, doc: venue, page: 8, values: ["Adventure is thrilling when it's unplanned. It's instinctive."]}
+  - {id: venue-other-features, doc: venue, page: 8, values: ["Scooped front seatback"]}
+
+  # --- Kia Sorento --------------------------------------------------------
+  # p8: landscape spread, white-on-dark spec table beside two other tables.
+  - {id: sorento-displacement, doc: sorento, page: 8, label: "Displacement (cc)", values: ["2 151", "1 598"]}
+  - {id: sorento-power, doc: sorento, page: 8, label: "Max. Power (kW/RPM)", values: ["142/ 3 800", "132.4 (Engine) & 47.7 (Motor)/ 5 500"]}
+  - {id: sorento-torque, doc: sorento, page: 8, label: "Max. Torque (Nm/RPM)", values: ["442/ 1 750", "265 (Engine) & 264 (Motor)"]}
+  - {id: sorento-transmission, doc: sorento, page: 8, label: "Transmission", values: ["8 DCT", "6 AT"]}
+  - {id: sorento-fuel-system, doc: sorento, page: 8, label: "Fuel System", values: ["CRDi", "T-GDi"]}
+  - {id: sorento-fuel-tank, doc: sorento, page: 8, label: "Fuel Tank Capacity", values: ["67"]}
+  - {id: sorento-spare, doc: sorento, page: 8, label: "Tire Size - Spare", values: ["135/ 80 D18"]}
+  - {id: sorento-boot, doc: sorento, page: 8, label: "Boot Space", values: ["813"]}
+  - {id: sorento-front-suspension, doc: sorento, page: 8, label: "Suspension - Front", values: ["McPherson Strut & stabilizer"]}
+  - {id: sorento-brakes, doc: sorento, page: 8, label: "Brakes", values: ["Disc - All Wheels"]}
+
+  # --- Tata Punch ---------------------------------------------------------
+  # p29: stacked spec tables, cells spanning 1-3 engine columns.
+  - {id: punch-power, doc: punch, page: 29, label: "Max Power (PS@rpm)", values: ["87.8 PS @ 6000 rpm", "73.4 PS @ 6000 rpm", "120 PS @ 5500 rpm"]}
+  - {id: punch-torque, doc: punch, page: 29, label: "Max Torque (Nm@rpm)", values: ["115 Nm @ 3250 rpm", "103 Nm @ 3500 rpm", "170 Nm @ 1750 - 4000 rpm"]}
+  - {id: punch-type, doc: punch, page: 29, label: "Type", values: ["1.2L Revotron", "1.2L Revotron iCNG", "1.2L Turbocharged"]}
+  - {id: punch-wheelbase, doc: punch, page: 29, label: "Wheelbase (mm)", values: ["2445"]}
+  - {id: punch-lwh, doc: punch, page: 29, label: "Length (mm)", values: ["3876 x 1742 x 1615"]}
+  - {id: punch-boot, doc: punch, page: 29, label: "Boot Space (Litre)", values: ["366", "210", "366"]}
+  - {id: punch-fuel-tank, doc: punch, page: 29, label: "Fuel Tank Capacity (Litre)", values: ["37L", "CNG: 60L", "37L"]}
+  - {id: punch-spare, doc: punch, page: 29, label: "Spare Tyre Size", values: ["185/70 R15 Steel Wheels"]}
+  - {id: punch-tyre-accomplished, doc: punch, page: 29, values: ["Accomplished : 195/60 R16 (Radial-Tubeless)"]}
+  # p30: persona feature lists in side-by-side columns.
+  - {id: punch-harman, doc: punch, page: 30, values: ["Ultra View 20.32cm Touchscreen Infotainment by HARMAN"]}
+  - {id: punch-svc, doc: punch, page: 30, values: ["360° Surround View Camera"]}
+  - {id: punch-alloys, doc: punch, page: 30, values: ["Trailcrest R16 Diamond Cut Alloy Wheels"]}
+  - {id: punch-charger, doc: punch, page: 30, values: ["Fast 15W C-type Front Charger"]}
+
+  # --- Tata Xpres ---------------------------------------------------------
+  # p4: clean 2-column spec table (baseline: everyone should get this).
+  - {id: xpres-power, doc: xpres, page: 4, label: "Power (PS / RPM)", values: ["86 PS @ 6000 RPM", "75.5 PS @ 6000 RPM"]}
+  - {id: xpres-torque, doc: xpres, page: 4, label: "Torque (Nm / RPM)", values: ["113 Nm @ 3300 RPM", "95 Nm @ 3500 RPM"]}
+  - {id: xpres-ground-clearance, doc: xpres, page: 4, label: "Ground Clearance (mm)", values: ["170 mm", "165 mm"]}
+  - {id: xpres-boot, doc: xpres, page: 4, label: "Bootspace (litres)", values: ["419 L", "227 L"]}
+  - {id: xpres-fuel-tank, doc: xpres, page: 4, label: "Fuel Tank Capacity (litres)", values: ["35 L", "70 L (Water Capacity)"]}
+  - {id: xpres-wheelbase, doc: xpres, page: 4, label: "Wheelbase (mm)", values: ["2450 mm"]}
+  - {id: xpres-tyre, doc: xpres, page: 4, label: "Tyre Size", values: ["175/65 R14"]}
+  - {id: xpres-spare, doc: xpres, page: 4, label: "Spare Tyre", values: ["155/80 R13"]}
+  - {id: xpres-engine, doc: xpres, page: 4, label: "Capacity, Cylinder", values: ["1199cc, 3 Cylinders"]}
+
+  # --- Tata Safari --------------------------------------------------------
+  # p36: grouped spec tables on a textured background, two engines.
+  - {id: safari-capacity, doc: safari, page: 36, label: "Capacity, Cylinders", values: ["1498CC, In line 4 Cylinder", "1956CC, In line 4 Cylinder"]}
+  - {id: safari-power, doc: safari, page: 36, label: "Max Power", values: ["125 kW (170 PS) @ 5000 rpm", "125 kW (170 PS) @ 3750 rpm"]}
+  - {id: safari-torque, doc: safari, page: 36, label: "Max Torque", values: ["280 Nm @ 1750 -3500 rpm", "350 Nm@ 1750-2500 rpm"]}
+  - {id: safari-lwh, doc: safari, page: 36, label: "Length x Width x Height", values: ["4668 mm X 1922 mm X 1795 mm"]}
+  - {id: safari-wheelbase, doc: safari, page: 36, label: "Wheelbase (mm)", values: ["2741"]}
+  - {id: safari-fuel-tank, doc: safari, page: 36, label: "Fuel Tank (L)", values: ["50"]}
+  - {id: safari-spare, doc: safari, page: 36, label: "Spare Wheel", values: ["Steel Wheel - 235/70 R16"]}
+  - {id: safari-wheels-r18, doc: safari, page: 36, values: ["235/60/R18 Alloy Wheels - Pure X #DARK | Adventure X+"]}
+  - {id: safari-boot-folded, doc: safari, page: 36, values: ["V212 - 827L/V214 - 1550L"]}

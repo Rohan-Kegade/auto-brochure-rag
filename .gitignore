@@ -39,3 +39,6 @@ Thumbs.db
 # Local planning / data
 plan.md
 .data/
+
+# Eval raw extractions: brochure full text, regenerable from backend/data/
+backend/evals/*/results/outputs/

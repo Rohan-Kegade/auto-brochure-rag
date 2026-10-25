@@ -1,0 +1,3446 @@
+{
+  "pdfplumber": {
+    "description": "Current production loader (app.rag.indexing.load_pdf_pages)",
+    "summary": {
+      "facts": 65,
+      "text_recall": 1.0,
+      "value_recall": 1.0,
+      "row_integrity": 0.963,
+      "column_order": 0.939,
+      "page_accuracy": 1.0,
+      "score": 0.982,
+      "seconds_total": 5.2,
+      "seconds_per_page": 0.05,
+      "chars_total": 102115,
+      "docs_failed": []
+    },
+    "by_doc": {
+      "punch": {
+        "facts": 13,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "safari": {
+        "facts": 9,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "sorento": {
+        "facts": 10,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "venue": {
+        "facts": 24,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 0.9,
+        "column_order": 0.867,
+        "page_accuracy": 1.0,
+        "score": 0.95
+      },
+      "xpres": {
+        "facts": 9,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      }
+    },
+    "facts": [
+      {
+        "id": "venue-length",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-width",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-rear-suspension",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-turbo-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-diesel-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-tpms",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-auto-headlamps",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-lka",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-horizon-lamp",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bose",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bluelink",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-ventilated-seats",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-front-tweeters",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-remote-start",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-isg",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-boot-caption",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-prose",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-other-features",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "sorento-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-transmission",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-system",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-boot",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-front-suspension",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-brakes",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "punch-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-type",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-tyre-accomplished",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-harman",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-svc",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-alloys",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-charger",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "xpres-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-ground-clearance",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-tyre",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-engine",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "safari-capacity",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheels-r18",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-boot-folded",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      }
+    ]
+  },
+  "pdfplumber_text": {
+    "description": "pdfplumber extract_text() only, no table extraction",
+    "summary": {
+      "facts": 65,
+      "text_recall": 0.909,
+      "value_recall": 1.0,
+      "row_integrity": 0.889,
+      "column_order": 0.848,
+      "page_accuracy": 1.0,
+      "score": 0.926,
+      "seconds_total": 4.8,
+      "seconds_per_page": 0.05,
+      "chars_total": 74019,
+      "docs_failed": []
+    },
+    "by_doc": {
+      "punch": {
+        "facts": 13,
+        "text_recall": 0.8,
+        "value_recall": 1.0,
+        "row_integrity": 0.5,
+        "column_order": 0.4,
+        "page_accuracy": 1.0,
+        "score": 0.71
+      },
+      "safari": {
+        "facts": 9,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "sorento": {
+        "facts": 10,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "venue": {
+        "facts": 24,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 0.9,
+        "column_order": 0.867,
+        "page_accuracy": 1.0,
+        "score": 0.95
+      },
+      "xpres": {
+        "facts": 9,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      }
+    },
+    "facts": [
+      {
+        "id": "venue-length",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-width",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-rear-suspension",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-turbo-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-diesel-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-tpms",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-auto-headlamps",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-lka",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-horizon-lamp",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bose",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bluelink",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-ventilated-seats",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-front-tweeters",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-remote-start",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-isg",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-boot-caption",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-prose",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-other-features",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "sorento-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-transmission",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-system",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-boot",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-front-suspension",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-brakes",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "punch-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-type",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-tyre-accomplished",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-harman",
+        "kind": "text",
+        "on_page": false,
+        "in_doc": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-svc",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-alloys",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-charger",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "xpres-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-ground-clearance",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-tyre",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-engine",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "safari-capacity",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheels-r18",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-boot-folded",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      }
+    ]
+  },
+  "pdfplumber_dedup": {
+    "description": "pdfplumber, each table once: Markdown if well-formed, else plain text",
+    "summary": {
+      "facts": 65,
+      "text_recall": 1.0,
+      "value_recall": 1.0,
+      "row_integrity": 0.926,
+      "column_order": 0.909,
+      "page_accuracy": 1.0,
+      "score": 0.963,
+      "seconds_total": 5.1,
+      "seconds_per_page": 0.05,
+      "chars_total": 76592,
+      "docs_failed": []
+    },
+    "by_doc": {
+      "punch": {
+        "facts": 13,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 0.75,
+        "column_order": 0.8,
+        "page_accuracy": 1.0,
+        "score": 0.875
+      },
+      "safari": {
+        "facts": 9,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "sorento": {
+        "facts": 10,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "venue": {
+        "facts": 24,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 0.9,
+        "column_order": 0.867,
+        "page_accuracy": 1.0,
+        "score": 0.95
+      },
+      "xpres": {
+        "facts": 9,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      }
+    },
+    "facts": [
+      {
+        "id": "venue-length",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-width",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-rear-suspension",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-turbo-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-diesel-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-tpms",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-auto-headlamps",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-lka",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-horizon-lamp",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bose",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bluelink",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-ventilated-seats",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-front-tweeters",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-remote-start",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-isg",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-boot-caption",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-prose",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-other-features",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "sorento-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-transmission",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-system",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-boot",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-front-suspension",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-brakes",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "punch-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-type",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-tyre-accomplished",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-harman",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-svc",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-alloys",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-charger",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "xpres-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-ground-clearance",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-tyre",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-engine",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "safari-capacity",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheels-r18",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-boot-folded",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      }
+    ]
+  },
+  "pymupdf4llm": {
+    "description": "PyMuPDF4LLM Markdown export with table detection, OCR off",
+    "summary": {
+      "facts": 65,
+      "text_recall": 0.909,
+      "value_recall": 0.981,
+      "row_integrity": 0.889,
+      "column_order": 0.818,
+      "page_accuracy": 1.0,
+      "score": 0.921,
+      "seconds_total": 42.5,
+      "seconds_per_page": 0.43,
+      "chars_total": 85766,
+      "docs_failed": []
+    },
+    "by_doc": {
+      "punch": {
+        "facts": 13,
+        "text_recall": 0.8,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 0.96
+      },
+      "safari": {
+        "facts": 9,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "sorento": {
+        "facts": 10,
+        "text_recall": null,
+        "value_recall": 0.9,
+        "row_integrity": 0.9,
+        "column_order": 0.8,
+        "page_accuracy": 1.0,
+        "score": 0.9
+      },
+      "venue": {
+        "facts": 24,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 0.75,
+        "column_order": 0.667,
+        "page_accuracy": 1.0,
+        "score": 0.875
+      },
+      "xpres": {
+        "facts": 9,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      }
+    },
+    "facts": [
+      {
+        "id": "venue-length",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-width",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-rear-suspension",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-turbo-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-diesel-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-tpms",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-auto-headlamps",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-lka",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-horizon-lamp",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bose",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bluelink",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-ventilated-seats",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-front-tweeters",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-remote-start",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-isg",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-boot-caption",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-prose",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-other-features",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "sorento-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-power",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-transmission",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-system",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-boot",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-front-suspension",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-brakes",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "punch-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-type",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-tyre-accomplished",
+        "kind": "text",
+        "on_page": false,
+        "in_doc": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-harman",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-svc",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-alloys",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-charger",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "xpres-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-ground-clearance",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-tyre",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-engine",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "safari-capacity",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheels-r18",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-boot-folded",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      }
+    ]
+  },
+  "docling": {
+    "description": "IBM Docling with TableFormer (accurate mode), OCR off",
+    "summary": {
+      "facts": 65,
+      "text_recall": 0.909,
+      "value_recall": 1.0,
+      "row_integrity": 0.741,
+      "column_order": 0.727,
+      "page_accuracy": 1.0,
+      "score": 0.852,
+      "seconds_total": 262.1,
+      "seconds_per_page": 2.65,
+      "chars_total": 159109,
+      "docs_failed": []
+    },
+    "by_doc": {
+      "punch": {
+        "facts": 13,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "safari": {
+        "facts": 9,
+        "text_recall": 1.0,
+        "value_recall": 1.0,
+        "row_integrity": 0.0,
+        "column_order": 0.0,
+        "page_accuracy": 1.0,
+        "score": 0.5
+      },
+      "sorento": {
+        "facts": 10,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      },
+      "venue": {
+        "facts": 24,
+        "text_recall": 0.75,
+        "value_recall": 1.0,
+        "row_integrity": 0.65,
+        "column_order": 0.6,
+        "page_accuracy": 1.0,
+        "score": 0.775
+      },
+      "xpres": {
+        "facts": 9,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 1.0,
+        "column_order": 1.0,
+        "page_accuracy": 1.0,
+        "score": 1.0
+      }
+    },
+    "facts": [
+      {
+        "id": "venue-length",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-width",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-rear-suspension",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-turbo-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-diesel-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-tpms",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-auto-headlamps",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-lka",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-horizon-lamp",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bose",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bluelink",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-ventilated-seats",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-front-tweeters",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-remote-start",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-isg",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-boot-caption",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-prose",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-other-features",
+        "kind": "text",
+        "on_page": false,
+        "in_doc": false,
+        "doc": "venue"
+      },
+      {
+        "id": "sorento-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-transmission",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-system",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-boot",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-front-suspension",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-brakes",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "sorento"
+      },
+      {
+        "id": "punch-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-type",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-tyre-accomplished",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-harman",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-svc",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-alloys",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-charger",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "xpres-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-ground-clearance",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-tyre",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-engine",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "safari-capacity",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheels-r18",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-boot-folded",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "safari"
+      }
+    ]
+  },
+  "unstructured": {
+    "description": "Unstructured hi_res partitioning with table structure inference",
+    "summary": {
+      "facts": 65,
+      "text_recall": 0.727,
+      "value_recall": 0.852,
+      "row_integrity": 0.37,
+      "column_order": 0.212,
+      "page_accuracy": 0.982,
+      "score": 0.586,
+      "seconds_total": 461.1,
+      "seconds_per_page": 4.66,
+      "chars_total": 88578,
+      "docs_failed": []
+    },
+    "by_doc": {
+      "punch": {
+        "facts": 13,
+        "text_recall": 1.0,
+        "value_recall": 0.625,
+        "row_integrity": 0.625,
+        "column_order": 0.4,
+        "page_accuracy": 1.0,
+        "score": 0.7
+      },
+      "safari": {
+        "facts": 9,
+        "text_recall": 0.0,
+        "value_recall": 0.714,
+        "row_integrity": 0.714,
+        "column_order": 0.667,
+        "page_accuracy": 1.0,
+        "score": 0.571
+      },
+      "sorento": {
+        "facts": 10,
+        "text_recall": null,
+        "value_recall": 1.0,
+        "row_integrity": 0.0,
+        "column_order": 0.0,
+        "page_accuracy": 1.0,
+        "score": 0.375
+      },
+      "venue": {
+        "facts": 24,
+        "text_recall": 0.75,
+        "value_recall": 0.95,
+        "row_integrity": 0.25,
+        "column_order": 0.067,
+        "page_accuracy": 1.0,
+        "score": 0.56
+      },
+      "xpres": {
+        "facts": 9,
+        "text_recall": null,
+        "value_recall": 0.778,
+        "row_integrity": 0.556,
+        "column_order": 0.4,
+        "page_accuracy": 0.875,
+        "score": 0.639
+      }
+    },
+    "facts": [
+      {
+        "id": "venue-length",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-width",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-displacement",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-rear-suspension",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-turbo-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-diesel-trims",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-tpms",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-auto-headlamps",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-lka",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-horizon-lamp",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bose",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-bluelink",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-ventilated-seats",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-front-tweeters",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-remote-start",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-isg",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-boot-caption",
+        "kind": "text",
+        "on_page": false,
+        "in_doc": false,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-prose",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "venue-other-features",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "venue"
+      },
+      {
+        "id": "sorento-displacement",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-transmission",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-system",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-boot",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-front-suspension",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "sorento-brakes",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "sorento"
+      },
+      {
+        "id": "punch-power",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-torque",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-type",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-lwh",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-boot",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-fuel-tank",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-tyre-accomplished",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-harman",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-svc",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-alloys",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "punch-charger",
+        "kind": "text",
+        "on_page": true,
+        "in_doc": true,
+        "doc": "punch"
+      },
+      {
+        "id": "xpres-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-ground-clearance",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-boot",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-fuel-tank",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": false,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-tyre",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-spare",
+        "kind": "cell",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "xpres"
+      },
+      {
+        "id": "xpres-engine",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "xpres"
+      },
+      {
+        "id": "safari-capacity",
+        "kind": "row",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-power",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-torque",
+        "kind": "row",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-lwh",
+        "kind": "cell",
+        "on_page": false,
+        "in_doc": false,
+        "row_intact": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheelbase",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-fuel-tank",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-spare",
+        "kind": "cell",
+        "on_page": true,
+        "in_doc": true,
+        "row_intact": true,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-wheels-r18",
+        "kind": "text",
+        "on_page": false,
+        "in_doc": false,
+        "doc": "safari"
+      },
+      {
+        "id": "safari-boot-folded",
+        "kind": "text",
+        "on_page": false,
+        "in_doc": false,
+        "doc": "safari"
+      }
+    ]
+  }
+}
