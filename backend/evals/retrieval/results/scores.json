@@ -1,0 +1,186 @@
+{
+  "config": {
+    "embedding_model": "gemini-embedding-2",
+    "chunk_size": 1500,
+    "chunk_overlap": 150,
+    "k": 10,
+    "scope": "all",
+    "judge": "gemini-3.1-flash-lite",
+    "scope_note": "every brochure in the corpus is attached, as in a chat with all of them open",
+    "date": "2026-10-25"
+  },
+  "summary": {
+    "cases": 2,
+    "contextual_recall": 1.0,
+    "contextual_recall_pass": 1.0,
+    "contextual_recall_errors": 0,
+    "contextual_precision": 0.9275793650793651,
+    "contextual_precision_pass": 1.0,
+    "contextual_precision_errors": 0,
+    "contextual_relevancy": 0.15923076923076923,
+    "contextual_relevancy_pass": 0.0,
+    "contextual_relevancy_errors": 0,
+    "page_hit": 1.0,
+    "page_hit_pass": 1.0,
+    "page_hit_errors": 0
+  },
+  "cases": [
+    {
+      "id": "venue-boot",
+      "type": "spec",
+      "sources": {
+        "venue": [
+          8
+        ]
+      },
+      "question": "How much boot space does the Hyundai Venue have?",
+      "expected_answer": "The Hyundai Venue has 375 litres of boot space, as per the VDA 215 method.",
+      "retrieved": [
+        {
+          "doc": "venue",
+          "page": 8
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        },
+        {
+          "doc": "venue",
+          "page": 17
+        },
+        {
+          "doc": "venue",
+          "page": 15
+        },
+        {
+          "doc": "venue",
+          "page": 13
+        },
+        {
+          "doc": "venue",
+          "page": 14
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        },
+        {
+          "doc": "venue",
+          "page": 3
+        },
+        {
+          "doc": "venue",
+          "page": 9
+        },
+        {
+          "doc": "venue",
+          "page": 11
+        }
+      ],
+      "scores": {
+        "contextual_recall": 1.0,
+        "contextual_precision": 1.0,
+        "contextual_relevancy": 0.038461538461538464,
+        "page_hit": 1.0
+      },
+      "reasons": {
+        "contextual_recall": "The score is 1.00 because the first node in the retrieval context perfectly captures the boot space capacity and measurement method mentioned in the expected output.",
+        "contextual_precision": "The score is 1.00 because the first node perfectly identifies the boot space as '375 litres', and all subsequent irrelevant nodes are correctly ranked lower.",
+        "contextual_relevancy": "The score is 0.04 because while the context contains a single relevant statement noting 'a spacious boot of 375 litres', the vast majority of the provided text focuses on unrelated interior, safety, and exterior design features, failing to provide a comprehensive answer."
+      },
+      "errors": {},
+      "precision_verdicts": [
+        "yes",
+        "no",
+        "no",
+        "no",
+        "no",
+        "no",
+        "no",
+        "no",
+        "no",
+        "no"
+      ]
+    },
+    {
+      "id": "cmp-xpres-punch-petrol",
+      "type": "comparison",
+      "sources": {
+        "xpres": [
+          4
+        ],
+        "punch": [
+          29
+        ]
+      },
+      "question": "Compare the power and torque of the Tata Xpres petrol with the Tata Punch 1.2L Revotron petrol.",
+      "expected_answer": "Both use a 1199 cc 3 cylinder 1.2L Revotron engine. The Xpres petrol makes 86 PS at 6000 RPM and 113 Nm at 3300 RPM. The Punch 1.2L Revotron petrol makes 87.8 PS at 6000 rpm and 115 Nm at 3250 rpm.",
+      "retrieved": [
+        {
+          "doc": "xpres",
+          "page": 4
+        },
+        {
+          "doc": "xpres",
+          "page": 4
+        },
+        {
+          "doc": "xpres",
+          "page": 4
+        },
+        {
+          "doc": "punch",
+          "page": 19
+        },
+        {
+          "doc": "xpres",
+          "page": 3
+        },
+        {
+          "doc": "punch",
+          "page": 29
+        },
+        {
+          "doc": "punch",
+          "page": 29
+        },
+        {
+          "doc": "xpres",
+          "page": 2
+        },
+        {
+          "doc": "punch",
+          "page": 27
+        },
+        {
+          "doc": "xpres",
+          "page": 1
+        }
+      ],
+      "scores": {
+        "contextual_recall": 1.0,
+        "contextual_precision": 0.8551587301587301,
+        "contextual_relevancy": 0.28,
+        "page_hit": 1.0
+      },
+      "reasons": {
+        "contextual_recall": "The score is 1.00 because the nodes in retrieval context perfectly provide all the technical specifications for both vehicles mentioned in the expected output.",
+        "contextual_precision": "The score is 0.86 because while the first three nodes correctly provide the Tata Xpres specifications, the fourth and fifth nodes are irrelevant as they discuss incorrect engine variants or lack technical data, which lowers the precision before the relevant Tata Punch data appears at the sixth node.",
+        "contextual_relevancy": "The score is 0.28 because while the context contains relevant data like 'The Tata Xpres petrol has a power output of 86 PS' and 'The Tata Punch 1.2L Revotron petrol has a max power of 87.8 PS', the retrieval is heavily cluttered with irrelevant information such as 'First-in-Segment 70L Twin-Cylinder CNG' and 'Best-in-Segment Bootspace', making it difficult to extract the requested comparison."
+      },
+      "errors": {},
+      "precision_verdicts": [
+        "yes",
+        "yes",
+        "yes",
+        "no",
+        "no",
+        "yes",
+        "yes",
+        "yes",
+        "no",
+        "no"
+      ]
+    }
+  ]
+}

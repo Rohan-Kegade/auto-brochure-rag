@@ -93,6 +93,15 @@ def format_context(chunks) -> str:
     return "\n\n---\n\n".join(blocks)
 
 
+def build_search(document_ids: list[str], vector_store=None, k: int = RETRIEVAL_K):
+    """The search step alone: the k closest chunks, only inside `document_ids`.
+    The retrieval eval passes its own `vector_store` and `k`."""
+    store = vector_store or get_vector_store()
+    return store.as_retriever(
+        search_kwargs={"k": k, "filter": only_these_documents(document_ids)}
+    )
+
+
 def build_retrieval_chain(document_ids: list[str]):
     """LCEL retrieval chain over the chunks of `document_ids`.
 
@@ -103,11 +112,7 @@ def build_retrieval_chain(document_ids: list[str]):
         raise ValueError("At least one document id is required.")
 
     llm = get_llm()
-
-    # Searches Qdrant for the k closest chunks, only inside the chat's PDFs.
-    search = get_vector_store().as_retriever(
-        search_kwargs={"k": RETRIEVAL_K, "filter": only_these_documents(document_ids)}
-    )
+    search = build_search(document_ids)
 
     # Only spend an LLM call on rewriting when there is history to resolve.
     rewrite_question = RunnableBranch(

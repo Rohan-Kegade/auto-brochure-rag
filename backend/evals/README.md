@@ -19,6 +19,10 @@ backend/
       loaders/               one adapter per candidate
       metrics.py  report.py
       results/               outputs/, scores.json, report.md
+    retrieval/
+      eval_retrieval.py      entry point
+      index.py  metrics.py  report.py
+      results/               qdrant/, retrievals.json, scores.json, report.md
 ```
 
 ## Setup
@@ -60,14 +64,14 @@ brochures it finished.
 
 **Metrics** (full definitions in `document_loader/metrics.py`):
 
-| Metric | Question it answers |
-|---|---|
-| Text recall | Is prose / caption text extracted on its page? |
-| Value recall | Are table values extracted on their page at all? |
-| Row integrity | Does one line hold the row label followed by its values? |
-| Column order | Do multi-column values (petrol / diesel / CNG) stay in order? |
+| Metric        | Question it answers                                               |
+| ------------- | ----------------------------------------------------------------- |
+| Text recall   | Is prose / caption text extracted on its page?                    |
+| Value recall  | Are table values extracted on their page at all?                  |
+| Row integrity | Does one line hold the row label followed by its values?          |
+| Column order  | Do multi-column values (petrol / diesel / CNG) stay in order?     |
 | Page accuracy | Of the facts found, how many are on the correct page (citations)? |
-| Output size | Characters extracted: what gets chunked and embedded |
+| Output size   | Characters extracted: what gets chunked and embedded              |
 
 `score = 0.2 × text recall + 0.3 × value recall + 0.5 × row integrity`
 
@@ -80,6 +84,61 @@ clone run the eval before using `--rescore`.
 **Adding a candidate:** write `document_loader/loaders/<name>.py` with
 `load(path) -> list[Page]`, add it to `LOADERS` in `loaders/__init__.py`,
 add any dependency to `requirements.txt`, then run it with `--loaders <name>`.
+
+## Retrieval eval
+
+Does the retriever return the chunks needed to answer a question, ranked
+first, with little noise? The retriever is tested on its own, with no
+generator: each of the 64 cases in `goldens/retrieval.yaml` is a question and
+the ideal answer to it, and an LLM judge
+([DeepEval](https://deepeval.com), Gemini) compares the retrieved chunks
+with that answer. Reference answers stay valid when chunking changes, which
+labelled chunk ids would not.
+
+The production code does the work: brochures are chunked and embedded with
+`app.rag.indexing`'s own steps, and searched with `app.rag.retrieval`'s
+`build_search`. Chunks go to a local Qdrant store in `results/qdrant/`, not
+the app's server, so no docker is needed. Each chunking + embedding config
+gets its own collection, and brochures are only embedded once.
+
+```powershell
+cd backend
+python -m evals.retrieval.eval_retrieval                    # all cases, all 5 brochures searched
+python -m evals.retrieval.eval_retrieval --scope own        # search only each question's brochures
+python -m evals.retrieval.eval_retrieval --k 10             # more chunks per search (app: 5)
+python -m evals.retrieval.eval_retrieval --cases venue-boot safari-adas
+python -m evals.retrieval.eval_retrieval --rescore          # re-judge saved retrievals only
+python -m evals.retrieval.eval_retrieval --relevancy        # add DeepEval relevancy (slow)
+python -m evals.retrieval.eval_retrieval --judge gemini-3.1-flash-lite --rpm 5
+```
+
+By default every search covers all 5 brochures, as in a chat with all of
+them open, so pulling a chunk from the wrong car (Xpres and Punch share an
+engine) costs precision and chunk relevance.
+
+**Free-tier Gemini keys** allow as few as 5 requests per minute per model,
+and each case costs about 4 judge calls (2 for recall, 2 for precision), so
+a full run is about 256 calls: under an hour at `--rpm 5`, minutes on a paid
+key. `--relevancy` adds k + 1 calls per case. Pass `--rpm` to stay under the
+quota; indexing waits out the embedding quota on its own.
+
+**Metrics** (full definitions in `retrieval/metrics.py`):
+
+| Metric               | Question it answers                                      | Needs     |
+| -------------------- | -------------------------------------------------------- | --------- |
+| Contextual recall    | Do the chunks contain every fact in the expected answer? | LLM judge |
+| Contextual precision | Are the relevant chunks ranked first? (rank-weighted)    | LLM judge |
+| Chunk relevance      | What share of the retrieved chunks is relevant? (noise)  | precision's per-chunk verdicts, no extra calls |
+| Page hit             | Did a chunk come from a page the answer is printed on?   | –         |
+| Contextual relevancy | How much of the retrieved text is on-topic? (`--relevancy`) | LLM judge, one call per chunk |
+
+Precision ignores junk ranked below all relevant chunks; chunk relevance is
+the metric that counts it, so it is the one to watch when changing k. Page
+hit does not depend on the judge, so a disagreement between it and recall
+points at the judge or at a golden. **Results** are in `retrieval/results/report.md`,
+with the judge's reasons for the lowest-recall cases. The retrieved chunks
+are in `results/retrievals.json` (gitignored), so read these when a score
+surprises you.
 
 ## Adding an eval for another component
 

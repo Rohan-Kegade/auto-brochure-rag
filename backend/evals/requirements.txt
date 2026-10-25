@@ -8,6 +8,9 @@ PyYAML==6.0.3
 beautifulsoup4==4.15.0
 pypdf==6.16.1
 
+# Retrieval eval: LLM-judged contextual recall / precision / relevancy
+deepeval==4.3.1
+
 # Document-loader candidates (pdfplumber comes with the app)
 pymupdf4llm==1.28.2
 docling-slim[format-pdf,models-local]==2.120.3

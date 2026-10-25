@@ -42,3 +42,6 @@ plan.md
 
 # Eval raw extractions: brochure full text, regenerable from backend/data/
 backend/evals/*/results/outputs/
+# Retrieval eval: local vector store + retrieved chunk text, regenerable
+backend/evals/retrieval/results/qdrant/
+backend/evals/retrieval/results/retrievals.json

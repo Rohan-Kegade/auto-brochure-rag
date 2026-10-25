@@ -43,6 +43,7 @@ def load_corpus(only: list[str] | None = None) -> list[Brochure]:
     return brochures
 
 
-def load_gold(component: str) -> list[dict]:
+def load_gold(component: str, key: str = "facts") -> list[dict]:
+    """The list under `key` in `goldens/<component>.yaml`."""
     with open(GOLDENS_DIR / f"{component}.yaml", encoding="utf-8") as f:
-        return yaml.safe_load(f)["facts"]
+        return yaml.safe_load(f)[key]
