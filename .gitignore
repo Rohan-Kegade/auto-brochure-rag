@@ -45,3 +45,4 @@ backend/evals/*/results/outputs/
 # Retrieval eval: local vector store + retrieved chunk text, regenerable
 backend/evals/retrieval/results/qdrant/
 backend/evals/retrieval/results/retrievals.json
+backend/evals/generator/results/generations.json

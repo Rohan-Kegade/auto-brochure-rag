@@ -1,0 +1,1036 @@
+# Gold cases for the generator eval: the same questions as
+# goldens/retrieval.yaml, each with the minimal golden context needed to
+# answer it. The generator gets exactly this context (no retriever), so a bad
+# answer is the generator's fault.
+#
+# Each case has:
+#   id, type, question  as in goldens/retrieval.yaml (keep them in sync)
+#   golden_context      the passages needed to answer, one per brochure page:
+#     doc, page         brochure id (data/corpus.yaml) and 1-based PDF page,
+#                       shown to the generator as "Source: <file> / Page: <n>"
+#     text              only the lines of that page the answer needs, copied
+#                       from the text the app's loader (pdfplumber) extracts,
+#                       so the generator reads brochure text as in production
+#
+# Where the extracted text interleaves columns or loses a drawing's labels,
+# the passage is rebuilt from the printed page in the same words; those are
+# marked `# rebuilt:` and are worth checking against the PDF.
+
+cases:
+  # --- Hyundai Venue -------------------------------------------------------
+  - id: venue-dimensions
+    type: spec
+    question: What are the length, width, height and wheelbase of the Hyundai Venue?
+    golden_context:
+      - doc: venue
+        page: 17
+        text: |-
+          Technical specifications
+          Dimensions
+          Length (mm) 3 995
+          Width (mm) 1 800
+          Height (mm) 1 665^
+          Wheelbase (mm) 2 520
+          ^with R16 wheel size and roof rails & 1 650 mm with R15 wheel size and roof rails.
+
+  - id: venue-engines
+    type: multi
+    question: What engine options does the Hyundai Venue offer, and how much power and torque does each make?
+    golden_context:
+      - doc: venue
+        page: 17
+        text: |-
+          Technical specifications
+          Items Kappa 1.2 l MPi Kappa 1.0 l Turbo GDi U2 1.5 l CRDi
+          Petrol Petrol Diesel
+          Engine
+          Displacement (cm3) 1 197 998 1 493
+          61 kW (83 PS) 88.3 kW (120 PS) 85 kW (116 PS)
+          Max. Power
+          @ 6 000 r/min @6 000 r/min @ 4 000 r/min
+          114.7 Nm (11.7 kgm) 172 Nm (17.5 kgm) 250 Nm (25.5 kgm)
+          Max. Torque
+          @ 4 200 r/min @ 1 500-4 000 r/min @ 1 500-2 750 r/min
+
+  - id: venue-transmissions
+    type: multi
+    question: Which transmissions are available with each Hyundai Venue engine?
+    golden_context:
+      - doc: venue
+        page: 17
+        # rebuilt: the transmission rows are merged across engine columns in the extracted text.
+        text: |-
+          Technical specifications
+          Items Kappa 1.2 l MPi Kappa 1.0 l Turbo GDi U2 1.5 l CRDi
+          Transmission
+          Type 5 - speed manual | 6 - speed manual, 7 - speed DCT | 6 - speed manual, 6 - speed automatic
+      - doc: venue
+        page: 18
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Engine & trim plan
+          Kappa 1.2 l MPi petrol MT MT MT MT MT - - -
+          Kappa 1.0 l Turbo GDi petrol MT - MT/DCT DCT - - MT/DCT DCT
+          U2 1.5 l CRDi diesel MT - MT/AT - - MT - AT
+
+  - id: venue-fuel-tank
+    type: spec
+    question: What is the fuel tank capacity of the Hyundai Venue?
+    golden_context:
+      - doc: venue
+        page: 17
+        text: |-
+          Technical specifications
+          Dimensions
+          Fuel tank capacity (l) 45
+
+  - id: venue-boot
+    type: spec
+    question: How much boot space does the Hyundai Venue have?
+    golden_context:
+      - doc: venue
+        page: 8
+        text: |-
+          Spacious boot (375 litres)*
+          *As per VDA 215 method
+
+  - id: venue-tyres
+    type: multi
+    question: What tyre and wheel sizes does the Hyundai Venue use, including the spare?
+    golden_context:
+      - doc: venue
+        page: 17
+        text: |-
+          Tyre
+          195/65 R15 (D = 380.2 mm) Steel wheel with cover
+          Size* 215/60 R16 (D = 405.6 mm) Styled steel wheel
+          215/60 R16 (D = 405.6 mm) Diamond cut alloy wheel
+          Spare wheel 195/65 R15 (D = 380.2 mm) Steel wheel
+          *varies basis trim level.
+
+  - id: venue-adas
+    type: feature
+    question: How many ADAS features does the Hyundai Venue have, and which variant gets them?
+    golden_context:
+      - doc: venue
+        page: 13
+        text: |-
+          ADAS Level 2 (16 features)
+          The all-new Hyundai VENUE is equipped with Hyundai SmartSense Level 2 ADAS, offering 16 advanced safety
+          features designed to empower your journey and protect you to go further with confidence.
+          Forward Collision - Avoidance Assist - Car (FCA-Car) Forward Collision - Avoidance Assist - Pedestrian (FCA-Ped) Forward Collision - Avoidance Assist - Cycle (FCA-Cyl)
+          & Forward Collision Warning (FCW)
+          Lane Following Assist (LFA) Lane Keeping Assist (LKA) Lane Departure Warning (LDW)
+          Forward Collision - Avoidance Assist - Smart Cruise Control With Stop & Go (SCC with S&G) High Beam Assist (HBA)
+          Junction Turning (FCA-JT)
+          Leading Vehicle Departure Alert (LVDA)
+      - doc: venue
+        page: 18
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Forward Collision Warning (FCW) - - - - - - - S
+          Forward Collision-Avoidance Assist- Car (FCA-Car) - - - - - - - S
+          Lane Keeping Assist (LKA) - - - - - - - S
+          Hyundai SmartSense Lane Departure Warning (LDW) - - - - - - - S
+          (Advanced Driver Driver Attention Warning (DAW) - - - - - - - S
+          Assist System) Smart Cruise Control with Stop & Go (SCC with S&G) - - - - - - - S
+          Lane Following Assist (LFA) - - - - - - - S
+          High Beam Assist (HBA) - - - - - - - S
+
+  - id: venue-ventilated-seats
+    type: feature
+    question: Which Hyundai Venue variants have front row ventilated seats?
+    golden_context:
+      - doc: venue
+        page: 19
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Comfort & convenience
+          Front row ventilated seats - - - - - - S S
+
+  - id: venue-sunroof
+    type: feature
+    question: Which Hyundai Venue variants come with a sunroof?
+    golden_context:
+      - doc: venue
+        page: 19
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Comfort & convenience
+          Smart electric - - S S - - - -
+          Sunroof
+          Voice enabled smart electric - - - - S S S S
+
+  - id: venue-drive-modes
+    type: feature
+    question: What drive modes and traction modes does the Hyundai Venue have, and on which variants?
+    golden_context:
+      - doc: venue
+        page: 15
+        text: |-
+          Traction control modes (Sand | Mud | Snow) Drive modes (Eco | Normal | Sport) Paddle shifters
+      - doc: venue
+        page: 19
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Drive mode select (Eco, normal, sport) - - - - - - S^ S
+          Traction control modes (Sand, mud, snow) - - - - - - S^ S
+          S^ - DCT/AT only
+
+  - id: venue-displays
+    type: feature
+    question: What infotainment screen and instrument cluster does the Hyundai Venue have?
+    golden_context:
+      - doc: venue
+        page: 19
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Interior
+          Dual integrated displays S S S S S S S -
+          Dual curved panoramic displays - - - - - - - S
+          Infotainment & connectivity
+          Infotainment system 26.03 cm (10.25”) ccNC infotainment system S S S S S S S -
+          31.24 cm (12.3”) ccNC navigation system - - - - - - - S
+          Digital cluster with 10.66 cm color TFT display S S S S S S S -
+          Digital cluster
+          31.24 cm (12.3”) Full digital display cluster - - - - - - - S
+
+  - id: venue-safety-count
+    type: prose
+    question: How many safety features and airbags does the Hyundai Venue have as standard?
+    golden_context:
+      - doc: venue
+        page: 14
+        text: |-
+          33 Standard safety features
+          More than 65 advanced safety features
+          6 Airbags standard
+
+  - id: venue-ota
+    type: prose
+    question: What can over-the-air updates do on the Hyundai Venue, and which variants support them?
+    golden_context:
+      - doc: venue
+        page: 11
+        text: |-
+          Designed for the connected era.
+          With unique features like
+          Over - the - Air (OTA) updates, even critical system-level updates can be delivered remotely. Now things
+          like enhancing the SUV’s performance or resolving other issues can be done at your convenience.
+          New | up to 20 vehicle controllers
+      - doc: venue
+        page: 19
+        text: |-
+          Key features
+          Variant HX 2 HX 4 HX 5 HX 6 HX 6T HX 7 HX 8 HX 10
+          Controller Over-the-Air (OTA) vehicle updates - - - - S S S S
+
+  - id: venue-colours
+    type: list
+    question: What exterior colours is the Hyundai Venue available in?
+    golden_context:
+      - doc: venue
+        page: 16
+        text: |-
+          Exterior colour
+          Monotone
+          Mystic sapphire Hazel blue Dragon red
+          Atlas white Titan grey Abyss black
+          Dual tone
+          Atlas white with abyss black roof Hazel blue with abyss black roof
+
+  - id: venue-warranty
+    type: prose
+    question: What extended warranty and Bluelink subscription come with the Hyundai Venue?
+    golden_context:
+      - doc: venue
+        page: 20
+        text: |-
+          3 Years Bluelink subscription
+          Bluelink will be available on paid basis post the 3 year period.
+          ##Upto 7 years extended warranty is applicable for all variants. It is applicable for upto 7 years or 1 40 000 kms whichsoever earlier
+
+  # --- Kia Sorento ---------------------------------------------------------
+  - id: sorento-engines
+    type: multi
+    question: What powertrains does the Kia Sorento offer and what are their power and torque figures?
+    golden_context:
+      - doc: sorento
+        page: 6
+        text: |-
+          The Sorento offers a 2.2 Diesel with 8DCT and a 1.6T HEV with 6AT, giving you two distinct expressions of performance.
+      - doc: sorento
+        page: 8
+        text: |-
+          Technical Specifications
+          Engine Smartstream D2.2 Smartstream 1.6Turbo GDI Hybrid
+          Fuel Type Diesel Petrol Hybrid
+          Fuel System CRDi T-GDi
+          Displacement (cc) 2 151 1 598
+          Max. Power (kW/RPM) 142/ 3 800 132.4 (Engine) & 47.7 (Motor)/ 5 500
+          Max. Torque (Nm/RPM) 442/ 1 750 ~ 2 750 265 (Engine) & 264 (Motor)/ 1 500 ~ 4 500
+          Drive/Transmission
+          Transmission 8 DCT 6 AT
+
+  - id: sorento-dimensions
+    type: spec
+    question: What are the length, width and wheelbase of the Kia Sorento?
+    golden_context:
+      - doc: sorento
+        page: 8
+        # rebuilt: printed on a dimension drawing; the extracted text has the numbers but not their labels.
+        text: |-
+          Dimensions Unit: mm
+          Length 4815
+          Width 1900
+          Wheelbase 2815
+
+  - id: sorento-boot-tank
+    type: spec
+    question: What are the boot space and fuel tank capacity of the Kia Sorento?
+    golden_context:
+      - doc: sorento
+        page: 8
+        text: |-
+          Technical Specifications
+          Others
+          Fuel Tank Capacity (l) 67
+          Boot Space (l) 813** (with 2nd row)/ 179** (with 3rd row)
+
+  - id: sorento-tyres
+    type: multi
+    question: What tyre sizes does the Kia Sorento use?
+    golden_context:
+      - doc: sorento
+        page: 8
+        text: |-
+          Tires
+          Tire Size – Vehicle 235/ 55 R19 (19”) [HTK-HTX(A)],
+          235/ 60 R18 (18”) [HTE & HTE(O)]
+          Tire Size - Spare 135/ 80 D18 (18”)(Steel)
+
+  - id: sorento-suspension-brakes
+    type: spec
+    question: What suspension and brakes does the Kia Sorento have?
+    golden_context:
+      - doc: sorento
+        page: 8
+        text: |-
+          Suspension/Brakes
+          Suspension – Front McPherson Strut & stabilizer
+          Suspension – Rear Independent Multi-link
+          Brakes Disc – All Wheels
+
+  - id: sorento-trims
+    type: list
+    question: What trims is the Kia Sorento available in, and how many seats does each have?
+    golden_context:
+      - doc: sorento
+        page: 8
+        text: |-
+          | Trims | HTE | HTE (O) | HTK | HTK (A) | HTK (A) Black Line | HTX | HTX Black Line | HTX (A) | HTX (A) Black Line |
+          | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+          | Seating Capacity | 7 | 7 | 6/ 7 | 6/ 7 | 6/ 7 | 6/ 7 | 6/ 7 | 6/ 7 | 6/ 7 |
+
+  - id: sorento-adas
+    type: feature
+    question: What level of ADAS does the Kia Sorento have, and on which trims?
+    golden_context:
+      - doc: sorento
+        page: 8
+        text: |-
+          | HTK (A) - ADAS Package | HTX (A) AWD - ADAS Package |
+          | --- | --- |
+          | ADAS Level 2 with 21 Autonomous Features# • Front Collision Warning (FCW) • Front Collision-Avoidance Assist-Car/ Pedestrian/ Cyclist (FCA-Car/ Ped/ Cyc) • Front Collision-Avoidance Assist-Direct Oncoming (FCA-DO) • Front Collision-Avoidance Assist-Junction Turning (FCA-JT) • Lane Departure Warning (LDW) • Lane Keeping Assist (LKA) & Lane Following Assist (LFA) • High Beam Assist (HBA) • Driver Attention Warning (DAW) • Leading Vehicle Departure Alert (LVDA) • Blind Spot Collision Warning (BCW) • Blind Spot Collision Avoidance Assist (BCA) • Rear Cross Traffic Collision Warning (RCCW) • Rear Cross Traffic Collision Avoidance Assist (RCCA) • Safe Exit Warning (SEW) • 360 Degree Camera & Blind View Monitor in Cluster • Parking Collision Avoidance Assist-Reverse (PCA-R) • Smart Cruise Control (SCC) with Stop and Go | ADAS Level 2+ with 29 Autonomous Features# • Front Collision Warning (FCW) • Front Collision-Avoidance Assist- Car/ Pedestrian/ Cyclist (FCA-Car/ Ped/ Cyc) • Front Collision- Avoidance Assist-Direct Oncoming (FCA-DO) • Front Collision- Avoidance Assist-Junction Turning (FCA-JT) • Front Collision- Avoidance Assist-Junction Crossing (FCA-JC) • Front Collision- Avoidance Assist-Lane Change Oncoming (FCA-LO) • Front Collision- Avoidance Assist-Lane Change Side (FCA-LS) • Front Collision- Avoidance Assist with Evassive Steering (FCA-W/ESA) • Lane Departure Warning (LDW) • Lane Keeping Assist (LKA) & Lane Following Assist (LFA) • High Beam Assist (HBA) • Driver Attention Warning (DAW) • Leading Vehicle Departure Alert (LVDA) • Blind Spot Collision Warning (BCW) • Blind Spot Collision Avoidance Assist (BCA) • Rear Cross Traffic Collision Warning (RCCW) • Rear Cross Traffic Collision Avoidance Assist (RCCA) • Safe Exit Warning (SEW) • 360 Degree Camera & Blind View Monitor in Cluster • Highway Driving Assist (HDA) • Parking Collision Avoidance Assist-Reverse (PCA-R) • Remote Smart Parking Assist • Smart Cruise Control (SCC) with Stop and Go • Navigation Based Smart Cruise Control • Zone (NSCC-Z) • Navigation Based Smart Cruise Control - Curve (NSCC-C) |
+
+  - id: sorento-airbags
+    type: feature
+    question: How many airbags does the Kia Sorento have?
+    golden_context:
+      - doc: sorento
+        page: 8
+        # rebuilt: only the airbag items of each trim's Comfort & Convenience cell.
+        text: |-
+          | Trims | HTE | HTK (in addition to HTE) | HTX AWD (In Addition to HTK) |
+          | --- | --- | --- | --- |
+          | Comfort & Convenience | • 7 Airbags |  | • 10 Airbags^^ |
+          ^^ Front dual airbags, front seat side airbags, side curtain airbags, rear seat side airbags, center side airbag & driver knee airbag.
+
+  - id: sorento-htx
+    type: feature
+    question: What does the HTX trim of the Kia Sorento add over the HTK?
+    golden_context:
+      - doc: sorento
+        page: 8
+        # rebuilt: row labels are printed sideways and come out reversed in the extracted text.
+        text: |-
+          | Trims | HTX AWD (In Addition to HTK) |
+          | --- | --- |
+          | Style (Exterior & Interior) | • Premium Black & Olive Brown Two Tone Interiors & Leatherette Seats with Embossing Seat Covering |
+          | Technology & Connectivity | • Panoramic Curved Display Panel 31.24 cm (12.3”) HD Touchscreen Navigation Cockpit and 31.24 cm (12.3”) HD Display Instrument Cluster • Digital Key 2.0 • Advanced Digital IRVM • Head-up Display Windshield Projection • Remote Smart Parking Assist • Built-in Navigation • Kia AI Assistant (Rear-time Generative AI) with Voice Command |
+          | Comfort & Convenience | • 10 Airbags^^ • Driver Seat Ergo Function • Driver Memory Seat with ORVM & HUD • 10-way Power Front Seats with Lumbar Adjust • Front Row Relaxation Comfort Seats • Comfort Rear Ventilated Seats with 3-Step Cooling • Wing Type Headrest for Captain Seats (6-Seater) • 1st Row Sliding Headrests • One-touch Seat Adjust (Boss Mode) • 220 V Power Outlet • Front & Rear Dashcam • AWD with Terrain Modes (Snow/ Mud/ Sand) • Smart Dashcam with Front & Rear Camera |
+
+  - id: sorento-connected
+    type: prose
+    question: What connected car and AI features does the Kia Sorento have?
+    golden_context:
+      - doc: sorento
+        page: 5
+        text: |-
+          The Sorento puts intelligent connectivity within easy reach. Kia AI Assistant makes interacting with your car feel more natural, helping you find
+          information, get answers and make the most of your drive through conversations with Kia Connect 2.0 and its 85+ connected features. Built-in
+          navigation keeps you on course, while OTA updates help your Sorento evolve with you.
+          Kia AI Assistant with Real-time Generative AI
+          capabilities Over-the-Air Software update for 30 Controllers
+          Digital Key 2.0 Remote Seat Ventilation Control
+          Remote Vehicle Immobilization Find My Car with SVM
+
+  - id: sorento-hybrid
+    type: prose
+    question: What does the Kia Sorento brochure say about its hybrid powertrain?
+    golden_context:
+      - doc: sorento
+        page: 1
+        # rebuilt: the warranty badges are scattered across lines in the extracted text.
+        text: |-
+          Warranty on High Voltage Battery (on Hybrid) 8 Years/ 1 60 000 km
+      - doc: sorento
+        page: 7
+        # rebuilt: this column is interleaved with the ADAS column in the extracted text.
+        text: |-
+          Hybrid power makes efficiency exciting. Feel the difference.
+          Engineered specifically for India, the 1.6T HEV powertrain balances efficiency with confident performance, bringing together smooth
+          power delivery and a composed drive. With first-in-category V2L technology and best-in-class NVH, the Sorento adds thoughtful
+          versatility and exceptional refinement to the hybrid experience. The result is a drive that feels as considered as it is capable.
+
+  # --- Tata Punch ----------------------------------------------------------
+  - id: punch-engines
+    type: multi
+    question: What engine options does the Tata Punch have and how much power and torque do they make?
+    golden_context:
+      - doc: punch
+        page: 29
+        text: |-
+          tech specs
+          engine
+          | Type | 1.2L Revotron | 1.2L Revotron iCNG | 1.2L Turbocharged |
+          | --- | --- | --- | --- |
+          | Fuel | Petrol | Petrol + CNG | Petrol |
+          | Engine Capacity (CC), No. of Cylinders | 1199 CC, 3 Cylinders |  |  |
+          | Max Power (PS@rpm) | 87.8 PS @ 6000 rpm | CNG Mode -73.4 PS @ 6000 rpm Petrol Mode -87.8 PS @ 6000 rpm | 120 PS @ 5500 rpm |
+          | Max Torque (Nm@rpm) | 115 Nm @ 3250 rpm | CNG Mode -103 Nm @ 3500 rpm Petrol Mode- 115 Nm @ 3250 rpm | 170 Nm @ 1750 - 4000 rpm |
+
+  - id: punch-transmissions
+    type: multi
+    question: Which gearboxes are available on the Tata Punch?
+    golden_context:
+      - doc: punch
+        page: 29
+        # rebuilt: the transmission rows are merged across engine columns in the extracted text.
+        text: |-
+          tech specs
+          | Type | 1.2L Revotron | 1.2L Revotron iCNG | 1.2L Turbocharged |
+          | --- | --- | --- | --- |
+          | Transmission | 5 Speed MT, 5 Speed AMT | 5 Speed MT, 5 Speed AMT | 6 Speed MT |
+
+  - id: punch-dimensions
+    type: spec
+    question: What are the dimensions and ground clearance of the Tata Punch?
+    golden_context:
+      - doc: punch
+        page: 29
+        text: |-
+          dimensions
+          Length (mm) x Width (mm)
+          x Height (mm) 3876 x 1742 x 1615
+          Wheelbase (mm) 2445
+          Ground Clearance -
+          Unladen (mm) 193
+
+  - id: punch-boot
+    type: spec
+    question: How much boot space does the Tata Punch have in its petrol and CNG versions?
+    golden_context:
+      - doc: punch
+        page: 27
+        text: |-
+          The
+          new Punch iCNG delivers on uncompromised
+          performance, safety and premium features
+          with 210L bootspace.
+      - doc: punch
+        page: 29
+        text: |-
+          | Type | 1.2L Revotron | 1.2L Revotron iCNG | 1.2L Turbocharged |
+          | --- | --- | --- | --- |
+          | Boot Space (Litre) | 366 (as per ISO V215), 319 (as per ISO 210) | 210 | 366 (as per ISO V215), 319 (as per ISO 210) |
+
+  - id: punch-fuel-tank
+    type: spec
+    question: What is the fuel tank capacity of the Tata Punch?
+    golden_context:
+      - doc: punch
+        page: 29
+        text: |-
+          | Type | 1.2L Revotron | 1.2L Revotron iCNG | 1.2L Turbocharged |
+          | --- | --- | --- | --- |
+          | Fuel Tank Capacity (Litre) | 37L | Petrol: 37L, CNG: 60L (Water Capacity) | 37L |
+
+  - id: punch-icng
+    type: prose
+    question: How does the Tata Punch iCNG twin cylinder technology work, and what safety features does it have?
+    golden_context:
+      - doc: punch
+        page: 27
+        text: |-
+          Twin Cylinder CNG Technology
+          The twin CNG cylinders of 60 litres capacity are placed hidden beneath
+          the luggage area for a high on aesthetics and unbelievably huge boot
+          space. The advanced iCNG technology offers incredible petrol car like
+          performance 73.5 PS and torque of 103 Nm.
+      - doc: punch
+        page: 28
+        text: |-
+          Single Advanced ECU
+          The iCNG technology uses a single ECU to ensure
+          seamless shifting between CNG and Petrol. Advanced
+          ECU maintains optimum air-fuel ratio to give an
+          incredible performance and high fuel efficiency.
+          Direct Start in CNG
+          The iCNG technology allows you to start
+          the vehicle directly in CNG Mode.
+          Thermal Incident Protection
+          The iCNG technology immediately cuts off CNG
+          supply to the engine in case of a thermal incident
+          and releases gas from the cylinder directly into
+          the atmosphere through a special nozzle as a
+          measure of safety.
+          Leak Detection Feature
+          The iCNG technology automatically switches
+          from CNG to Petrol mode incase of a gas leak
+          and protects the car and passengers from
+          any harm.
+
+  - id: punch-safety-rating
+    type: prose
+    question: What safety rating does the Tata Punch have, and how many airbags?
+    golden_context:
+      - doc: punch
+        page: 8
+        text: |-
+          INDIA’S SAFEST 5-STAR RATED SUB COMPACT SUV*
+          *As per BNCAP Rating
+      - doc: punch
+        page: 9
+        text: |-
+          6 Airbags
+          All-round safety and assured
+          drives, delivered.
+
+  - id: punch-turbo-personas
+    type: feature
+    question: Which Tata Punch personas are available with the turbocharged petrol engine?
+    golden_context:
+      - doc: punch
+        page: 29
+        # rebuilt: the column headings of the tick matrix are on a separate line in the extracted text.
+        text: |-
+          drivetrain matrix
+          | Persona | petrol mt | petrol Amt | cng mt | cng amt | tc mt |
+          | --- | --- | --- | --- | --- | --- |
+          | Smart | √ |  | √ |  |  |
+          | Pure | √ |  | √ |  |  |
+          | Pure + | √ | √ | √ | √ |  |
+          | Pure + S | √ | √ | √ |  |  |
+          | Adventure | √ | √ | √ | √ | √ |
+          | Adventure S | √ |  | √ | √ |  |
+          | Accomplished | √ | √ | √ |  |  |
+          | Accomplished + S | √ | √ |  | √ | √ |
+
+  - id: punch-360-camera
+    type: feature
+    question: Which Tata Punch persona first gets the 360 degree camera?
+    golden_context:
+      - doc: punch
+        page: 30
+        # rebuilt: persona columns are interleaved in the extracted text.
+        text: |-
+          persona walk
+          ADVENTURE
+          Addition over Pure+
+          360° Surround View Camera
+          Blind View Monitor
+          R15 Hyperstyled Wheel
+          Fully Automatic Temperature Control
+          Push Button Start
+          Auto Fold ORVM
+          Rear Wiper and Washer
+          Air-Purifier
+          Auto Headlamps
+          Rain Sensing Wipers
+
+  - id: punch-accomplished-plus-s
+    type: feature
+    question: What does the Tata Punch Accomplished + S add over the Accomplished?
+    golden_context:
+      - doc: punch
+        page: 30
+        text: |-
+          ACCOMPLISHED + S
+          Addition over Accomplished Ultra View 17.78cm Digital Cluster Voice Assisted Electric Sunroof iRA Connectivity LED Fog Lamp with Cornering Wireless Smartphone Charger Trailcrest R16 Diamond Cut Alloy Wheels Auto-Dimming IRVM 4 Tweeters Roof Rails Rear Seat Armrest Puddle Lamp Express Cool Leather Steering Wheel & Gear Knob 1 Touch up/Down Driver Window Paddle Shifter** Co-Dr Collapse Grab Handle
+          ** NA AMT/CNG AMT.
+
+  - id: punch-infotainment
+    type: feature
+    question: What infotainment screen and digital cluster sizes does the Tata Punch have?
+    golden_context:
+      - doc: punch
+        page: 14
+        text: |-
+          Ultra View 17.78cm
+          HD Digital Cluster
+          Drive smarter with all the essential
+          information in front of you.
+          Ultra View 26.03cm HD Infotainment
+          with Wireless Connectivity
+          Grand display and max control with Android AutoTM
+          and Apple Car PlayTM.
+      - doc: punch
+        page: 30
+        # rebuilt: persona columns are interleaved in the extracted text.
+        text: |-
+          persona walk
+          SMART
+          10.16cm Digital Cluster
+          PURE +
+          Addition over Pure
+          Ultra View 20.32cm Touchscreen Infotainment by HARMANTM
+          Wireless Android AutoTM and Apple CarPlayTM
+
+  - id: punch-charging-audio
+    type: prose
+    question: What USB charging and speaker setup does the Tata Punch have?
+    golden_context:
+      - doc: punch
+        page: 16
+        text: |-
+          4 Speakers and 4 Tweeters
+          Turn it up. Command sound with acoustic power
+          that moves you.
+          65W Front and
+          15W Rear-Fast Charger
+          High speed type C USB charging on demand, front and back.
+
+  - id: punch-colours
+    type: list
+    question: What colours is the Tata Punch available in?
+    golden_context:
+      - doc: punch
+        page: 30
+        text: |-
+          colour matriX
+          Pristine White
+          Daytona Grey
+          Bengal Rouge
+          Coorg Clouds
+          Caramel
+          Cyantafic
+
+  # --- Tata Xpres ----------------------------------------------------------
+  - id: xpres-engine
+    type: multi
+    question: What engine does the Tata Xpres use, and what are its power and torque in petrol and CNG?
+    golden_context:
+      - doc: xpres
+        page: 4
+        text: |-
+          Specifications XPRES Petrol XPRES CNG
+          Engine 1.2L Revotron Engine
+          Capacity, Cylinder 1199cc, 3 Cylinders
+          Power (PS / RPM) 86 PS @ 6000 RPM 75.5 PS @ 6000 RPM
+          Torque (Nm / RPM) 113 Nm @ 3300 RPM 95 Nm @ 3500 RPM
+          Transmission 5 Speed Manual
+
+  - id: xpres-boot
+    type: spec
+    question: How much boot space does the Tata Xpres have?
+    golden_context:
+      - doc: xpres
+        page: 3
+        text: |-
+          Best-in-Segment Bootspace in Petrol – 419L √
+          Best-in-Segment Bootspace in CNG – 227L √
+
+  - id: xpres-tanks
+    type: spec
+    question: What are the fuel tank and CNG tank capacities of the Tata Xpres?
+    golden_context:
+      - doc: xpres
+        page: 2
+        text: |-
+          First-in-Segment ^70L
+          Twin-Cylinder CNG
+      - doc: xpres
+        page: 4
+        text: |-
+          Specifications XPRES Petrol XPRES CNG
+          Fuel Tank Capacity (litres) 35 L 70 L (Water Capacity)
+          ^70L is water capacity of CNG tank.
+
+  - id: xpres-dimensions
+    type: spec
+    question: What are the dimensions and ground clearance of the Tata Xpres?
+    golden_context:
+      - doc: xpres
+        page: 4
+        text: |-
+          Specifications XPRES Petrol XPRES CNG
+          Length (mm) 3996 mm
+          Width (mm) 1677 mm
+          Height (mm) 1532 mm
+          Wheelbase (mm) 2450 mm
+          Ground Clearance (mm) 170 mm 165 mm
+
+  - id: xpres-price
+    type: prose
+    question: What is the starting price of the Tata Xpres?
+    golden_context:
+      - doc: xpres
+        page: 1
+        text: |-
+          Introductory Price Starts at
+          *
+          5.59 Lakh
+          *Price mentioned is XPRES MT Petrol, New Delhi, Local Taxes Extra.
+
+  - id: xpres-safety
+    type: list
+    question: What safety features does the Tata Xpres have?
+    golden_context:
+      - doc: xpres
+        page: 3
+        text: |-
+          XPRES Features (Petrol/CNG)
+          Safety
+          ABS with EBD and CSC √
+          Driver and Co-Driver Airbags √
+          ISOFIX √
+          Micro Switch (Only in CNG) √
+          Leak Detection (Only in CNG) √
+          Engine Immobilizer √
+          Seat Belt Reminder (All seats) √
+          Seat Belt with Pretensioners and Load Limiters √
+          3 Point ELR Seat Belts (All seats) √
+          Rear Parking Sensor √
+          Speed Sensitive Auto Door Locks √
+
+  - id: xpres-warranty
+    type: prose
+    question: What warranty does the Tata Xpres come with?
+    golden_context:
+      - doc: xpres
+        page: 4
+        text: |-
+          Warranty cover for
+          3 years / 1 Lakh Kms, & extended warranty cover for 5 years / 1.8 Lakh Kms
+          whichever ends earlier.
+
+  # --- Tata Safari ---------------------------------------------------------
+  - id: safari-engines
+    type: multi
+    question: What engines does the Tata Safari offer, and how much power and torque do they make?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          TECHNICAL SPECIFICATIONS
+          | ENGINE | HYPERION 1.5L Turbo GDI Petrol Engine | KRYOTEC 2.0L Turbocharged Diesel Engine |
+          | --- | --- | --- |
+          | Capacity, Cylinders | 1498CC, In line 4 Cylinder | 1956CC, In line 4 Cylinder |
+          | Fuel Emission Norm | Petrol, BS6 Phase 2 | Diesel, BS6 Phase 2 |
+          | Max Power: | 125 kW (170 PS) @ 5000 rpm | 125 kW (170 PS) @ 3750 rpm |
+          | Max Torque: | 280 Nm @ 1750 -3500 rpm | 350 Nm@ 1750-2500 rpm |
+
+  - id: safari-transmissions
+    type: feature
+    question: Which transmissions are available on the Tata Safari?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          TRANSMISSION
+          Type 6 Speed Manual - All Combinations
+          6 Speed Automatic - Pure X Onwards
+
+  - id: safari-dimensions
+    type: spec
+    question: What are the dimensions, wheelbase and fuel tank capacity of the Tata Safari?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          DIMENSIONS
+          | Length x Width x Height | 4668 mm X 1922 mm X 1795 mm (Width Without ORVM) |
+          | --- | --- |
+          | Wheelbase (mm) | 2741 |
+          TANK CAPACITY
+          Fuel Tank (L) 50
+
+  - id: safari-boot
+    type: spec
+    question: How much boot space does the Tata Safari have?
+    golden_context:
+      - doc: safari
+        page: 36
+        # rebuilt: the row labels wrap across lines in the extracted text.
+        text: |-
+          BOOT SPACE
+          Boot Space with 3rd Row Back Fold V211 – 420L/V215 – 680L
+          Boot Space with 2nd & 3rd Row Back Fold V212 – 827L/V214 – 1550L
+
+  - id: safari-platform
+    type: prose
+    question: What platform is the Tata Safari built on?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          ARCHITECTURE OMEGARC (Optimal Modular Efficient Global Advanced Architecture)
+          Derived from Land Rover's D8 Platform
+
+  - id: safari-adas
+    type: feature
+    question: Which Tata Safari personas get ADAS, and at what level?
+    golden_context:
+      - doc: safari
+        page: 34
+        # rebuilt: persona columns are interleaved in the extracted text.
+        text: |-
+          ADVENTURE X+ (Features Over Pure X)
+          - ADAS with Adaptive Cruise Control (AT) and 12 other functionalities
+      - doc: safari
+        page: 35
+        # rebuilt: persona columns are interleaved in the extracted text.
+        text: |-
+          ACCOMPLISHED X+ (Features Over Accomplished X)
+          - ADAS Level 2 with Lane Keep Assist, Autonomous Emergency Braking, Forward Collision Warning and 17 more functionalities
+          ACCOMPLISHED ULTRA (Features Over Accomplished X+)
+          - ADAS Level 2+ with Intelligent Speed Assist (Map and Traffic Sign) and 20 other functionalities
+
+  - id: safari-accomplished-ultra
+    type: feature
+    question: What does the Accomplished Ultra persona of the Tata Safari add?
+    golden_context:
+      - doc: safari
+        page: 3
+        text: |-
+          EXCELLENCE, NOW UPGRADED IN
+          ACCOMPLISHED ULTRA - AVAILABLE IN DIESEL AND PETROL
+          36.9 CM CINEMATIC INFOTAINMENT SCREEN BY HARMAN™ VISIONEX E-IRVM WITH BUILT-IN
+          POWERED BY SAMSUNG NEO QLED DUAL DASH CAM & DVR
+          6 WAY POWERED DRIVER VISIONSYNC MEMORY ORVM CLEARVIEW DUAL - CAMERA WASHER
+          SEAT WITH MEMORY WITH AUTO REVERSE DIP
+          ADDITIONAL FEATURES
+          Dolby AtmosTM | Arcade App Suite (Amazon Prime Video, JioHotstar, etc apps)
+          AlexaTM Home2Car & Car2Home Connectivity | Connected Vehicle Technology with iRA 2.0 | Built-in Navigation with MapplsTM Auto
+
+  - id: safari-airbags
+    type: feature
+    question: How many airbags does the Tata Safari have?
+    golden_context:
+      - doc: safari
+        page: 34
+        # rebuilt: persona columns are interleaved in the extracted text.
+        text: |-
+          SMART
+          - 6 Airbags (Driver, Co-Driver, Curtain & Side Airbags)
+      - doc: safari
+        page: 35
+        # rebuilt: persona columns are interleaved; check which column the airbag line is in.
+        text: |-
+          ACCOMPLISHED X+ (Features Over Accomplished X)
+          - 7 Airbags (Driver, Co-Driver, Side, Curtain & Driver Knee Airbags)
+
+  - id: safari-ventilated-seats
+    type: feature
+    question: Does the Tata Safari have ventilated seats in the second row?
+    golden_context:
+      - doc: safari
+        page: 24
+        text: |-
+          1ST & 2ND ROW VENTILATED SEATS*
+          Designed to make you wish that your journey never ends.
+          2nd Row Ventilated Seats available only in 6 Seater.
+
+  - id: safari-ira-remote
+    type: list
+    question: What remote commands does the Tata Safari's iRA 2.0 connected car tech support?
+    golden_context:
+      - doc: safari
+        page: 19
+        # rebuilt: the feature columns are interleaved in the extracted text.
+        text: |-
+          iRA 2.0
+          REMOTE COMMANDS
+          Remote Engine Start/Stop
+          Remote AC On/Off
+          Remote Smart Watch Connectivity
+          Remote Lights On/Off
+          Remote Lock/Unlock
+          Remote Horn
+
+  - id: safari-tyres
+    type: feature
+    question: What wheel and tyre sizes does the Tata Safari use?
+    golden_context:
+      - doc: safari
+        page: 36
+        # rebuilt: the tyre rows are interleaved with the colour table in the extracted text.
+        text: |-
+          TYRES
+          Wheel Size 235/65/R17 Alloy Wheels – Smart | Pure X
+          235/60/R18 Alloy Wheels – Pure X #DARK | Adventure X+
+          245/55/R19 Alloy Wheels – Adventure X+ #DARK | Accomplished X #DARK | Accomplished X+ and onwards
+          Spare Wheel Steel Wheel - 235/70 R16 - (Accomplished X onwards)
+          Puncture Repair Kit Applicable from Smart to Adventure X+ #DARK
+
+  - id: safari-red-dark
+    type: prose
+    question: What is special about the Tata Safari Red #DARK edition?
+    golden_context:
+      - doc: safari
+        page: 33
+        text: |-
+          Exquisite Carnelian Red Interior Theme
+          Benecke KalikoTM Carnelian Red Leatherette Upholstery
+          Blackstone R19 Alloys With Red Calipers Theatre Maax Experience
+          Blackstone R19 Alloys with Red Calipers - Experience cinematic brilliance with 36.9 cm Samsung Neo QLED Infotainment from HarmanTM
+          sharp, athletic SUV styling. with Dolby AtmosTM and 10 Speaker JBLTM Music System with Sub-woofer.
+
+  - id: safari-colours
+    type: list
+    question: What colours is the Tata Safari available in?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          COLORS
+          | Personas | Smart | Pure X | Adventure X+ | Accomplished X | Accomplished X+ | Accomplished Ultra |
+          | --- | --- | --- | --- | --- | --- | --- |
+          | Pure Grey |  |  |  |  |  |  |
+          | Frost White |  |  |  |  |  |  |
+          | Daytona Grey |  |  |  |  |  |  |
+          | Royal Blue |  |  |  |  |  |  |
+          | Supernova Copper |  |  |  |  |  |  |
+          | Cosmic Gold |  |  |  |  |  |  |
+          | #DARK |  |  |  |  |  |  |
+          | STEALTH |  |  |  |  |  |  |
+          | Red #DARK |  |  |  |  |  |  |
+
+  # --- Comparisons: the answer needs two brochures -------------------------
+  - id: cmp-venue-punch-boot
+    type: comparison
+    question: Which has more boot space, the Hyundai Venue or the Tata Punch petrol?
+    golden_context:
+      - doc: venue
+        page: 8
+        text: |-
+          Spacious boot (375 litres)*
+          *As per VDA 215 method
+      - doc: punch
+        page: 29
+        text: |-
+          | Type | 1.2L Revotron | 1.2L Revotron iCNG | 1.2L Turbocharged |
+          | --- | --- | --- | --- |
+          | Fuel | Petrol | Petrol + CNG | Petrol |
+          | Boot Space (Litre) | 366 (as per ISO V215), 319 (as per ISO 210) | 210 | 366 (as per ISO V215), 319 (as per ISO 210) |
+
+  - id: cmp-xpres-punch-petrol
+    type: comparison
+    question: Compare the power and torque of the Tata Xpres petrol with the Tata Punch 1.2L Revotron petrol.
+    golden_context:
+      - doc: xpres
+        page: 4
+        text: |-
+          Specifications XPRES Petrol XPRES CNG
+          Engine 1.2L Revotron Engine
+          Capacity, Cylinder 1199cc, 3 Cylinders
+          Power (PS / RPM) 86 PS @ 6000 RPM 75.5 PS @ 6000 RPM
+          Torque (Nm / RPM) 113 Nm @ 3300 RPM 95 Nm @ 3500 RPM
+      - doc: punch
+        page: 29
+        text: |-
+          | Type | 1.2L Revotron | 1.2L Revotron iCNG | 1.2L Turbocharged |
+          | --- | --- | --- | --- |
+          | Fuel | Petrol | Petrol + CNG | Petrol |
+          | Engine Capacity (CC), No. of Cylinders | 1199 CC, 3 Cylinders |  |  |
+          | Max Power (PS@rpm) | 87.8 PS @ 6000 rpm | CNG Mode -73.4 PS @ 6000 rpm Petrol Mode -87.8 PS @ 6000 rpm | 120 PS @ 5500 rpm |
+          | Max Torque (Nm@rpm) | 115 Nm @ 3250 rpm | CNG Mode -103 Nm @ 3500 rpm Petrol Mode- 115 Nm @ 3250 rpm | 170 Nm @ 1750 - 4000 rpm |
+
+  - id: cmp-safari-sorento-diesel
+    type: comparison
+    question: Compare the diesel engines of the Tata Safari and the Kia Sorento.
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          TECHNICAL SPECIFICATIONS
+          | ENGINE | HYPERION 1.5L Turbo GDI Petrol Engine | KRYOTEC 2.0L Turbocharged Diesel Engine |
+          | --- | --- | --- |
+          | Capacity, Cylinders | 1498CC, In line 4 Cylinder | 1956CC, In line 4 Cylinder |
+          | Max Power: | 125 kW (170 PS) @ 5000 rpm | 125 kW (170 PS) @ 3750 rpm |
+          | Max Torque: | 280 Nm @ 1750 -3500 rpm | 350 Nm@ 1750-2500 rpm |
+          TRANSMISSION
+          Type 6 Speed Manual - All Combinations
+          6 Speed Automatic - Pure X Onwards
+      - doc: sorento
+        page: 8
+        text: |-
+          Technical Specifications
+          Engine Smartstream D2.2 Smartstream 1.6Turbo GDI Hybrid
+          Fuel Type Diesel Petrol Hybrid
+          Displacement (cc) 2 151 1 598
+          Max. Power (kW/RPM) 142/ 3 800 132.4 (Engine) & 47.7 (Motor)/ 5 500
+          Max. Torque (Nm/RPM) 442/ 1 750 ~ 2 750 265 (Engine) & 264 (Motor)/ 1 500 ~ 4 500
+          Transmission 8 DCT 6 AT
+
+  - id: cmp-safari-sorento-size
+    type: comparison
+    question: Which is longer, the Tata Safari or the Kia Sorento, and what are their wheelbases?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          DIMENSIONS
+          | Length x Width x Height | 4668 mm X 1922 mm X 1795 mm (Width Without ORVM) |
+          | --- | --- |
+          | Wheelbase (mm) | 2741 |
+      - doc: sorento
+        page: 8
+        # rebuilt: printed on a dimension drawing; the extracted text has the numbers but not their labels.
+        text: |-
+          Dimensions Unit: mm
+          Length 4815
+          Width 1900
+          Wheelbase 2815
+
+  - id: cmp-safari-sorento-tank
+    type: comparison
+    question: What are the fuel tank capacities of the Tata Safari and the Kia Sorento?
+    golden_context:
+      - doc: safari
+        page: 36
+        text: |-
+          TANK CAPACITY
+          Fuel Tank (L) 50
+      - doc: sorento
+        page: 8
+        text: |-
+          Technical Specifications
+          Fuel Tank Capacity (l) 67

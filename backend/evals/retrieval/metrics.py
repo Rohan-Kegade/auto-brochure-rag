@@ -34,7 +34,6 @@ from deepeval.metrics import (
     ContextualRecallMetric,
     ContextualRelevancyMetric,
 )
-from deepeval.models import GeminiModel
 from deepeval.test_case import LLMTestCase
 
 LLM_METRICS = {
@@ -51,42 +50,6 @@ METRICS = [
     "page_hit",
 ]
 THRESHOLD = 0.5
-
-
-class ThrottledGemini(GeminiModel):
-    """GeminiModel that spaces its calls to stay under a requests-per-minute
-    quota, and waits out a 429 (quota) or 503 (model overloaded) instead of
-    failing the metric. The free tier
-    allows as little as 5 requests per minute on some models."""
-
-    def __init__(self, *args, rpm: float | None = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._interval = 60 / rpm if rpm else 0
-        self._turn = asyncio.Lock()
-        self._next_at = 0.0
-
-    async def _wait_turn(self) -> None:
-        async with self._turn:
-            loop = asyncio.get_running_loop()
-            delay = self._next_at - loop.time()
-            if delay > 0:
-                await asyncio.sleep(delay)
-            self._next_at = loop.time() + self._interval
-
-    async def a_generate(self, *args, **kwargs):
-        for attempt in range(6):
-            await self._wait_turn()
-            try:
-                return await super().a_generate(*args, **kwargs)
-            except Exception as exc:
-                busy = any(code in str(exc) for code in ("RESOURCE_EXHAUSTED", "UNAVAILABLE"))
-                if not busy or attempt == 5:
-                    raise
-                await asyncio.sleep(60)
-
-
-def make_judge(model: str, api_key: str, rpm: float | None = None) -> GeminiModel:
-    return ThrottledGemini(model=model, api_key=api_key, temperature=0, rpm=rpm)
 
 
 def page_hit(case: dict, chunks: list[dict]) -> float:

@@ -23,6 +23,10 @@ backend/
       eval_retrieval.py      entry point
       index.py  metrics.py  report.py
       results/               qdrant/, retrievals.json, scores.json, report.md
+    generator/
+      eval_generator.py      entry point
+      metrics.py  report.py
+      results/               generations.json, scores.json, report.md
 ```
 
 ## Setup
@@ -139,6 +143,49 @@ points at the judge or at a golden. **Results** are in `retrieval/results/report
 with the judge's reasons for the lowest-recall cases. The retrieved chunks
 are in `results/retrievals.json` (gitignored), so read these when a score
 surprises you.
+
+## Generator eval
+
+Given exactly the right context, does the generator stick to it and answer
+the question? The retriever is taken out: each case in
+`goldens/generator.yaml` (the same questions as `goldens/retrieval.yaml`)
+has a **golden context**, only the passages of its source pages needed to
+answer, copied from the text the app's loader extracts. Passages marked
+`# rebuilt:` were reassembled where the extracted text interleaves columns,
+and are worth checking against the PDF. The answer comes from the app's own
+answer step (`app.rag.retrieval.build_answer`): same prompt, model and
+context format, no chat history. DeepEval then judges the answer. A run
+warns when a question has drifted from `goldens/retrieval.yaml`.
+
+```powershell
+cd backend
+python -m evals.generator.eval_generator                   # all cases
+python -m evals.generator.eval_generator --cases venue-boot safari-adas
+python -m evals.generator.eval_generator --docs xpres      # cases about some brochures
+python -m evals.generator.eval_generator --rescore         # re-judge saved answers only
+python -m evals.generator.eval_generator --rpm 5           # free-tier Gemini key
+```
+
+Each case costs 1 generation and about 7 judge calls, so a full run is about
+510 calls. `--rpm` caps generation and judging alike.
+
+**Metrics** (full definitions in `generator/metrics.py`):
+
+| Metric | Question it answers |
+|---|---|
+| Faithfulness | What share of the answer's claims does the golden context support? |
+| Answer relevancy | What share of the answer's statements address the question? |
+
+Faithfulness runs with `penalize_ambiguous_claims`: a claim the context
+neither supports nor contradicts, such as an invented spec, counts as
+unsupported. DeepEval's default would count it as faithful. Neither metric
+checks completeness: a correct one-fact answer to a two-part question
+scores 1.0 on both.
+
+The judge defaults to the app's own generator model (gemini-3.1-flash-lite),
+so the model grades its own answers; `--judge` swaps in a stronger one.
+**Results** are in `generator/results/report.md`, with every unsupported
+claim and off-topic statement of the lowest-scoring answers.
 
 ## Adding an eval for another component
 

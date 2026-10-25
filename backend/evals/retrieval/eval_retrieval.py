@@ -35,34 +35,22 @@ from app.core.config import (
     RETRIEVAL_K,
 )
 from app.rag.retrieval import build_search, format_context
-from evals.common.dataset import load_corpus, load_gold
+from evals.common.dataset import load_cases, load_corpus
 from evals.common.paths import results_dir
-from evals.retrieval.index import build_store, with_backoff
-from evals.retrieval.metrics import judge_case, make_judge, metrics_run, summarize
+from evals.common.gemini import DEFAULT_JUDGE, make_judge, with_backoff
+from evals.retrieval.index import build_store
+from evals.retrieval.metrics import judge_case, metrics_run, summarize
 from evals.retrieval.report import write_report
 
 COMPONENT = "retrieval"
 RESULTS = results_dir(COMPONENT)
 RETRIEVALS = RESULTS / "retrievals.json"
-DEFAULT_JUDGE = "gemini-3.1-flash-lite"
 SCOPES = {
     "all": "every brochure in the corpus is attached, as in a chat with all of them open",
     "own": "only the brochures each question is about",
 }
 
 log = logging.getLogger("eval.retrieval")
-
-
-def select_cases(args) -> list[dict]:
-    cases = load_gold(COMPONENT, key="cases")
-    if args.cases:
-        unknown = set(args.cases) - {c["id"] for c in cases}
-        if unknown:
-            raise ValueError(f"Unknown case ids: {sorted(unknown)}")
-        cases = [c for c in cases if c["id"] in args.cases]
-    if args.docs:
-        cases = [c for c in cases if set(c["sources"]) & set(args.docs)]
-    return cases
 
 
 # --- retrieval -------------------------------------------------------------
@@ -158,7 +146,7 @@ def main() -> None:
     for noisy in ("httpx", "google_genai", "deepeval"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
-    cases = select_cases(args)
+    cases = load_cases(args.cases, args.docs)
     if not cases:
         raise SystemExit("No cases selected.")
 

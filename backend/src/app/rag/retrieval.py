@@ -102,6 +102,12 @@ def build_search(document_ids: list[str], vector_store=None, k: int = RETRIEVAL_
     )
 
 
+def build_answer(llm=None):
+    """The answer step alone: {input, chat_history, context} -> answer text.
+    The generator eval feeds it hand-picked context."""
+    return answer_prompt | (llm or get_llm()) | StrOutputParser()
+
+
 def build_retrieval_chain(document_ids: list[str]):
     """LCEL retrieval chain over the chunks of `document_ids`.
 
@@ -128,7 +134,5 @@ def build_retrieval_chain(document_ids: list[str]):
         | RunnablePassthrough.assign(
             context=itemgetter("standalone_question") | search | format_context
         )
-        | answer_prompt
-        | llm
-        | StrOutputParser()
+        | build_answer(llm)
     )

@@ -8,7 +8,6 @@ in it is not embedded again, so repeat runs only pay for the queries.
 
 import logging
 import re
-import time
 
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient, models
@@ -22,22 +21,11 @@ from app.rag.indexing import (
     split_into_chunks,
 )
 from evals.common.dataset import Brochure
+from evals.common.gemini import with_backoff
 
 log = logging.getLogger("eval.retrieval")
 
 BATCH = 50  # chunks per embedding call; the free tier allows 100 per minute
-
-
-def with_backoff(fn, *args, retries: int = 6, **kwargs):
-    """Call `fn`, waiting out Gemini's per-minute quota (429) when it is hit."""
-    for attempt in range(retries + 1):
-        try:
-            return fn(*args, **kwargs)
-        except Exception as exc:
-            if "RESOURCE_EXHAUSTED" not in str(exc) or attempt == retries:
-                raise
-            log.warning("Gemini quota hit, waiting 60 s (attempt %d)", attempt + 1)
-            time.sleep(60)
 
 
 def collection_name() -> str:
