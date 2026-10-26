@@ -43,27 +43,29 @@ export function MessageList({ messages, isLoading, onRetry }) {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto py-6 px-6 sm:px-10 lg:px-20 space-y-4"
+      className="flex-1 overflow-y-auto py-6 px-6 sm:px-10 lg:px-20"
     >
-      {messages.map((msg, i) => (
-        <ChatMessage
-          key={msg.key ?? msg.id}
-          message={msg}
-          onRetry={msg.failed && i === messages.length - 1 ? onRetry : undefined}
-        />
-      ))}
+      <div className="max-w-6xl mx-auto space-y-4">
+        {messages.map((msg, i) => (
+          <ChatMessage
+            key={msg.key ?? msg.id}
+            message={msg}
+            onRetry={msg.failed && i === messages.length - 1 ? onRetry : undefined}
+          />
+        ))}
 
-      {isLoading && !messages[messages.length - 1]?.streaming && (
-        <div className="flex justify-start">
-          <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-none text-slate-400 text-sm flex items-center gap-2 shadow-xs">
-            <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
-            <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-            <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+        {isLoading && !messages[messages.length - 1]?.streaming && (
+          <div className="flex justify-start">
+            <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-none text-slate-400 text-sm flex items-center gap-2 shadow-xs">
+              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
+              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div ref={chatEndRef} />
+        <div ref={chatEndRef} />
+      </div>
     </div>
   );
 }
