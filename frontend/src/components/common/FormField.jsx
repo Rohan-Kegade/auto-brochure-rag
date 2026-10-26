@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock } from "lucide-react";
 
-export function AuthField({ id, label, type = "text", error, hint, ...inputProps }) {
+export function FormField({ id, label, type = "text", error, hint, ...inputProps }) {
   const [revealed, setRevealed] = useState(false);
   const isPassword = type === "password";
   // A disabled field shows a lock so it reads as fixed, not just greyed out.

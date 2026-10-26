@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { FileText, Search, Trash2, Upload, X } from "lucide-react";
-import { deleteDocumentApi, searchDocumentsApi } from "../../api/api";
-import { filterPdfs } from "../../hooks/useChatDocuments";
+import { deleteDocumentApi, searchDocumentsApi } from "../../api/documents";
+import { filterPdfs } from "../../utils/files";
 import { getErrorMessage } from "../../utils/errors";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { formatBytes, formatDate } from "../../utils/format";

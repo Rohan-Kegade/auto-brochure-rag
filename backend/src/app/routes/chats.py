@@ -5,16 +5,16 @@ from typing import List
 from app.db.models import Chat, Message, User
 from app.core.errors import DomainError
 from app.db.session import SessionLocal, get_db
-from app.routes.auth import get_current_user
-from app.routes.schemas import (
+from app.routes.deps import get_current_user
+from app.schemas.chats import (
     AttachRequest,
     ChatCreate,
     ChatOut,
     ChatUpdate,
-    DocumentOut,
     MessageOut,
     SendMessageRequest,
 )
+from app.schemas.documents import DocumentOut
 from app.services import chats as chat_service
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import StreamingResponse

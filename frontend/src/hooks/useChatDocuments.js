@@ -1,16 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { MAX_FILE_SIZE_MB, MAX_PDFS } from "../constants/config";
+import { MAX_PDFS } from "../constants/config";
 import {
   attachDocumentsApi,
   detachDocumentApi,
   fetchChatDocumentsApi,
   uploadDocumentsApi,
-} from "../api/api";
+} from "../api/documents";
 import { getErrorMessage } from "../utils/errors";
-
-const isPdf = (file) =>
-  file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
 /**
  * Documents attached to one chat, plus the actions that change them.
@@ -155,16 +152,4 @@ export function useChatDocuments(chatId) {
     forget,
     commitDraft,
   };
-}
-
-/** Keep only valid PDFs within the size limit, toasting about the rest. */
-export function filterPdfs(files) {
-  const pdfs = files.filter(isPdf);
-  if (pdfs.length !== files.length) toast.error("Only PDF files are supported.");
-  const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
-  const sized = pdfs.filter((f) => f.size <= maxBytes);
-  if (sized.length !== pdfs.length) {
-    toast.error(`Each PDF must be ${MAX_FILE_SIZE_MB} MB or smaller.`);
-  }
-  return sized;
 }

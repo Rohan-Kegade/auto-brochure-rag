@@ -24,14 +24,32 @@ uses an LLM to generate grounded answers with source and page references.
 
 ```
 backend/
-  src/            FastAPI app (`app` package), Alembic migrations, scripts
+  src/
+    app/
+      main.py       FastAPI app: routers, error handlers
+      core/         settings (config.py) and error types
+      routes/       HTTP endpoints, one file per URL prefix (+ deps.py)
+      schemas/      request/response models, one file per router
+      services/     business logic called by the routes
+      db/           SQLAlchemy models and session
+      rag/          PDF indexing and question answering
+    alembic/        database migrations
+    scripts/        one-off commands (init_db)
   evals/          offline evaluations of each pipeline component (see backend/evals/README.md)
   goldens/        hand-labelled gold data for the evals
   data/           brochure PDFs used by the evals (gitignored) + corpus.yaml
   .env            configuration (copy from .env.sample)
-frontend/         React + Vite chat UI
+frontend/src/
+  pages/          one component per route (ChatPage is the main app)
+  components/     UI, grouped by screen area: auth, chat, sidebar, settings, common
+  hooks/          state and data loading
+  api/            backend calls: client.js + one file per resource
+  utils/, constants/
 docker-compose.yml  optional Qdrant server
 ```
+
+New to the code? Read [ARCHITECTURE.md](ARCHITECTURE.md): how a request
+flows through the layers, and where to put each kind of change.
 
 ## Running locally
 

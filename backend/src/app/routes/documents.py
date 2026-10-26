@@ -4,8 +4,8 @@ from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
 from app.core.errors import DomainError
 from app.db.models import User
 from app.db.session import get_db
-from app.routes.auth import get_current_user
-from app.routes.schemas import (
+from app.routes.deps import get_current_user
+from app.schemas.documents import (
     DocumentList,
     DocumentOut,
     UploadItem,

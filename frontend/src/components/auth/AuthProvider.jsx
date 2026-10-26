@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getToken, setToken, setUnauthorizedHandler } from "../../api/api";
+import { getToken, setToken, setUnauthorizedHandler } from "../../api/client";
 import {
   deleteAccountApi,
   fetchMeApi,

@@ -9,7 +9,7 @@ import {
   renameChatApi,
   retryMessageApi,
   streamMessageApi,
-} from "../api/api";
+} from "../api/chats";
 import { getErrorMessage } from "../utils/errors";
 
 // Interim title shown until the server replaces it with an LLM-written one.

@@ -1,4 +1,4 @@
-import { apiRequest, jsonRequest } from "./api";
+import { apiRequest, jsonRequest } from "./client";
 
 export const loginApi = ({ email, password }) =>
   apiRequest("/auth/login", {

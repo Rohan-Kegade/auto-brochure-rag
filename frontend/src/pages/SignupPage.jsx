@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/auth/AuthLayout";
-import { AuthField } from "../components/auth/AuthField";
-import { FormError, SubmitButton } from "../components/auth/SubmitButton";
+import { FormField } from "../components/common/FormField";
+import { FormError, SubmitButton } from "../components/common/SubmitButton";
 import { useAuth } from "../hooks/useAuth";
 import { getErrorMessage } from "../utils/errors";
 import {
@@ -66,7 +66,7 @@ export function SignupPage() {
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <FormError message={formError} />
-        <AuthField
+        <FormField
           id="name"
           label="Name"
           autoComplete="name"
@@ -76,7 +76,7 @@ export function SignupPage() {
           error={errors.name}
           autoFocus
         />
-        <AuthField
+        <FormField
           id="email"
           label="Email"
           type="email"
@@ -86,7 +86,7 @@ export function SignupPage() {
           onChange={update("email")}
           error={errors.email}
         />
-        <AuthField
+        <FormField
           id="password"
           label="Password"
           type="password"
@@ -97,7 +97,7 @@ export function SignupPage() {
           error={errors.password}
           hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}
         />
-        <AuthField
+        <FormField
           id="confirm"
           label="Confirm password"
           type="password"

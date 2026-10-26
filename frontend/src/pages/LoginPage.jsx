@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/auth/AuthLayout";
-import { AuthField } from "../components/auth/AuthField";
-import { FormError, SubmitButton } from "../components/auth/SubmitButton";
+import { FormField } from "../components/common/FormField";
+import { FormError, SubmitButton } from "../components/common/SubmitButton";
 import { useAuth } from "../hooks/useAuth";
 import { getErrorMessage } from "../utils/errors";
 import { validateEmail } from "../utils/validation";
@@ -57,7 +57,7 @@ export function LoginPage() {
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <FormError message={formError} />
-        <AuthField
+        <FormField
           id="email"
           label="Email"
           type="email"
@@ -68,7 +68,7 @@ export function LoginPage() {
           error={errors.email}
           autoFocus
         />
-        <AuthField
+        <FormField
           id="password"
           label="Password"
           type="password"

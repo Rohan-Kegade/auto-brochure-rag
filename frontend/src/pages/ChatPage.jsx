@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
-import { DEFAULT_CHAT_TITLE } from "./constants/config";
-import { useAuth } from "./hooks/useAuth";
-import { useChat } from "./hooks/useChat";
-import { useChatDocuments } from "./hooks/useChatDocuments";
-import { useTheme } from "./hooks/useTheme";
-import { Sidebar } from "./components/sidebar/Sidebar";
-import { ChatHeader } from "./components/chat/ChatHeader";
-import { BrochureBar } from "./components/chat/BrochureBar";
-import { WelcomeScreen } from "./components/chat/WelcomeScreen";
-import { MessageList } from "./components/chat/MessageList";
-import { ChatInput } from "./components/chat/ChatInput";
-import { SettingsDialog } from "./components/settings/SettingsDialog";
+import { DEFAULT_CHAT_TITLE } from "../constants/config";
+import { useAuth } from "../hooks/useAuth";
+import { useChat } from "../hooks/useChat";
+import { useChatDocuments } from "../hooks/useChatDocuments";
+import { useTheme } from "../hooks/useTheme";
+import { Sidebar } from "../components/sidebar/Sidebar";
+import { ChatHeader } from "../components/chat/ChatHeader";
+import { BrochureBar } from "../components/chat/BrochureBar";
+import { WelcomeScreen } from "../components/chat/WelcomeScreen";
+import { MessageList } from "../components/chat/MessageList";
+import { ChatInput } from "../components/chat/ChatInput";
+import { SettingsDialog } from "../components/settings/SettingsDialog";
 
-export default function App() {
+export function ChatPage() {
   const chat = useChat();
   const docs = useChatDocuments(chat.activeChatId);
   const { theme, toggleTheme } = useTheme();
