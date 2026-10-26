@@ -1,8 +1,6 @@
 """users and sessions; every chat and document belongs to a user
 
 Chats and documents that already exist are given to a placeholder user that
-cannot log in (LEGACY_EMAIL). Move them to a real account with
-`python -m scripts.claim_legacy_data you@example.com`.
 
 Revision ID: 0003
 Revises: 0002
