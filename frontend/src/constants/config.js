@@ -1,5 +1,7 @@
+// In dev the Vite server proxies /api to the backend (see vite.config.js).
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? "/api" : "http://127.0.0.1:8000");
 
 export const MAX_PDFS = 5;
 export const MAX_FILE_SIZE_MB = 20;

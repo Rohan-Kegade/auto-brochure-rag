@@ -98,9 +98,14 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (http://localhost:5173 by default). The UI calls the
-API at `http://127.0.0.1:8000`; set `VITE_API_BASE_URL` in `frontend\.env` to
-point it elsewhere.
+Open the URL Vite prints (http://localhost:5173 by default). In dev the UI
+calls the API through Vite's `/api` proxy, which forwards to
+`http://127.0.0.1:8000`; set `VITE_API_BASE_URL` in `frontend\.env` to point it
+elsewhere.
+
+To open the app on a phone or another device on the same Wi-Fi, run
+`npm run dev -- --host` and open the Network URL Vite prints. The backend can
+stay on localhost; the proxy reaches it from this machine.
 
 ### Qdrant server (optional)
 
