@@ -26,6 +26,19 @@ class UserOut(BaseModel):
     created_at: datetime
 
 
+class ProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+
+
+class PasswordChange(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=MIN_PASSWORD_LENGTH, max_length=128)
+
+
+class AccountDelete(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
+
+
 class AuthResponse(BaseModel):
     token: str
     user: UserOut

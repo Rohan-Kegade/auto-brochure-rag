@@ -280,7 +280,7 @@ export function BrochurePicker({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-slate-900/40 dark:bg-black/60 flex items-center justify-center p-4"
       onMouseDown={(e) => e.target === e.currentTarget && !isUploading && onClose()}
     >
       <div

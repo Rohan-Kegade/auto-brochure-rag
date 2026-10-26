@@ -19,3 +19,22 @@ export const fetchMeApi = () =>
 
 export const logoutApi = () =>
   apiRequest("/auth/logout", { method: "POST", fallbackError: "Couldn't log you out." });
+
+export const updateProfileApi = ({ name }) =>
+  apiRequest("/auth/me", {
+    ...jsonRequest("PATCH", { name }),
+    fallbackError: "Couldn't update your profile.",
+  });
+
+/** Logs out every other session; this one stays logged in. */
+export const changePasswordApi = ({ currentPassword, newPassword }) =>
+  apiRequest("/auth/password", {
+    ...jsonRequest("POST", { current_password: currentPassword, new_password: newPassword }),
+    fallbackError: "Couldn't change your password.",
+  });
+
+export const deleteAccountApi = ({ password }) =>
+  apiRequest("/auth/me", {
+    ...jsonRequest("DELETE", { password }),
+    fallbackError: "Couldn't delete your account.",
+  });

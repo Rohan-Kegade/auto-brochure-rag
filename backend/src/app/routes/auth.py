@@ -1,6 +1,14 @@
 from app.db.models import User
 from app.db.session import get_db
-from app.routes.schemas import AuthResponse, LoginRequest, SignupRequest, UserOut
+from app.routes.schemas import (
+    AccountDelete,
+    AuthResponse,
+    LoginRequest,
+    PasswordChange,
+    ProfileUpdate,
+    SignupRequest,
+    UserOut,
+)
 from app.services import auth as auth_service
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -61,3 +69,37 @@ async def log_out(token: str = Depends(get_token), db: AsyncSession = Depends(ge
 @router.get("/me", response_model=UserOut)
 async def me(user: User = Depends(get_current_user)):
     return user
+
+
+@router.patch("/me", response_model=UserOut)
+async def update_me(
+    body: ProfileUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not body.name.strip():
+        raise HTTPException(status_code=422, detail="Name cannot be blank.")
+    return await auth_service.update_name(db, user, body.name)
+
+
+@router.post("/password", status_code=204)
+async def change_password(
+    body: PasswordChange,
+    token: str = Depends(get_token),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await auth_service.change_password(
+        db, user, body.current_password, body.new_password, token
+    )
+    return Response(status_code=204)
+
+
+@router.delete("/me", status_code=204)
+async def delete_me(
+    body: AccountDelete,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await auth_service.delete_account(db, user, body.password)
+    return Response(status_code=204)

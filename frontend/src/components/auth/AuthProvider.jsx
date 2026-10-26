@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getToken, setToken, setUnauthorizedHandler } from "../../api/api";
-import { fetchMeApi, loginApi, logoutApi, signupApi } from "../../api/auth";
+import {
+  deleteAccountApi,
+  fetchMeApi,
+  loginApi,
+  logoutApi,
+  signupApi,
+  updateProfileApi,
+} from "../../api/auth";
 import { AuthContext } from "../../hooks/useAuth";
 
 export function AuthProvider({ children }) {
@@ -43,6 +50,11 @@ export function AuthProvider({ children }) {
       logout: async () => {
         // Log out locally even if the server can't be reached.
         await logoutApi().catch(() => {});
+        clearSession();
+      },
+      updateProfile: async (details) => setUser(await updateProfileApi(details)),
+      deleteAccount: async (details) => {
+        await deleteAccountApi(details);
         clearSession();
       },
     }),

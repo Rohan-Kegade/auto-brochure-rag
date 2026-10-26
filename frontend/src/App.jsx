@@ -12,6 +12,7 @@ import { BrochureBar } from "./components/chat/BrochureBar";
 import { WelcomeScreen } from "./components/chat/WelcomeScreen";
 import { MessageList } from "./components/chat/MessageList";
 import { ChatInput } from "./components/chat/ChatInput";
+import { SettingsDialog } from "./components/settings/SettingsDialog";
 
 export default function App() {
   const chat = useChat();
@@ -21,6 +22,7 @@ export default function App() {
   const navigate = useNavigate();
 
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   // Below the md breakpoint the sidebar is a drawer over the chat.
   const [drawerOpen, setDrawerOpen] = useState(false);
   useEffect(() => {
@@ -70,6 +72,10 @@ export default function App() {
         drawerOpen={drawerOpen}
         onCloseDrawer={() => setDrawerOpen(false)}
         user={user}
+        onOpenSettings={() => {
+          setSettingsOpen(true);
+          setDrawerOpen(false);
+        }}
         onLogout={async () => {
           await logout();
           navigate("/", { replace: true });
@@ -129,6 +135,14 @@ export default function App() {
           onSubmit={(e) => chat.sendMessage(e, docs.commitDraft)}
         />
       </main>
+
+      {settingsOpen && (
+        <SettingsDialog
+          // A brochure deleted there may be attached to the open chat.
+          onDocumentDeleted={docs.forget}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
 
       <Toaster theme={theme} position="top-center" richColors closeButton />
     </div>

@@ -13,8 +13,9 @@ import secrets
 from datetime import timedelta
 
 from app.core.config import SESSION_TTL_DAYS
-from app.core.errors import ConflictError, UnauthorizedError
-from app.db.models import AuthSession, User, _now
+from app.core.errors import ConflictError, DomainError, UnauthorizedError
+from app.db.models import AuthSession, Document, User, _now
+from app.rag import indexing
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,6 +27,8 @@ _SCRYPT_P = 1
 _SALT_BYTES = 16
 
 INVALID_LOGIN = "Incorrect email or password."
+# A 400, not a 401: the session is fine, and the client treats a 401 as logged out.
+WRONG_PASSWORD = "Your current password is incorrect."
 
 
 def _scrypt(password: str, salt: bytes, n: int, r: int, p: int) -> bytes:
@@ -129,4 +132,45 @@ async def log_out(db: AsyncSession, token: str) -> None:
     await db.execute(
         delete(AuthSession).where(AuthSession.token_hash == _hash_token(token))
     )
+    await db.commit()
+
+
+async def _check_password(user: User, password: str) -> None:
+    if not await asyncio.to_thread(verify_password, password, user.password_hash):
+        raise DomainError(WRONG_PASSWORD)
+
+
+async def update_name(db: AsyncSession, user: User, name: str) -> User:
+    user.name = name.strip()
+    await db.commit()
+    return user
+
+
+async def change_password(
+    db: AsyncSession, user: User, current: str, new: str, token: str
+) -> None:
+    """Set a new password and log out every other session of this user."""
+    await _check_password(user, current)
+    if current == new:
+        raise DomainError("Choose a password different from your current one.")
+    user.password_hash = await asyncio.to_thread(hash_password, new)
+    await db.execute(
+        delete(AuthSession).where(
+            AuthSession.user_id == user.id,
+            AuthSession.token_hash != _hash_token(token),
+        )
+    )
+    await db.commit()
+
+
+async def delete_account(db: AsyncSession, user: User, password: str) -> None:
+    """Delete the user with their chats, sessions, documents and vectors."""
+    await _check_password(user, password)
+    document_ids = (
+        await db.scalars(select(Document.id).where(Document.user_id == user.id))
+    ).all()
+    # Vectors first: if this fails the account is kept, so the delete can be retried.
+    for document_id in document_ids:
+        await asyncio.to_thread(indexing.delete_document_chunks, document_id)
+    await db.delete(user)  # everything else goes via ON DELETE CASCADE
     await db.commit()

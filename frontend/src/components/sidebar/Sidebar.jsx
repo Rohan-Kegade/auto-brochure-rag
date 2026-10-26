@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { EllipsisVertical, LogOut, Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { EllipsisVertical, LogOut, Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Settings, Sparkles, Trash2, X } from "lucide-react";
 import { formatDay } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
@@ -194,6 +194,7 @@ export function Sidebar({
   collapsed,
   onToggleCollapsed,
   user,
+  onOpenSettings,
   onLogout,
   drawerOpen,
   onCloseDrawer,
@@ -212,7 +213,7 @@ export function Sidebar({
     <>
     {drawerOpen && (
       <div
-        className="fixed inset-0 z-30 bg-slate-900/40 md:hidden animate-[fadeIn_120ms_ease-out]"
+        className="fixed inset-0 z-30 bg-slate-900/40 dark:bg-black/60 md:hidden animate-[fadeIn_120ms_ease-out]"
         onClick={onCloseDrawer}
         aria-hidden="true"
       />
@@ -255,6 +256,14 @@ export function Sidebar({
           className="w-3.5 h-3.5 text-indigo-500 mt-auto"
           aria-label="AI Enabled"
         />
+        <button
+          onClick={onOpenSettings}
+          title="Settings"
+          aria-label="Settings"
+          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
         <button
           onClick={onLogout}
           title={`Log out ${user.email}`}
@@ -345,6 +354,14 @@ export function Sidebar({
             {user.email}
           </p>
         </div>
+        <button
+          onClick={onOpenSettings}
+          title="Settings"
+          aria-label="Settings"
+          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
         <button
           onClick={onLogout}
           title="Log out"
