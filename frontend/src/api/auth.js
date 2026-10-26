@@ -1,17 +1,21 @@
-// Placeholder auth calls until the backend has auth endpoints. They resolve
-// after a short delay so the forms' loading states can be seen. Swap the
-// bodies for apiRequest calls (see api.js) once /auth/* exists.
+import { apiRequest, jsonRequest } from "./api";
 
-const FAKE_DELAY_MS = 600;
+export const loginApi = ({ email, password }) =>
+  apiRequest("/auth/login", {
+    ...jsonRequest("POST", { email, password }),
+    auth: false,
+    fallbackError: "Couldn't log you in.",
+  });
 
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const signupApi = ({ name, email, password }) =>
+  apiRequest("/auth/signup", {
+    ...jsonRequest("POST", { name, email, password }),
+    auth: false,
+    fallbackError: "Couldn't create your account.",
+  });
 
-export const loginApi = async ({ email }) => {
-  await wait(FAKE_DELAY_MS);
-  return { user: { email } };
-};
+export const fetchMeApi = () =>
+  apiRequest("/auth/me", { retry: true, fallbackError: "Couldn't load your account." });
 
-export const signupApi = async ({ name, email }) => {
-  await wait(FAKE_DELAY_MS);
-  return { user: { name, email } };
-};
+export const logoutApi = () =>
+  apiRequest("/auth/logout", { method: "POST", fallbackError: "Couldn't log you out." });

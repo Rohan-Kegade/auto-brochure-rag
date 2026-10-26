@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginApi } from "../api/auth";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthField } from "../components/auth/AuthField";
 import { FormError, SubmitButton } from "../components/auth/SubmitButton";
+import { useAuth } from "../hooks/useAuth";
 import { getErrorMessage } from "../utils/errors";
 import { validateEmail } from "../utils/validation";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
@@ -31,8 +33,9 @@ export function LoginPage() {
 
     setIsLoading(true);
     try {
-      await loginApi({ email: form.email.trim(), password: form.password });
-      navigate("/app");
+      await login({ email: form.email.trim(), password: form.password });
+      // Back to the page that sent them here, if any.
+      navigate(location.state?.from ?? "/app", { replace: true });
     } catch (err) {
       setFormError(getErrorMessage(err, "Couldn't log you in."));
       setIsLoading(false);

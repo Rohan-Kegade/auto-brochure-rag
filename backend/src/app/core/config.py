@@ -31,3 +31,7 @@ CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 150
 RETRIEVAL_K = 5
 HISTORY_LIMIT = 20  # most recent messages sent to the model as history
+
+# Auth
+SESSION_TTL_DAYS = 30
+MIN_PASSWORD_LENGTH = 8

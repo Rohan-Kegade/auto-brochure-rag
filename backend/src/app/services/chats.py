@@ -21,17 +21,27 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def list_chats(db: AsyncSession) -> list[Chat]:
-    result = await db.execute(select(Chat).order_by(Chat.updated_at.desc()))
+# Every lookup by id is scoped to the user, so another user's chat is
+# indistinguishable from one that does not exist.
+
+
+async def list_chats(db: AsyncSession, user_id: str) -> list[Chat]:
+    result = await db.execute(
+        select(Chat).where(Chat.user_id == user_id).order_by(Chat.updated_at.desc())
+    )
     return list(result.scalars())
 
 
-async def get_chat(db: AsyncSession, chat_id: str) -> Chat | None:
-    return await db.get(Chat, chat_id)
+async def get_chat(db: AsyncSession, user_id: str, chat_id: str) -> Chat | None:
+    return await db.scalar(
+        select(Chat).where(Chat.id == chat_id, Chat.user_id == user_id)
+    )
 
 
-async def create_chat(db: AsyncSession, title: str | None = None) -> Chat:
-    chat = Chat(title=(title or "").strip() or DEFAULT_CHAT_TITLE)
+async def create_chat(
+    db: AsyncSession, user_id: str, title: str | None = None
+) -> Chat:
+    chat = Chat(user_id=user_id, title=(title or "").strip() or DEFAULT_CHAT_TITLE)
     db.add(chat)
     await db.commit()
     return chat
@@ -74,13 +84,17 @@ async def list_attached(db: AsyncSession, chat_id: str) -> list[Document]:
 async def attach_documents(
     db: AsyncSession, chat: Chat, document_ids: list[str]
 ) -> list[Document]:
-    """Attach library documents to a chat. Already-attached ones are ignored.
-    Returns the chat's full list of attached documents."""
+    """Attach documents from the chat owner's library to a chat. Already-attached
+    ones are ignored. Returns the chat's full list of attached documents."""
     ids = list(dict.fromkeys(document_ids))
     found = {
         doc.id: doc
         for doc in (
-            await db.execute(select(Document).where(Document.id.in_(ids)))
+            await db.execute(
+                select(Document).where(
+                    Document.id.in_(ids), Document.user_id == chat.user_id
+                )
+            )
         ).scalars()
     }
     missing = [i for i in ids if i not in found]

@@ -8,6 +8,47 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const isOffline = () =>
   typeof navigator !== "undefined" && navigator.onLine === false;
 
+// --- session token ---
+// Sent as a Bearer token on every request. Kept in localStorage so a login
+// survives reloads; the backend can revoke it (logout, expiry).
+
+const TOKEN_KEY = "authToken";
+
+export const getToken = () => {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+
+export const setToken = (token) => {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // Without storage the login just lasts until the page is reloaded.
+  }
+};
+
+let onUnauthorized = () => {};
+
+/** Called when the server rejects the session (expired or logged out elsewhere). */
+export const setUnauthorizedHandler = (handler) => {
+  onUnauthorized = handler;
+};
+
+const withAuth = (headers = {}) => {
+  const token = getToken();
+  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+};
+
+// FastAPI validation errors put a list of problems in `detail`.
+const errorDetail = (data, fallback) => {
+  if (Array.isArray(data.detail)) return data.detail[0]?.msg || fallback;
+  return data.detail || fallback;
+};
+
 const parseJson = async (response) => {
   try {
     return await response.json();
@@ -16,9 +57,16 @@ const parseJson = async (response) => {
   }
 };
 
-const apiRequest = async (
+export const apiRequest = async (
   path,
-  { retry = false, fallbackError = "Something went wrong.", ...options } = {},
+  {
+    retry = false,
+    // false for login/signup: a 401 there means wrong credentials, not an
+    // expired session.
+    auth = true,
+    fallbackError = "Something went wrong.",
+    ...options
+  } = {},
 ) => {
   if (isOffline()) {
     throw new Error(
@@ -36,7 +84,10 @@ const apiRequest = async (
 
     let response;
     try {
-      response = await fetch(`${API_BASE_URL}${path}`, options);
+      response = await fetch(`${API_BASE_URL}${path}`, {
+        ...options,
+        headers: auth ? withAuth(options.headers) : options.headers,
+      });
     } catch (err) {
       lastError = err;
       continue;
@@ -45,7 +96,8 @@ const apiRequest = async (
     if (response.ok) return parseJson(response);
 
     const data = await parseJson(response);
-    const error = new Error(data.detail || fallbackError);
+    const error = new Error(errorDetail(data, fallbackError));
+    if (auth && response.status === 401) onUnauthorized();
     if (response.status === 429 || response.status >= 500) {
       lastError = error;
       continue;
@@ -56,7 +108,7 @@ const apiRequest = async (
   throw lastError;
 };
 
-const jsonRequest = (method, body) => ({
+export const jsonRequest = (method, body) => ({
   method,
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(body),
@@ -106,10 +158,15 @@ const streamAnswer = async (path, body, { onToken } = {}) => {
     );
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, jsonRequest("POST", body));
+  const request = jsonRequest("POST", body);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...request,
+    headers: withAuth(request.headers),
+  });
   if (!response.ok) {
     const data = await parseJson(response);
-    throw new Error(data.detail || "Unable to get a response.");
+    if (response.status === 401) onUnauthorized();
+    throw new Error(errorDetail(data, "Unable to get a response."));
   }
 
   const fail = (message) => Object.assign(new Error(message), { questionSaved: true });

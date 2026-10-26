@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Sparkles, Trash2 } from "lucide-react";
+import { LogOut, Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Sparkles, Trash2 } from "lucide-react";
 import { formatDay } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
@@ -106,6 +106,8 @@ export function Sidebar({
   onDeleteChat,
   collapsed,
   onToggleCollapsed,
+  user,
+  onLogout,
 }) {
   const [query, setQuery] = useState("");
 
@@ -152,6 +154,14 @@ export function Sidebar({
           className="w-3.5 h-3.5 text-indigo-500 mt-auto"
           aria-label="AI Enabled"
         />
+        <button
+          onClick={onLogout}
+          title={`Log out ${user.email}`}
+          aria-label="Log out"
+          className="p-2 text-slate-400 hover:text-red-500 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     ) : (
     <div className="w-72 h-full p-4 flex flex-col">
@@ -219,10 +229,29 @@ export function Sidebar({
         )}
       </nav>
 
-      <div className="text-[11px] text-slate-400 border-t border-slate-100 pt-4 mt-2 flex items-center justify-between">
-        <span className="flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-indigo-500" /> AI Enabled
+      <div className="border-t border-slate-100 pt-3 mt-2 flex items-center gap-2.5 px-1">
+        <span
+          className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold"
+          aria-hidden="true"
+        >
+          {user.name.trim().charAt(0).toUpperCase()}
         </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-slate-800 truncate" title={user.name}>
+            {user.name}
+          </p>
+          <p className="text-[11px] text-slate-400 truncate" title={user.email}>
+            {user.email}
+          </p>
+        </div>
+        <button
+          onClick={onLogout}
+          title="Log out"
+          aria-label="Log out"
+          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </div>
     )}

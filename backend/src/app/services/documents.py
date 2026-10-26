@@ -31,8 +31,12 @@ class UploadResult:
         self.error = error
 
 
-async def get_document(db: AsyncSession, document_id: str) -> Document | None:
-    return await db.get(Document, document_id)
+async def get_document(
+    db: AsyncSession, user_id: str, document_id: str
+) -> Document | None:
+    return await db.scalar(
+        select(Document).where(Document.id == document_id, Document.user_id == user_id)
+    )
 
 
 def _escape_like(text: str) -> str:
@@ -41,14 +45,15 @@ def _escape_like(text: str) -> str:
 
 async def search_documents(
     db: AsyncSession,
+    user_id: str,
     q: str | None,
     limit: int,
     offset: int,
     chat_id: str | None,
 ) -> tuple[list[tuple[Document, bool]], int]:
-    """Ready documents matching `q`, newest first, each flagged with whether it
-    is attached to `chat_id`. Returns (rows, total)."""
-    conditions = [Document.status == DOC_READY]
+    """The user's ready documents matching `q`, newest first, each flagged with
+    whether it is attached to `chat_id`. Returns (rows, total)."""
+    conditions = [Document.user_id == user_id, Document.status == DOC_READY]
     if q and q.strip():
         conditions.append(
             Document.filename.like(f"%{_escape_like(q.strip())}%", escape="\\")
@@ -77,14 +82,17 @@ async def search_documents(
 
 
 async def ingest_pdf(
-    db: AsyncSession, filename: str, file_bytes: bytes
+    db: AsyncSession, user_id: str, filename: str, file_bytes: bytes
 ) -> UploadResult:
-    """Add one PDF to the library. Reuses an existing document with identical content."""
+    """Add one PDF to the user's library. Reuses the user's existing document
+    with identical content."""
     content_hash = hashlib.sha256(file_bytes).hexdigest()
 
     async with upload_lock:
         existing = await db.scalar(
-            select(Document).where(Document.content_hash == content_hash)
+            select(Document).where(
+                Document.user_id == user_id, Document.content_hash == content_hash
+            )
         )
         if existing is not None and existing.status == DOC_READY:
             return UploadResult(filename, OUTCOME_EXISTING, existing)
@@ -99,6 +107,7 @@ async def ingest_pdf(
             doc.status = DOC_PROCESSING
         else:
             doc = Document(
+                user_id=user_id,
                 filename=filename,
                 content_hash=content_hash,
                 size_bytes=len(file_bytes),

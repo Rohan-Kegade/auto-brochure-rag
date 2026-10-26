@@ -36,11 +36,41 @@ def _now() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
-class Chat(Base):
-    __tablename__ = "chats"
-    __table_args__ = (Index("ix_chats_updated_at", "updated_at"),)
+class User(Base):
+    __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(CHAR(36), primary_key=True, default=_uuid)
+    # Stored lower-cased, so the unique index is case-insensitive in effect.
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    name: Mapped[str] = mapped_column(String(255))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
+class AuthSession(Base):
+    """A login. The client holds the token; only its SHA-256 is stored."""
+
+    __tablename__ = "sessions"
+    __table_args__ = (Index("ix_sessions_user_id", "user_id"),)
+
+    token_hash: Mapped[str] = mapped_column(CHAR(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(
+        CHAR(36), ForeignKey("users.id", ondelete="CASCADE")
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+    expires_at: Mapped[datetime] = mapped_column(DateTime)
+
+    user: Mapped[User] = relationship()
+
+
+class Chat(Base):
+    __tablename__ = "chats"
+    __table_args__ = (Index("ix_chats_user_updated", "user_id", "updated_at"),)
+
+    id: Mapped[str] = mapped_column(CHAR(36), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(
+        CHAR(36), ForeignKey("users.id", ondelete="CASCADE")
+    )
     title: Mapped[str] = mapped_column(String(255), default=DEFAULT_CHAT_TITLE)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
     updated_at: Mapped[datetime] = mapped_column(
@@ -59,15 +89,21 @@ class Chat(Base):
 
 
 class Document(Base):
-    """A PDF in the shared library. Vectors live in Qdrant under this id."""
+    """A PDF in one user's library. Vectors live in Qdrant under this id, so two
+    users uploading the same file get separate documents and vectors."""
 
     __tablename__ = "documents"
     __table_args__ = (
-        UniqueConstraint("content_hash", name="uq_documents_content_hash"),
-        Index("ix_documents_filename", "filename"),
+        UniqueConstraint(
+            "user_id", "content_hash", name="uq_documents_user_content_hash"
+        ),
+        Index("ix_documents_user_filename", "user_id", "filename"),
     )
 
     id: Mapped[str] = mapped_column(CHAR(36), primary_key=True, default=_uuid)
+    user_id: Mapped[str] = mapped_column(
+        CHAR(36), ForeignKey("users.id", ondelete="CASCADE")
+    )
     filename: Mapped[str] = mapped_column(String(255))
     content_hash: Mapped[str] = mapped_column(CHAR(64))
     size_bytes: Mapped[int] = mapped_column(BigInteger)

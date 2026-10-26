@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signupApi } from "../api/auth";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { AuthField } from "../components/auth/AuthField";
 import { FormError, SubmitButton } from "../components/auth/SubmitButton";
+import { useAuth } from "../hooks/useAuth";
 import { getErrorMessage } from "../utils/errors";
 import {
   MIN_PASSWORD_LENGTH,
@@ -13,6 +13,7 @@ import {
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const { signup } = useAuth();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
@@ -38,12 +39,12 @@ export function SignupPage() {
 
     setIsLoading(true);
     try {
-      await signupApi({
+      await signup({
         name: form.name.trim(),
         email: form.email.trim(),
         password: form.password,
       });
-      navigate("/app");
+      navigate("/app", { replace: true });
     } catch (err) {
       setFormError(getErrorMessage(err, "Couldn't create your account."));
       setIsLoading(false);

@@ -10,3 +10,11 @@ class DomainError(Exception):
 
 class NotFoundError(DomainError):
     status_code = 404
+
+
+class UnauthorizedError(DomainError):
+    status_code = 401
+
+
+class ConflictError(DomainError):
+    status_code = 409

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { DEFAULT_CHAT_TITLE } from "./constants/config";
+import { useAuth } from "./hooks/useAuth";
 import { useChat } from "./hooks/useChat";
 import { useChatDocuments } from "./hooks/useChatDocuments";
 import { useTheme } from "./hooks/useTheme";
@@ -15,6 +17,8 @@ export default function App() {
   const chat = useChat();
   const docs = useChatDocuments(chat.activeChatId);
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -49,6 +53,11 @@ export default function App() {
         onDeleteChat={chat.deleteChat}
         collapsed={sidebarCollapsed}
         onToggleCollapsed={() => setCollapsed(!sidebarCollapsed)}
+        user={user}
+        onLogout={async () => {
+          await logout();
+          navigate("/", { replace: true });
+        }}
       />
 
       <main className="flex-1 flex flex-col bg-slate-50 min-w-0">

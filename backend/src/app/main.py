@@ -9,6 +9,7 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
+from app.routes.auth import router as auth_router
 from app.routes.chats import router as chats_router
 from app.routes.documents import router as documents_router
 from app.core.errors import DomainError
@@ -43,7 +44,8 @@ app = FastAPI(title="SpecSense", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    # Auth is a Bearer token, not a cookie, so no credentialed requests.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -73,5 +75,6 @@ async def health():
     return {"status": "healthy"}
 
 
+app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(chats_router)

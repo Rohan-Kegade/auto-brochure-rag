@@ -2,7 +2,9 @@ from typing import List
 
 from app.core.config import MAX_FILE_SIZE_MB, MAX_PDFS
 from app.core.errors import DomainError
+from app.db.models import User
 from app.db.session import get_db
+from app.routes.auth import get_current_user
 from app.routes.schemas import (
     DocumentList,
     DocumentOut,
@@ -25,9 +27,14 @@ async def list_documents(
     chat_id: str | None = Query(default=None),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    rows, total = await document_service.search_documents(db, q, limit, offset, chat_id)
+    if chat_id and await chat_service.get_chat(db, user.id, chat_id) is None:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    rows, total = await document_service.search_documents(
+        db, user.id, q, limit, offset, chat_id
+    )
     items = [
         DocumentOut.model_validate(doc).model_copy(update={"attached": attached})
         for doc, attached in rows
@@ -39,11 +46,12 @@ async def list_documents(
 async def upload_documents(
     files: List[UploadFile] = File(...),
     chat_id: str | None = Query(default=None, description="Attach the uploads to this chat"),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     chat = None
     if chat_id:
-        chat = await chat_service.get_chat(db, chat_id)
+        chat = await chat_service.get_chat(db, user.id, chat_id)
         if chat is None:
             raise HTTPException(status_code=404, detail="Chat not found.")
 
@@ -76,7 +84,7 @@ async def upload_documents(
             )
             continue
 
-        result = await document_service.ingest_pdf(db, name, file_bytes)
+        result = await document_service.ingest_pdf(db, user.id, name, file_bytes)
         doc_out = (
             DocumentOut.model_validate(result.document) if result.document else None
         )
@@ -100,8 +108,12 @@ async def upload_documents(
 
 
 @router.delete("/{document_id}", status_code=204)
-async def delete_document(document_id: str, db: AsyncSession = Depends(get_db)):
-    doc = await document_service.get_document(db, document_id)
+async def delete_document(
+    document_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    doc = await document_service.get_document(db, user.id, document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found.")
     await document_service.delete_document(db, doc)

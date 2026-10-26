@@ -77,6 +77,14 @@ python -m scripts.init_db
 python -m alembic upgrade head
 ```
 
+Every chat and brochure belongs to an account. If you had data from before
+accounts existed, the migration parks it on a placeholder account; sign up in
+the app, then move it to your account:
+
+```powershell
+python -m scripts.claim_legacy_data you@example.com
+```
+
 Start the API, from `backend\src` with the venv active:
 
 ```powershell

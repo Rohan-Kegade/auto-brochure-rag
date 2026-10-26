@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Logo } from "../components/common/Logo";
 import { ThemeToggle } from "../components/common/ThemeToggle";
+import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
 import { MAX_PDFS } from "../constants/config";
 
@@ -43,6 +44,7 @@ const STEPS = [
 
 export function LandingPage() {
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -54,18 +56,29 @@ export function LandingPage() {
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
-            <Link
-              to="/login"
-              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-md"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="px-3.5 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
-            >
-              Sign up
-            </Link>
+            {user ? (
+              <Link
+                to="/app"
+                className="px-3.5 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+              >
+                Open SpecSense
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 rounded-md"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-3.5 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>

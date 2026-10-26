@@ -2,9 +2,10 @@ import json
 import logging
 from typing import List
 
-from app.db.models import Chat, Message
+from app.db.models import Chat, Message, User
 from app.core.errors import DomainError
 from app.db.session import SessionLocal, get_db
+from app.routes.auth import get_current_user
 from app.routes.schemas import (
     AttachRequest,
     ChatCreate,
@@ -24,21 +25,32 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chats", tags=["chats"])
 
 
-async def get_chat_or_404(chat_id: str, db: AsyncSession = Depends(get_db)) -> Chat:
-    chat = await chat_service.get_chat(db, chat_id)
+async def get_chat_or_404(
+    chat_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Chat:
+    """The current user's chat, or 404 (also for another user's chat)."""
+    chat = await chat_service.get_chat(db, user.id, chat_id)
     if chat is None:
         raise HTTPException(status_code=404, detail="Chat not found.")
     return chat
 
 
 @router.get("", response_model=List[ChatOut])
-async def list_chats(db: AsyncSession = Depends(get_db)):
-    return await chat_service.list_chats(db)
+async def list_chats(
+    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+):
+    return await chat_service.list_chats(db, user.id)
 
 
 @router.post("", response_model=ChatOut, status_code=201)
-async def create_chat(body: ChatCreate, db: AsyncSession = Depends(get_db)):
-    return await chat_service.create_chat(db, body.title)
+async def create_chat(
+    body: ChatCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await chat_service.create_chat(db, user.id, body.title)
 
 
 @router.patch("/{chat_id}", response_model=ChatOut)
@@ -71,15 +83,16 @@ def _event(payload: dict) -> bytes:
     return (json.dumps(payload) + "\n").encode()
 
 
-def _answer_response(chat_id: str, question_id: str) -> StreamingResponse:
+def _answer_response(chat: Chat, question_id: str) -> StreamingResponse:
     """Stream the answer to an already-saved question."""
+    chat_id, user_id = chat.id, chat.user_id
 
     async def events():
         # The request's session may be closed once the response starts, so the
         # stream uses its own.
         try:
             async with SessionLocal() as stream_db:
-                stream_chat = await chat_service.get_chat(stream_db, chat_id)
+                stream_chat = await chat_service.get_chat(stream_db, user_id, chat_id)
                 question = await stream_db.get(Message, question_id)
                 async for item in chat_service.stream_answer(
                     stream_db, stream_chat, question
@@ -126,7 +139,7 @@ async def stream_message(
         raise HTTPException(status_code=422, detail="Message cannot be blank.")
     await chat_service.ensure_can_answer(db, chat)
     saved = await chat_service.save_question(db, chat, question)
-    return _answer_response(chat.id, saved.id)
+    return _answer_response(chat, saved.id)
 
 
 @router.post("/{chat_id}/messages/retry/stream")
@@ -140,7 +153,7 @@ async def retry_message(
     if question is None:
         raise HTTPException(status_code=409, detail="There is no question to retry.")
     await chat_service.ensure_can_answer(db, chat)
-    return _answer_response(chat.id, question.id)
+    return _answer_response(chat, question.id)
 
 
 def _attached_out(docs) -> List[DocumentOut]:
