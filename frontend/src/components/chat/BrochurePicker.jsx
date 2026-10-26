@@ -133,7 +133,7 @@ function LibraryTab({
               </div>
               {isAttached && (
                 <>
-                  <span className="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="hidden sm:inline text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
                     In this chat
                   </span>
                   <button
@@ -156,7 +156,7 @@ function LibraryTab({
         })}
       </ul>
 
-      <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+      <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-3">
         <span className="text-xs text-slate-400">
           {selected.size > 0 && (
             <span className="font-medium text-indigo-600">{selected.size} selected · </span>
@@ -168,7 +168,7 @@ function LibraryTab({
         <button
           onClick={attachSelected}
           disabled={selected.size === 0 || isAttaching}
-          className="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="shrink-0 py-2.5 px-4 sm:px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isAttaching ? "Adding..." : "Add to chat"}
         </button>
@@ -211,7 +211,7 @@ function UploadTab({ slotsLeft, isUploading, onUpload, onDone }) {
       <button
         onClick={() => inputRef.current?.click()}
         disabled={isUploading}
-        className="border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-xl py-8 flex flex-col items-center gap-2 text-sm text-slate-500 cursor-pointer disabled:opacity-50"
+        className="border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-xl py-8 px-4 flex flex-col items-center gap-2 text-sm text-slate-500 cursor-pointer disabled:opacity-50"
       >
         <Upload className="w-6 h-6 text-indigo-500" />
         Choose PDFs to upload
@@ -227,7 +227,7 @@ function UploadTab({ slotsLeft, isUploading, onUpload, onDone }) {
             <span className="text-sm text-indigo-800 truncate flex-1" title={file.name}>
               {file.name}
             </span>
-            <span className="text-[11px] text-indigo-400">{formatBytes(file.size)}</span>
+            <span className="text-[11px] text-indigo-400 shrink-0">{formatBytes(file.size)}</span>
           </li>
         ))}
       </ul>
@@ -287,7 +287,7 @@ export function BrochurePicker({
         role="dialog"
         aria-modal="true"
         aria-label="Add brochure"
-        className="bg-white rounded-2xl shadow-xl w-full max-w-xl h-[32rem] max-h-full flex flex-col p-5"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-xl h-[32rem] max-h-full flex flex-col p-4 sm:p-5"
       >
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-base font-semibold text-slate-800">Add brochure</h3>

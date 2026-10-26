@@ -8,7 +8,7 @@ export function AuthLayout({ title, subtitle, footer, children }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
-      <header className="h-16 px-6 flex items-center justify-between">
+      <header className="h-16 px-4 sm:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-bold text-slate-900">
           <Logo className="w-8 h-8" />
           SpecSense
@@ -16,8 +16,8 @@ export function AuthLayout({ title, subtitle, footer, children }) {
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-sm animate-[popIn_0.2s_ease-out]">
+      <main className="flex-1 flex px-4 py-10">
+        <div className="m-auto w-full max-w-sm animate-[popIn_0.2s_ease-out]">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
             <p className="mt-1.5 text-sm text-slate-500">{subtitle}</p>

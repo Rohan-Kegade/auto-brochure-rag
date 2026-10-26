@@ -43,7 +43,7 @@ export function MessageList({ messages, isLoading, onRetry }) {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto py-6 px-6 sm:px-10 lg:px-20"
+      className="flex-1 overflow-y-auto py-6 px-4 sm:px-10 lg:px-20"
     >
       <div className="max-w-6xl mx-auto space-y-4">
         {messages.map((msg, i) => (

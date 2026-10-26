@@ -18,10 +18,10 @@ export function BrochureBar({
   onPickerOpenChange,
 }) {
   return (
-    <div className="border-b border-slate-200 bg-white px-6 py-2.5 flex items-center gap-2">
+    <div className="border-b border-slate-200 bg-white px-4 sm:px-6 py-2.5 flex items-center gap-2">
       <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 mr-1 shrink-0">
-        Active PDFs
-        <span className="ml-1.5 text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full normal-case tracking-normal">
+        <span className="hidden sm:inline">Active PDFs</span>
+        <span className="sm:ml-1.5 text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full normal-case tracking-normal">
           {activePdfCount}/{maxPdfs}
         </span>
       </span>
@@ -40,7 +40,7 @@ export function BrochureBar({
         {documents.map((doc) => (
         <span
           key={doc.id}
-          className="group shrink-0 flex items-center gap-1.5 pl-2 pr-1 py-1 bg-slate-50 border border-slate-200 rounded-lg max-w-56"
+          className="group shrink-0 flex items-center gap-1.5 pl-2 pr-1 py-1 bg-slate-50 border border-slate-200 rounded-lg max-w-40 sm:max-w-56"
         >
           <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />
           <span

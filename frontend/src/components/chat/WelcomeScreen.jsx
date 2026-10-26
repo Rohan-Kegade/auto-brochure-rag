@@ -18,8 +18,8 @@ export function WelcomeScreen({
     activePdfCount > 1 ? MULTI_CAR_SUGGESTIONS : SINGLE_CAR_SUGGESTIONS;
 
   return (
-    <div className="flex-1 overflow-y-auto flex items-center justify-center p-6">
-      <div className="max-w-xl w-full text-center">
+    <div className="flex-1 overflow-y-auto flex p-4 sm:p-6">
+      <div className="m-auto max-w-xl w-full text-center">
         <Logo className="w-16 h-16 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-slate-900">Hello, welcome to SpecSense</h2>
 

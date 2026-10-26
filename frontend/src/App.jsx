@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { DEFAULT_CHAT_TITLE } from "./constants/config";
@@ -21,6 +21,14 @@ export default function App() {
   const navigate = useNavigate();
 
   const [pickerOpen, setPickerOpen] = useState(false);
+  // Below the md breakpoint the sidebar is a drawer over the chat.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 48rem)");
+    const onChange = (e) => e.matches && setDrawerOpen(false);
+    desktop.addEventListener("change", onChange);
+    return () => desktop.removeEventListener("change", onChange);
+  }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem("sidebarCollapsed") === "1";
@@ -43,16 +51,24 @@ export default function App() {
     chat.messages.length === 0;
 
   return (
-    <div className="flex h-screen bg-slate-100 text-slate-800">
+    <div className="flex h-dvh bg-slate-100 text-slate-800">
       <Sidebar
         chats={chat.chats}
         activeChatId={chat.activeChatId}
-        onNewChat={chat.newChat}
-        onSelectChat={chat.selectChat}
+        onNewChat={() => {
+          chat.newChat();
+          setDrawerOpen(false);
+        }}
+        onSelectChat={(id) => {
+          chat.selectChat(id);
+          setDrawerOpen(false);
+        }}
         onRenameChat={chat.renameChat}
         onDeleteChat={chat.deleteChat}
         collapsed={sidebarCollapsed}
         onToggleCollapsed={() => setCollapsed(!sidebarCollapsed)}
+        drawerOpen={drawerOpen}
+        onCloseDrawer={() => setDrawerOpen(false)}
         user={user}
         onLogout={async () => {
           await logout();
@@ -66,6 +82,7 @@ export default function App() {
           createdAt={chat.activeChat?.created_at}
           theme={theme}
           onToggleTheme={toggleTheme}
+          onOpenSidebar={() => setDrawerOpen(true)}
         />
         <BrochureBar
           chatId={chat.activeChatId}

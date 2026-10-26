@@ -52,7 +52,7 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2 font-bold text-slate-900">
             <Logo className="w-8 h-8" />
-            SpecSense
+            <span className="hidden min-[400px]:inline">SpecSense</span>
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
@@ -149,7 +149,7 @@ export function LandingPage() {
             ))}
           </ol>
 
-          <div className="mt-16 p-8 sm:p-10 bg-indigo-600 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="mt-16 p-6 sm:p-10 bg-indigo-600 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-white">
                 Shortlisting your next car?
@@ -170,7 +170,7 @@ export function LandingPage() {
       </main>
 
       <footer className="border-t border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 text-center">
           <span className="flex items-center gap-2">
             <Logo className="w-5 h-5" />
             SpecSense

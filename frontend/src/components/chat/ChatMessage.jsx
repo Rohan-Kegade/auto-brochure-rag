@@ -11,7 +11,7 @@ export const ChatMessage = memo(function ChatMessage({ message, onRetry }) {
   return (
     <div className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}>
       <div
-        className={`max-w-4xl px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-xs ${
+        className={`max-w-full lg:max-w-4xl min-w-0 wrap-break-word px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-xs ${
           isUser
             ? "bg-indigo-600 text-white rounded-br-none"
             : "bg-white text-slate-800 border border-slate-200 rounded-bl-none overflow-hidden"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Sparkles, Trash2 } from "lucide-react";
+import { LogOut, Pencil, PanelLeftClose, PanelLeftOpen, Search, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { formatDay } from "../../utils/format";
 import { ConfirmDialog } from "../common/ConfirmDialog";
 import { Logo } from "../common/Logo";
@@ -68,7 +68,7 @@ function ChatRow({ chat, active, onSelect, onRename, onDelete }) {
       >
         <span className="truncate">{chat.title}</span>
       </button>
-      <div className="hidden group-hover:flex focus-within:flex items-center pr-1 shrink-0">
+      <div className="hidden group-hover:flex focus-within:flex pointer-coarse:flex items-center pr-1 shrink-0">
         <button
           onClick={startEditing}
           title="Rename"
@@ -108,6 +108,8 @@ export function Sidebar({
   onToggleCollapsed,
   user,
   onLogout,
+  drawerOpen,
+  onCloseDrawer,
 }) {
   const [query, setQuery] = useState("");
 
@@ -116,14 +118,26 @@ export function Sidebar({
     ? chats.filter((c) => c.title.toLowerCase().includes(needle))
     : chats;
 
+  // The drawer always shows the full sidebar; the icon rail is desktop only.
+  const showRail = collapsed && !drawerOpen;
+
   return (
-    // The aside animates its width between the full sidebar and a narrow icon rail.
+    <>
+    {drawerOpen && (
+      <div
+        className="fixed inset-0 z-30 bg-slate-900/40 md:hidden animate-[fadeIn_120ms_ease-out]"
+        onClick={onCloseDrawer}
+        aria-hidden="true"
+      />
+    )}
+    {/* Below md: an off-canvas drawer. From md up: animates its width between
+        the full sidebar and a narrow icon rail. */}
     <aside
-      className={`shrink-0 overflow-hidden bg-white border-r border-slate-200 shadow-xs transition-[width] duration-200 ease-in-out ${
-        collapsed ? "w-16" : "w-72"
-      }`}
+      className={`fixed inset-y-0 left-0 z-40 w-72 md:static md:z-auto md:translate-x-0 shrink-0 overflow-hidden bg-white border-r border-slate-200 shadow-xs transition-[width,translate] duration-200 ease-in-out ${
+        drawerOpen ? "translate-x-0" : "-translate-x-full"
+      } ${showRail ? "md:w-16" : "md:w-72"}`}
     >
-    {collapsed ? (
+    {showRail ? (
       <div className="w-16 h-full py-4 flex flex-col items-center gap-3">
         <Logo />
         <button
@@ -169,12 +183,12 @@ export function Sidebar({
         <Logo />
         <h1 className="text-xl font-bold text-slate-900 flex-1">SpecSense</h1>
         <button
-          onClick={onToggleCollapsed}
-          title="Collapse sidebar"
-          aria-label="Collapse sidebar"
+          onClick={drawerOpen ? onCloseDrawer : onToggleCollapsed}
+          title={drawerOpen ? "Close sidebar" : "Collapse sidebar"}
+          aria-label={drawerOpen ? "Close sidebar" : "Collapse sidebar"}
           className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
         >
-          <PanelLeftClose className="w-4 h-4" />
+          {drawerOpen ? <X className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
         </button>
       </div>
 
@@ -256,5 +270,6 @@ export function Sidebar({
     </div>
     )}
     </aside>
+    </>
   );
 }
