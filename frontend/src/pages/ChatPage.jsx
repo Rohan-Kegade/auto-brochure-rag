@@ -138,6 +138,13 @@ export function ChatPage() {
 
       {settingsOpen && (
         <SettingsDialog
+          chats={chat.chats}
+          activeChatId={chat.activeChatId}
+          onSelectChat={(id) => {
+            chat.selectChat(id);
+            setSettingsOpen(false);
+          }}
+          onDeleteChats={chat.deleteChats}
           // A brochure deleted there may be attached to the open chat.
           onDocumentDeleted={docs.forget}
           onClose={() => setSettingsOpen(false)}

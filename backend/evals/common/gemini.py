@@ -14,7 +14,7 @@ from deepeval.models import GeminiModel
 
 # Judge for every eval. The same model as the app's generator, so judging a
 # generator eval is self-grading; pass --judge to try a stronger one.
-DEFAULT_JUDGE = "gemini-3.1-flash-lite"
+DEFAULT_JUDGE = "gemini-3.5-flash-lite"
 
 RETRIES = 6
 WAIT_SECONDS = 60

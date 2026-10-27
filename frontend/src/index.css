@@ -38,6 +38,15 @@
   --color-indigo-700: #a5b4fc;
   --color-indigo-800: #c7d2fe;
   --color-red-50: #3b1219;
+  --color-red-200: #6b2630;
+  --color-red-400: #f87171;
+  --color-red-500: #f87171;
+}
+
+/* red-600 is also the fill of solid delete buttons (white text), so lighten it
+   only where it colours text, including hover:text-red-600. */
+.dark [class*="text-red-600"] {
+  --color-red-600: #fca5a5;
 }
 
 /* Text/borders that sit on coloured buttons must stay white, not follow the

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { KeyRound, Library, UserRound, UserX, X } from "lucide-react";
+import { KeyRound, Library, MessagesSquare, UserRound, UserX, X } from "lucide-react";
 import { BrochuresSection } from "./BrochuresSection";
+import { ChatsSection } from "./ChatsSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { PasswordSection } from "./PasswordSection";
 import { ProfileSection } from "./ProfileSection";
@@ -9,10 +10,18 @@ const SECTIONS = [
   { id: "profile", label: "Profile", icon: UserRound },
   { id: "password", label: "Password", icon: KeyRound },
   { id: "brochures", label: "My brochures", icon: Library },
+  { id: "chats", label: "Chats", icon: MessagesSquare },
   { id: "delete-account", label: "Delete account", icon: UserX, danger: true },
 ];
 
-export function SettingsDialog({ onDocumentDeleted, onClose }) {
+export function SettingsDialog({
+  chats,
+  activeChatId,
+  onSelectChat,
+  onDeleteChats,
+  onDocumentDeleted,
+  onClose,
+}) {
   const [active, setActive] = useState("profile");
 
   useEffect(() => {
@@ -81,6 +90,14 @@ export function SettingsDialog({ onDocumentDeleted, onClose }) {
             {active === "profile" && <ProfileSection />}
             {active === "password" && <PasswordSection />}
             {active === "brochures" && <BrochuresSection onDocumentDeleted={onDocumentDeleted} />}
+            {active === "chats" && (
+              <ChatsSection
+                chats={chats}
+                activeChatId={activeChatId}
+                onSelectChat={onSelectChat}
+                onDeleteChats={onDeleteChats}
+              />
+            )}
             {active === "delete-account" && <DeleteAccountSection />}
           </div>
         </div>

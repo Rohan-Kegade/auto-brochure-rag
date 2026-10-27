@@ -7,6 +7,8 @@ import { MAX_PDFS } from "../../constants/config";
 import { getErrorMessage } from "../../utils/errors";
 import { filterPdfs } from "../../utils/files";
 import { formatBytes, formatDate } from "../../utils/format";
+import { toggleId } from "../../utils/selection";
+import { SelectionBar } from "./SelectionBar";
 import { SettingsSection } from "./SettingsSection";
 
 const PAGE_SIZE = 20;
@@ -20,7 +22,18 @@ export function BrochuresSection({ onDocumentDeleted }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [selected, setSelected] = useState(() => new Set());
+  // The brochures waiting on the confirm dialog: one row's, or the selection.
   const [pendingDelete, setPendingDelete] = useState(null);
+
+  // Only what's loaded counts, so a search never deletes hidden brochures.
+  const selectedVisible = result.items.filter((d) => selected.has(d.id));
+  const toggleAll = () =>
+    setSelected(
+      selectedVisible.length === result.items.length
+        ? new Set()
+        : new Set(result.items.map((d) => d.id))
+    );
 
   useEffect(() => {
     let cancelled = false;
@@ -90,17 +103,26 @@ export function BrochuresSection({ onDocumentDeleted }) {
     }
   };
 
-  const remove = async (doc) => {
-    try {
-      await deleteDocumentApi(doc.id);
-      setResult((prev) => ({
-        items: prev.items.filter((d) => d.id !== doc.id),
-        total: Math.max(0, prev.total - 1),
-      }));
-      onDocumentDeleted(doc.id);
-      toast.success(`${doc.filename} deleted.`);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't delete the brochure."));
+  const remove = async (docs) => {
+    const results = await Promise.allSettled(docs.map((d) => deleteDocumentApi(d.id)));
+    const deleted = docs.filter((_, i) => results[i].status === "fulfilled");
+    const failed = results.find((r) => r.status === "rejected");
+    const ids = new Set(deleted.map((d) => d.id));
+    setResult((prev) => ({
+      items: prev.items.filter((d) => !ids.has(d.id)),
+      total: Math.max(0, prev.total - ids.size),
+    }));
+    setSelected((prev) => new Set([...prev].filter((id) => !ids.has(id))));
+    deleted.forEach((d) => onDocumentDeleted(d.id));
+
+    if (deleted.length === 1) toast.success(`${deleted[0].filename} deleted.`);
+    else if (deleted.length > 1) toast.success(`${deleted.length} brochures deleted.`);
+    if (failed) {
+      toast.error(
+        docs.length === 1
+          ? getErrorMessage(failed.reason, "Couldn't delete the brochure.")
+          : `Couldn't delete ${docs.length - deleted.length} of the brochures.`
+      );
     }
   };
 
@@ -131,7 +153,16 @@ export function BrochuresSection({ onDocumentDeleted }) {
         </button>
       </div>
 
-      <ul className="mt-4 space-y-1.5">
+      {!isLoading && (
+        <SelectionBar
+          total={result.items.length}
+          selectedCount={selectedVisible.length}
+          onToggleAll={toggleAll}
+          onDelete={() => setPendingDelete(selectedVisible)}
+        />
+      )}
+
+      <ul className={`${!isLoading && result.items.length > 0 ? "mt-1" : "mt-4"} space-y-1.5`}>
         {isLoading && (
           <li className="py-6 flex justify-center text-slate-400">
             <Loader2 className="w-5 h-5 animate-spin" />
@@ -146,8 +177,17 @@ export function BrochuresSection({ onDocumentDeleted }) {
           result.items.map((doc) => (
             <li
               key={doc.id}
-              className="flex items-center gap-3 px-3 py-2.5 border border-slate-200 rounded-lg"
+              className={`flex items-center gap-3 px-3 py-2.5 border rounded-lg ${
+                selected.has(doc.id) ? "border-indigo-300 bg-indigo-50" : "border-slate-200"
+              }`}
             >
+              <input
+                type="checkbox"
+                checked={selected.has(doc.id)}
+                onChange={() => setSelected((prev) => toggleId(prev, doc.id))}
+                aria-label={`Select ${doc.filename}`}
+                className="w-4 h-4 accent-indigo-600 cursor-pointer shrink-0"
+              />
               <FileText className="w-4 h-4 text-red-500 shrink-0" />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-slate-700 truncate" title={doc.filename}>
@@ -158,7 +198,7 @@ export function BrochuresSection({ onDocumentDeleted }) {
                 </div>
               </div>
               <button
-                onClick={() => setPendingDelete(doc)}
+                onClick={() => setPendingDelete([doc])}
                 title="Delete brochure"
                 aria-label={`Delete ${doc.filename}`}
                 className="p-2 -mr-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md shrink-0 cursor-pointer"
@@ -188,9 +228,17 @@ export function BrochuresSection({ onDocumentDeleted }) {
 
       {pendingDelete && (
         <ConfirmDialog
-          title="Delete this brochure?"
-          detail={pendingDelete.filename}
-          description="It will be removed from your library and from every chat that uses it. This can't be undone."
+          title={
+            pendingDelete.length === 1
+              ? "Delete this brochure?"
+              : `Delete ${pendingDelete.length} brochures?`
+          }
+          detail={pendingDelete.length === 1 ? pendingDelete[0].filename : undefined}
+          description={`${
+            pendingDelete.length === 1 ? "It" : "They"
+          } will be removed from your library and from every chat that uses ${
+            pendingDelete.length === 1 ? "it" : "them"
+          }. This can't be undone.`}
           onConfirm={() => remove(pendingDelete)}
           onClose={() => setPendingDelete(null)}
         />

@@ -158,22 +158,30 @@ export function useChat() {
     }
   };
 
-  const deleteChat = async (id) => {
-    try {
-      await deleteChatApi(id);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't delete the chat."));
-      return;
+  /** Delete several chats at once; any that fail stay in the list. */
+  const deleteChats = async (ids) => {
+    const results = await Promise.allSettled(ids.map((id) => deleteChatApi(id)));
+    const deleted = ids.filter((_, i) => results[i].status === "fulfilled");
+    const failed = results.find((r) => r.status === "rejected");
+    if (failed) {
+      const count = ids.length - deleted.length;
+      const fallback =
+        ids.length === 1 ? "Couldn't delete the chat." : `Couldn't delete ${count} of the chats.`;
+      toast.error(ids.length === 1 ? getErrorMessage(failed.reason, fallback) : fallback);
     }
-    const remaining = chats.filter((c) => c.id !== id);
+    if (deleted.length === 0) return;
+
+    const remaining = chats.filter((c) => !deleted.includes(c.id));
     setChats(remaining);
-    if (id === activeChatId) {
+    if (deleted.includes(activeChatId)) {
       if (remaining.length > 0) selectChat(remaining[0].id);
       else newChat();
     }
     // After switching away, which parks the open chat's input under its id.
-    draftsRef.current.delete(id);
+    deleted.forEach((id) => draftsRef.current.delete(id));
   };
+
+  const deleteChat = (id) => deleteChats([id]);
 
   /**
    * Stream the answer to the question shown as `pendingId` into the chat. If it
@@ -356,5 +364,6 @@ export function useChat() {
     selectChat,
     renameChat,
     deleteChat,
+    deleteChats,
   };
 }

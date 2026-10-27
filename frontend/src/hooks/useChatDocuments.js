@@ -135,7 +135,7 @@ export function useChatDocuments(chatId) {
 
   /** Drop a document that was deleted from the library from the attached list. */
   const forget = (documentId) =>
-    setDocuments(documents.filter((d) => d.id !== documentId));
+    setDocuments((prev) => prev.filter((d) => d.id !== documentId));
 
   return {
     documents,

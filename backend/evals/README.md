@@ -136,7 +136,7 @@ python -m evals.retrieval.eval_retrieval --k 10             # more chunks per se
 python -m evals.retrieval.eval_retrieval --cases venue-boot safari-adas
 python -m evals.retrieval.eval_retrieval --rescore          # re-judge saved retrievals only
 python -m evals.retrieval.eval_retrieval --relevancy        # add DeepEval relevancy (slow)
-python -m evals.retrieval.eval_retrieval --judge gemini-3.1-flash-lite --rpm 5
+python -m evals.retrieval.eval_retrieval --judge gemini-3.5-flash-lite --rpm 5
 ```
 
 By default every search covers all 5 brochures, as in a chat with all of
@@ -205,7 +205,7 @@ unsupported. DeepEval's default would count it as faithful. Neither metric
 checks completeness: a correct one-fact answer to a two-part question
 scores 1.0 on both.
 
-The judge defaults to the app's own generator model (gemini-3.1-flash-lite),
+The judge defaults to the app's own generator model (gemini-3.5-flash-lite),
 so the model grades its own answers; `--judge` swaps in a stronger one.
 **Results** are in `generator/results/report.md`, with every unsupported
 claim and off-topic statement of the lowest-scoring answers.
