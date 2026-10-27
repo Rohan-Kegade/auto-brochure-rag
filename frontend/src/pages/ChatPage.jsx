@@ -17,7 +17,7 @@ import { SettingsDialog } from "../components/settings/SettingsDialog";
 export function ChatPage() {
   const chat = useChat();
   const docs = useChatDocuments(chat.activeChatId);
-  const { theme, preference, setPreference, toggleTheme } = useTheme();
+  const { theme, preference, setPreference } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -86,8 +86,6 @@ export function ChatPage() {
         <ChatHeader
           title={chat.isBooting ? "Loading…" : (chat.activeChat?.title ?? DEFAULT_CHAT_TITLE)}
           createdAt={chat.activeChat?.created_at}
-          theme={theme}
-          onToggleTheme={toggleTheme}
           onOpenSidebar={() => setDrawerOpen(true)}
         />
         <BrochureBar

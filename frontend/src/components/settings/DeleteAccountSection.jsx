@@ -48,7 +48,7 @@ export function DeleteAccountSection() {
             }}
             error={error}
           />
-          <div className="flex flex-col-reverse sm:flex-row gap-3">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
             <button
               type="button"
               onClick={() => {
@@ -72,12 +72,14 @@ export function DeleteAccountSection() {
           </div>
         </form>
       ) : (
-        <button
-          onClick={() => setConfirming(true)}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50 cursor-pointer"
-        >
-          Delete account
-        </button>
+        <div className="flex sm:justify-end">
+          <button
+            onClick={() => setConfirming(true)}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50 cursor-pointer"
+          >
+            Delete account
+          </button>
+        </div>
       )}
     </SettingsSection>
   );

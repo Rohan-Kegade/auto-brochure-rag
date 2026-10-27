@@ -16,6 +16,7 @@ export function ProfileSection() {
 
   const save = async (e) => {
     e.preventDefault();
+    if (!changed) return;
     if (!name.trim()) return setError("Enter your name.");
     setIsSaving(true);
     try {
@@ -64,24 +65,17 @@ export function ProfileSection() {
           disabled
           hint="Your email can't be changed."
         />
-        {changed && (
-          <div className="flex flex-col-reverse sm:flex-row gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setName(user.name);
-                setError(null);
-              }}
-              disabled={isSaving}
-              className="px-4 py-2.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-            >
-              Cancel
-            </button>
-            <SubmitButton isLoading={isSaving} loadingLabel="Saving…" className="w-full sm:w-auto">
-              Save changes
-            </SubmitButton>
-          </div>
-        )}
+        {/* Always shown; enabled once the name changes. */}
+        <div className="flex sm:justify-end">
+          <SubmitButton
+            isLoading={isSaving}
+            disabled={!changed}
+            loadingLabel="Saving…"
+            className="w-full sm:w-auto"
+          >
+            Save changes
+          </SubmitButton>
+        </div>
       </form>
     </SettingsSection>
   );

@@ -1,8 +1,7 @@
 import { Menu } from "lucide-react";
-import { ThemeToggle } from "../common/ThemeToggle";
 import { formatDateTime } from "../../utils/format";
 
-export function ChatHeader({ title, createdAt, theme, onToggleTheme, onOpenSidebar }) {
+export function ChatHeader({ title, createdAt, onOpenSidebar }) {
   return (
     <header className="h-16 border-b border-slate-200 bg-white px-4 sm:px-6 flex items-center gap-3 sm:gap-4 shadow-xs">
       <button
@@ -24,7 +23,6 @@ export function ChatHeader({ title, createdAt, theme, onToggleTheme, onOpenSideb
           <p className="text-xs text-slate-400 truncate">Created {formatDateTime(createdAt)}</p>
         )}
       </div>
-      <ThemeToggle theme={theme} onToggle={onToggleTheme} />
     </header>
   );
 }

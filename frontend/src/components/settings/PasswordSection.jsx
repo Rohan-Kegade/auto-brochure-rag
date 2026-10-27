@@ -79,9 +79,11 @@ export function PasswordSection() {
             error={errors.confirm}
           />
         </div>
-        <SubmitButton isLoading={isSaving} loadingLabel="Changing…" className="w-full sm:w-auto">
-          Change password
-        </SubmitButton>
+        <div className="flex sm:justify-end">
+          <SubmitButton isLoading={isSaving} loadingLabel="Changing…" className="w-full sm:w-auto">
+            Change password
+          </SubmitButton>
+        </div>
       </form>
     </SettingsSection>
   );
