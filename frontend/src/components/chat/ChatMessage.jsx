@@ -3,6 +3,7 @@ import { RotateCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CopyButton } from "./CopyButton";
+import { MessageSources } from "./MessageSources";
 
 // Memoised so a streaming answer doesn't re-render (and re-parse) every earlier message,
 // so `onRetry(message)` must be stable. `canRetry` is false while an answer is streaming.
@@ -59,6 +60,10 @@ export const ChatMessage = memo(function ChatMessage({ message, canRetry, onRetr
           </div>
         ) : (
           message.text
+        )}
+        {/* Shown once the answer is complete; a stopped answer has none. */}
+        {!isUser && !message.streaming && message.sources?.length > 0 && (
+          <MessageSources sources={message.sources} />
         )}
       </div>
       <div

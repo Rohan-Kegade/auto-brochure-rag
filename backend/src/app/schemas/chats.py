@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import List, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ChatCreate(BaseModel):
@@ -23,6 +23,14 @@ class ChatOut(BaseModel):
     updated_at: datetime
 
 
+class SourceOut(BaseModel):
+    """One brochure an answer cites, with the pages it cites from it."""
+
+    document_id: str
+    filename: str
+    pages: List[int]
+
+
 class MessageOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -30,6 +38,13 @@ class MessageOut(BaseModel):
     role: Literal["user", "ai"]
     content: str
     created_at: datetime
+    # Answers only; empty when the answer cites nothing (or predates citations).
+    sources: List[SourceOut] = []
+
+    @field_validator("sources", mode="before")
+    @classmethod
+    def _none_as_empty(cls, value):
+        return value or []
 
 
 class AttachRequest(BaseModel):

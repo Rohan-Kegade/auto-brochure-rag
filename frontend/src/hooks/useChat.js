@@ -22,7 +22,7 @@ const titleFrom = (text) => {
 
 const DRAFT_SENDING = "__draft__";
 
-const toMessage = (m) => ({ id: m.id, sender: m.role, text: m.content });
+const toMessage = (m) => ({ id: m.id, sender: m.role, text: m.content, sources: m.sources ?? [] });
 
 // A saved question with no answer after it is one whose answer failed.
 const fromServer = (list) =>

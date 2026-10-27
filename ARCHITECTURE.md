@@ -58,7 +58,11 @@ Outside `app/`:
 3. It calls `services/chats.py`: `ensure_can_answer` (does the chat have
    brochures?), `save_question`, then `stream_answer` inside the streaming response.
 4. `stream_answer` uses `rag/retrieval.py: build_retrieval_chain` to search
-   only that chat's brochures and stream Gemini's answer.
+   only that chat's brochures and stream Gemini's answer. The retrieved chunks
+   are numbered and the model cites them as `[1]`, `[2]`; `CitationFilter`
+   strips those markers from the stream, and `group_sources` turns the cited
+   numbers into brochures and pages, saved as the answer's `sources` and shown
+   under it.
 5. The route sends a `{"type": "start"}` line with the saved question, each token
    as a line of JSON (`{"type": "token"}`), then a final `{"type": "done"}` with
    the saved messages.

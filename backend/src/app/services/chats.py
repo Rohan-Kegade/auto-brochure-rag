@@ -14,7 +14,7 @@ from app.db.models import (
     Message,
     _now,
 )
-from app.rag.retrieval import build_retrieval_chain
+from app.rag.retrieval import CitationFilter, build_retrieval_chain, group_sources
 from app.services.titles import make_chat_title, title_from_question
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from sqlalchemy import delete, select
@@ -246,6 +246,7 @@ async def _save_answer(
     chat: Chat,
     question: Message,
     answer: str,
+    sources: list[dict],
     attached: list[Document],
 ) -> Message:
     if await _has_interim_title(db, chat):
@@ -256,6 +257,7 @@ async def _save_answer(
         chat_id=chat.id,
         role=ROLE_AI,
         content=answer,
+        sources=sources,
         # Clocks can be coarse; force the answer strictly after the question.
         created_at=max(_now(), question.created_at + timedelta(microseconds=1)),
     )
@@ -274,15 +276,26 @@ async def stream_answer(
     db: AsyncSession, chat: Chat, question: Message
 ) -> AsyncIterator[str | Message]:
     """Answer a saved `question` from the chat's attached documents. Yields the
-    answer's text chunks as they arrive, then finally the saved answer. Nothing
-    more is saved if it fails, so the question can be retried."""
+    answer's text chunks as they arrive (citation markers removed), then finally
+    the saved answer, with the sources it cited. Nothing more is saved if it
+    fails, so the question can be retried."""
     chain, chain_input, attached = await _prepare_answer(db, chat, question)
+    chunks = []
+    citations = CitationFilter()
     parts: list[str] = []
-    async for chunk in chain.astream(chain_input):
-        if chunk:
-            parts.append(chunk)
-            yield chunk
+    async for item in chain.astream(chain_input):
+        if "chunks" in item:
+            # Arrives whole, before the answer's first piece.
+            chunks = item["chunks"]
+            citations.count = len(chunks)
+        if text := citations.feed(item.get("answer", "")):
+            parts.append(text)
+            yield text
+    if rest := citations.flush():
+        parts.append(rest)
+        yield rest
     answer = "".join(parts).strip()
     if not answer:
         raise DomainError("The model returned an empty answer. Please try again.")
-    yield await _save_answer(db, chat, question, answer, attached)
+    sources = group_sources(chunks, citations.cited)
+    yield await _save_answer(db, chat, question, answer, sources, attached)

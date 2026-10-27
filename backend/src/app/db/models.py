@@ -8,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    JSON,
     String,
     Text,
     UniqueConstraint,
@@ -145,5 +146,7 @@ class Message(Base):
     content: Mapped[str] = mapped_column(Text)
     # Microsecond precision so a question and its answer keep their order.
     created_at: Mapped[datetime] = mapped_column(MYSQL_DATETIME(fsp=6), default=_now)
+    # An answer's cited brochures and pages, see `rag.retrieval.group_sources`.
+    sources: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     chat: Mapped[Chat] = relationship(back_populates="messages")
