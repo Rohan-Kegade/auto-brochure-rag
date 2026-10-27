@@ -4,10 +4,13 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CopyButton } from "./CopyButton";
 
-// Memoised so a streaming answer doesn't re-render (and re-parse) every earlier message.
-// `onRetry` is given only to a failed question that can be retried (the latest one).
-export const ChatMessage = memo(function ChatMessage({ message, onRetry }) {
+// Memoised so a streaming answer doesn't re-render (and re-parse) every earlier message,
+// so `onRetry(message)` must be stable. `canRetry` is false while an answer is streaming.
+export const ChatMessage = memo(function ChatMessage({ message, canRetry, onRetry }) {
   const isUser = message.sender === "user";
+  const retry = () => onRetry(message);
+  // Pointer devices reveal the actions on hover; touch screens always show them.
+  const reveal = "pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 focus-visible:opacity-100";
 
   return (
     <div className={`group flex flex-col ${isUser ? "items-end" : "items-start"}`}>
@@ -61,20 +64,26 @@ export const ChatMessage = memo(function ChatMessage({ message, onRetry }) {
       <div
         className={`mt-1 flex items-center gap-2 text-[11px] ${isUser ? "flex-row-reverse" : ""}`}
       >
-        {/* Always shown on touch screens; revealed on hover with a mouse. */}
-        {!message.streaming && message.text && (
-          <CopyButton
-            text={message.text}
-            className="pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 focus-visible:opacity-100"
-          />
+        {!message.streaming && message.text && <CopyButton text={message.text} className={reveal} />}
+        {!message.streaming && !message.failed && canRetry && (
+          <button
+            type="button"
+            onClick={retry}
+            title={isUser ? "Ask again" : "Regenerate response"}
+            aria-label={isUser ? "Ask again" : "Regenerate response"}
+            className={`p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 cursor-pointer transition-opacity ${reveal}`}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
         )}
+        {message.stopped && !message.failed && <span className="text-slate-400">Stopped</span>}
         {message.failed && (
           <div className="flex items-center gap-2 text-red-500">
-            <span>Not answered</span>
-            {onRetry && (
+            <span>{message.stopped ? "Stopped" : "Not answered"}</span>
+            {canRetry && (
               <button
                 type="button"
-                onClick={onRetry}
+                onClick={retry}
                 className="flex items-center gap-1 font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />

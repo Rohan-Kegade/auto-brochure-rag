@@ -122,8 +122,9 @@ export const jsonRequest = (method, body) => ({
 /**
  * POST `body` and return the raw Response so the caller can read its body as a
  * stream. Throws (like apiRequest) when the server rejects the request.
+ * Aborting `signal` cancels the request, or the body once it is streaming.
  */
-export const openStream = async (path, body) => {
+export const openStream = async (path, body, signal) => {
   if (isOffline()) {
     throw new Error(
       "You appear to be offline. Check your connection and try again.",
@@ -134,6 +135,7 @@ export const openStream = async (path, body) => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...request,
     headers: withAuth(request.headers),
+    signal,
   });
   if (!response.ok) {
     const data = await parseJson(response);

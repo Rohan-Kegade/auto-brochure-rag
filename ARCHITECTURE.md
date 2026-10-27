@@ -59,8 +59,14 @@ Outside `app/`:
    brochures?), `save_question`, then `stream_answer` inside the streaming response.
 4. `stream_answer` uses `rag/retrieval.py: build_retrieval_chain` to search
    only that chat's brochures and stream Gemini's answer.
-5. The route sends each token to the browser as a line of JSON (`{"type": "token"}`),
-   then a final `{"type": "done"}` with the saved messages.
+5. The route sends a `{"type": "start"}` line with the saved question, each token
+   as a line of JSON (`{"type": "token"}`), then a final `{"type": "done"}` with
+   the saved messages.
+
+Retrying (`/chats/{id}/messages/retry/stream`) deletes everything after the
+chosen question and streams a new answer the same way. Stopping a response
+just aborts the request: the stream is cancelled and nothing more is saved, so
+the question stays unanswered.
 
 ### Errors
 

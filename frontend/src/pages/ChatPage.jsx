@@ -17,7 +17,7 @@ import { SettingsDialog } from "../components/settings/SettingsDialog";
 export function ChatPage() {
   const chat = useChat();
   const docs = useChatDocuments(chat.activeChatId);
-  const { theme, toggleTheme } = useTheme();
+  const { theme, preference, setPreference, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -122,6 +122,7 @@ export function ChatPage() {
             isLoading={
               chat.isLoading && chat.messages[chat.messages.length - 1]?.sender !== "ai"
             }
+            canRetry={!chat.isLoading && docs.hasActivePdfs}
             onRetry={chat.retryMessage}
           />
         )}
@@ -131,8 +132,10 @@ export function ChatPage() {
           activePdfCount={docs.activePdfCount}
           isLoadingDocuments={docs.isLoading}
           isLoading={chat.isLoading}
+          canStop={chat.canStop}
           onInputChange={chat.setInputQuery}
           onSubmit={(e) => chat.sendMessage(e, docs.commitDraft)}
+          onStop={chat.stopResponse}
         />
       </main>
 
@@ -147,6 +150,8 @@ export function ChatPage() {
           onDeleteChats={chat.deleteChats}
           // A brochure deleted there may be attached to the open chat.
           onDocumentDeleted={docs.forget}
+          themePreference={preference}
+          onThemePreferenceChange={setPreference}
           onClose={() => setSettingsOpen(false)}
         />
       )}

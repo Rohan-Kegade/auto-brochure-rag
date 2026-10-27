@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Square } from "lucide-react";
 
 export function ChatInput({
   inputQuery,
@@ -7,8 +7,10 @@ export function ChatInput({
   activePdfCount,
   isLoadingDocuments,
   isLoading,
+  canStop,
   onInputChange,
   onSubmit,
+  onStop,
 }) {
   // While a switched-to chat's brochures load, keep showing the last known state
   // instead of flashing the disabled "add a brochure" input in between.
@@ -37,15 +39,28 @@ export function ChatInput({
           disabled={!hasPdfs || isLoading}
           className="flex-1 min-w-0 px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-slate-50 disabled:cursor-not-allowed"
         />
-        <button
-          type="submit"
-          aria-label="Send"
-          disabled={!hasPdfs || isLoading || !inputQuery.trim()}
-          className="px-3.5 sm:px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 shadow-xs"
-        >
-          <span className="hidden sm:inline">Send</span>
-          <Send className="w-4 h-4" />
-        </button>
+        {isLoading ? (
+          <button
+            type="button"
+            onClick={onStop}
+            title="Stop"
+            aria-label="Stop response"
+            disabled={!canStop}
+            className="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 shadow-xs"
+          >
+            <Square className="w-4 h-4 fill-current" />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            title="Send"
+            aria-label="Send"
+            disabled={!hasPdfs || isLoading || !inputQuery.trim()}
+            className="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2 shadow-xs"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        )}
       </form>
     </div>
   );

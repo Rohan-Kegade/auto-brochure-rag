@@ -28,15 +28,24 @@ export const fetchMessagesApi = (chatId) =>
   });
 
 /**
- * POST to a streaming answer endpoint. `onToken(text)` is called for each chunk;
- * resolves with the saved messages and title once the answer is done.
- * Not retried: a retry would run the model twice.
+ * POST to a streaming answer endpoint. `onStart(question)` gets the saved
+ * question and `onToken(text)` each chunk; resolves with the saved messages and
+ * title once the answer is done. Not retried: a retry would run the model twice.
  *
  * Errors carry `questionSaved`: once the server accepts the request the
- * question is saved, so a later failure leaves it in the chat to retry.
+ * question is saved, so a later failure leaves it in the chat to retry. Errors
+ * from aborting `signal` (the user stopped the answer) also carry `aborted`.
  */
-const streamAnswer = async (path, body, { onToken } = {}) => {
-  const response = await openStream(path, body);
+const streamAnswer = async (path, body, { onStart, onToken, signal } = {}) => {
+  const stopped = () =>
+    Object.assign(new Error("Response stopped."), { questionSaved: true, aborted: true });
+
+  let response;
+  try {
+    response = await openStream(path, body, signal);
+  } catch (err) {
+    throw signal?.aborted ? stopped() : err;
+  }
 
   const fail = (message) => Object.assign(new Error(message), { questionSaved: true });
   const reader = response.body.getReader();
@@ -47,7 +56,8 @@ const streamAnswer = async (path, body, { onToken } = {}) => {
   const handle = (line) => {
     if (!line.trim()) return;
     const event = JSON.parse(line);
-    if (event.type === "token") onToken?.(event.text);
+    if (event.type === "start") onStart?.(event.user_message);
+    else if (event.type === "token") onToken?.(event.text);
     else if (event.type === "done") result = event;
     else if (event.type === "error") {
       throw fail(event.detail || "Unable to get a response.");
@@ -65,6 +75,7 @@ const streamAnswer = async (path, body, { onToken } = {}) => {
     }
     handle(buffer);
   } catch (err) {
+    if (signal?.aborted) throw stopped();
     throw err.questionSaved ? err : fail(err.message);
   }
 
@@ -76,6 +87,9 @@ const streamAnswer = async (path, body, { onToken } = {}) => {
 export const streamMessageApi = (chatId, message, options) =>
   streamAnswer(`/chats/${chatId}/messages/stream`, { message }, options);
 
-/** Answer the chat's latest question again after its answer failed. */
-export const retryMessageApi = (chatId, options) =>
-  streamAnswer(`/chats/${chatId}/messages/retry/stream`, {}, options);
+/**
+ * Answer a question again: `messageId` names the question, or an answer (meaning
+ * its question). The server deletes everything after that question first.
+ */
+export const retryMessageApi = (chatId, messageId, options) =>
+  streamAnswer(`/chats/${chatId}/messages/retry/stream`, { message_id: messageId }, options);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { KeyRound, Library, MessagesSquare, UserRound, UserX, X } from "lucide-react";
+import { KeyRound, Library, MessagesSquare, Palette, UserRound, UserX, X } from "lucide-react";
+import { AppearanceSection } from "./AppearanceSection";
 import { BrochuresSection } from "./BrochuresSection";
 import { ChatsSection } from "./ChatsSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
@@ -9,6 +10,7 @@ import { ProfileSection } from "./ProfileSection";
 const SECTIONS = [
   { id: "profile", label: "Profile", icon: UserRound },
   { id: "password", label: "Password", icon: KeyRound },
+  { id: "appearance", label: "Appearance", icon: Palette },
   { id: "brochures", label: "My brochures", icon: Library },
   { id: "chats", label: "Chats", icon: MessagesSquare },
   { id: "delete-account", label: "Delete account", icon: UserX, danger: true },
@@ -20,6 +22,8 @@ export function SettingsDialog({
   onSelectChat,
   onDeleteChats,
   onDocumentDeleted,
+  themePreference,
+  onThemePreferenceChange,
   onClose,
 }) {
   const [active, setActive] = useState("profile");
@@ -89,6 +93,12 @@ export function SettingsDialog({
           <div className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6">
             {active === "profile" && <ProfileSection />}
             {active === "password" && <PasswordSection />}
+            {active === "appearance" && (
+              <AppearanceSection
+                preference={themePreference}
+                onChange={onThemePreferenceChange}
+              />
+            )}
             {active === "brochures" && <BrochuresSection onDocumentDeleted={onDocumentDeleted} />}
             {active === "chats" && (
               <ChatsSection

@@ -1,14 +1,37 @@
-import { useRef, useLayoutEffect } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ConfirmDialog } from "../common/ConfirmDialog";
 import { ChatMessage } from "./ChatMessage";
 
 // How close to the bottom (px) still counts as "following" the conversation.
 const STICK_THRESHOLD = 80;
 
-export function MessageList({ messages, isLoading, onRetry }) {
+export function MessageList({ messages, isLoading, canRetry, onRetry }) {
   const chatEndRef = useRef(null);
   const containerRef = useRef(null);
   const stickRef = useRef(true);
   const prevCountRef = useRef(0);
+  // A retry that would also delete later messages waits here for confirmation.
+  const [pendingRetry, setPendingRetry] = useState(null);
+
+  // Read through a ref so `requestRetry` stays stable while an answer streams.
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  const requestRetry = useCallback(
+    (message) => {
+      const list = messagesRef.current;
+      let index = list.findIndex((m) => m.id === message.id);
+      if (list[index]?.sender === "ai") index -= 1;
+      // Beyond the question's own answer, would anything else be deleted?
+      const kept = list[index + 1]?.sender === "ai" ? index + 2 : index + 1;
+      const later = list.length - kept;
+      if (later > 0) setPendingRetry({ id: message.id, later });
+      else onRetry(message.id);
+    },
+    [onRetry],
+  );
 
   const handleScroll = () => {
     const el = containerRef.current;
@@ -46,11 +69,12 @@ export function MessageList({ messages, isLoading, onRetry }) {
       className="flex-1 overflow-y-auto py-6 px-4 sm:px-10 lg:px-20"
     >
       <div className="max-w-6xl mx-auto space-y-4">
-        {messages.map((msg, i) => (
+        {messages.map((msg) => (
           <ChatMessage
             key={msg.key ?? msg.id}
             message={msg}
-            onRetry={msg.failed && i === messages.length - 1 ? onRetry : undefined}
+            canRetry={canRetry && !msg.id.startsWith("pending-")}
+            onRetry={requestRetry}
           />
         ))}
 
@@ -66,6 +90,16 @@ export function MessageList({ messages, isLoading, onRetry }) {
 
         <div ref={chatEndRef} />
       </div>
+
+      {pendingRetry && (
+        <ConfirmDialog
+          title="Answer this again?"
+          description={`The ${pendingRetry.later === 1 ? "message" : `${pendingRetry.later} messages`} after it will be permanently deleted.`}
+          confirmLabel="Delete and retry"
+          onConfirm={() => onRetry(pendingRetry.id)}
+          onClose={() => setPendingRetry(null)}
+        />
+      )}
     </div>
   );
 }

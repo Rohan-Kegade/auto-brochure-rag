@@ -17,7 +17,7 @@ from app.db.models import (
 from app.rag.retrieval import build_retrieval_chain
 from app.services.titles import make_chat_title, title_from_question
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -202,6 +202,33 @@ async def unanswered_question(db: AsyncSession, chat: Chat) -> Message | None:
         )
     ).scalar_one_or_none()
     return last if last is not None and last.role == ROLE_USER else None
+
+
+async def question_to_retry(
+    db: AsyncSession, chat: Chat, message_id: str | None
+) -> Message | None:
+    """The question to answer again: `message_id` (a question, or an answer,
+    meaning the question before it), else the latest unanswered question."""
+    if message_id is None:
+        return await unanswered_question(db, chat)
+    messages = await list_messages(db, chat.id)
+    index = next((i for i, m in enumerate(messages) if m.id == message_id), None)
+    if index is None:
+        return None
+    if messages[index].role == ROLE_AI:
+        index -= 1
+    return messages[index] if index >= 0 and messages[index].role == ROLE_USER else None
+
+
+async def clear_after(db: AsyncSession, chat: Chat, question: Message) -> None:
+    """Delete everything after `question`, so its new answer continues the chat
+    from there."""
+    await db.execute(
+        delete(Message).where(
+            Message.chat_id == chat.id, Message.created_at > question.created_at
+        )
+    )
+    await db.commit()
 
 
 async def _has_interim_title(db: AsyncSession, chat: Chat) -> bool:

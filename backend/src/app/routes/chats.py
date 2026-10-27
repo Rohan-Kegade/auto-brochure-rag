@@ -12,6 +12,7 @@ from app.schemas.chats import (
     ChatOut,
     ChatUpdate,
     MessageOut,
+    RetryRequest,
     SendMessageRequest,
 )
 from app.schemas.documents import DocumentOut
@@ -94,6 +95,15 @@ def _answer_response(chat: Chat, question_id: str) -> StreamingResponse:
             async with SessionLocal() as stream_db:
                 stream_chat = await chat_service.get_chat(stream_db, user_id, chat_id)
                 question = await stream_db.get(Message, question_id)
+                # Lets the client match its pending question to the saved one.
+                yield _event(
+                    {
+                        "type": "start",
+                        "user_message": MessageOut.model_validate(question).model_dump(
+                            mode="json"
+                        ),
+                    }
+                )
                 async for item in chat_service.stream_answer(
                     stream_db, stream_chat, question
                 ):
@@ -132,7 +142,7 @@ async def stream_message(
     db: AsyncSession = Depends(get_db),
 ):
     """Save the question, then stream its answer as newline-delimited JSON events:
-    `token` chunks, then one `done` (or `error`). Once the response starts the
+    one `start` (the saved question), `token` chunks, then one `done` (or `error`). Once the response starts the
     question is saved, even if answering fails."""
     question = body.message.strip()
     if not question:
@@ -144,15 +154,18 @@ async def stream_message(
 
 @router.post("/{chat_id}/messages/retry/stream")
 async def retry_message(
+    body: RetryRequest,
     chat: Chat = Depends(get_chat_or_404),
     db: AsyncSession = Depends(get_db),
 ):
-    """Answer the chat's latest question again after its answer failed. Streams
-    the same events as sending a message."""
-    question = await chat_service.unanswered_question(db, chat)
+    """Answer a question again: the one `message_id` names (or the question
+    before it, for an answer), else the latest unanswered one. Everything after
+    that question is deleted first. Streams the same events as sending a message."""
+    question = await chat_service.question_to_retry(db, chat, body.message_id)
     if question is None:
         raise HTTPException(status_code=409, detail="There is no question to retry.")
     await chat_service.ensure_can_answer(db, chat)
+    await chat_service.clear_after(db, chat, question)
     return _answer_response(chat, question.id)
 
 

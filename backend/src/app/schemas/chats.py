@@ -38,3 +38,8 @@ class AttachRequest(BaseModel):
 
 class SendMessageRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
+
+
+class RetryRequest(BaseModel):
+    # The question (or answer) to answer again; omitted, the latest unanswered question.
+    message_id: str | None = None

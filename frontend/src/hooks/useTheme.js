@@ -1,24 +1,45 @@
 import { useEffect, useState } from "react";
 
 const KEY = "theme";
+const darkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
 
-// The inline script in index.html has already set the class before first paint;
-// read it back so state and DOM agree.
-const initialTheme = () =>
-  document.documentElement.classList.contains("dark") ? "dark" : "light";
+// "light" | "dark" | "system". Nothing saved means follow the OS, which is
+// also what the inline script in index.html assumes before first paint.
+const initialPreference = () => {
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved === "light" || saved === "dark") return saved;
+  } catch {
+    // Fall through to the OS setting.
+  }
+  return "system";
+};
 
 export function useTheme() {
-  const [theme, setTheme] = useState(initialTheme);
+  const [preference, setPreference] = useState(initialPreference);
+  const [systemDark, setSystemDark] = useState(() => darkQuery().matches);
+  const theme = preference === "system" ? (systemDark ? "dark" : "light") : preference;
+
+  useEffect(() => {
+    const query = darkQuery();
+    const onChange = (e) => setSystemDark(e.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
+  useEffect(() => {
     try {
-      localStorage.setItem(KEY, theme);
+      if (preference === "system") localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, preference);
     } catch {
       // Remembering the choice is a convenience; ignore storage failures.
     }
-  }, [theme]);
+  }, [preference]);
 
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
-  return { theme, toggleTheme };
+  const toggleTheme = () => setPreference(theme === "dark" ? "light" : "dark");
+  return { theme, preference, setPreference, toggleTheme };
 }

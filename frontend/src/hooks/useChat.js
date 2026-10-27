@@ -63,6 +63,14 @@ export function useChat() {
     inputRef.current = inputQuery;
   }, [inputQuery]);
 
+  // For the stable callbacks below, which mustn't change on every streamed token.
+  const messagesRef = useRef(messages);
+  const sendingRef = useRef(sendingChatId);
+  useEffect(() => {
+    messagesRef.current = messages;
+    sendingRef.current = sendingChatId;
+  }, [messages, sendingChatId]);
+
   // Park the current input under the open chat and bring up `nextId`'s draft.
   const swapDraft = useCallback((nextId) => {
     const drafts = draftsRef.current;
@@ -109,7 +117,7 @@ export function useChat() {
           // The question being answered is already saved; show it as in flight.
           const last = saved[saved.length - 1];
           if (last?.failed && last.text === inFlight.question) saved = saved.slice(0, -1);
-          unsaved.push({ id: inFlight.pendingId, sender: "user", text: inFlight.question });
+          unsaved.push({ id: inFlight.questionId, sender: "user", text: inFlight.question });
           if (inFlight.answer) {
             unsaved.push({
               id: inFlight.streamingId,
@@ -186,11 +194,14 @@ export function useChat() {
   /**
    * Stream the answer to the question shown as `pendingId` into the chat. If it
    * fails after the server saved the question, the question stays, marked failed;
-   * otherwise `onUnsaved` runs (by default it is marked failed as well).
+   * otherwise `onUnsaved` runs (by default it is marked failed as well). If the
+   * user stops it, the partial answer stays on screen (it isn't saved).
    */
   const streamReply = async ({ chatId, pendingId, question, request, onUnsaved }) => {
     const streamingId = `streaming-${pendingId}`;
-    const inFlight = { pendingId, streamingId, question, answer: "" };
+    const controller = new AbortController();
+    // `questionId` becomes the saved question's id once the server reports it.
+    const inFlight = { questionId: pendingId, streamingId, question, answer: "", controller };
     inFlightRef.current.set(chatId, inFlight);
     setSendingChatId(chatId);
 
@@ -216,6 +227,14 @@ export function useChat() {
 
     try {
       const data = await request({
+        signal: controller.signal,
+        onStart: (saved) => {
+          inFlight.questionId = saved.id;
+          if (activeIdRef.current !== chatId) return;
+          setMessages((prev) =>
+            prev.map((m) => (m.id === pendingId ? { ...m, id: saved.id, key: m.key ?? m.id } : m)),
+          );
+        },
         onToken: (text) => {
           pending += text;
           if (frame === null) frame = requestAnimationFrame(flush);
@@ -225,7 +244,7 @@ export function useChat() {
       pending = "";
       if (activeIdRef.current === chatId) {
         setMessages((prev) => [
-          ...prev.filter((m) => m.id !== pendingId && m.id !== streamingId),
+          ...prev.filter((m) => m.id !== inFlight.questionId && m.id !== streamingId),
           // Keep the temporary keys so React updates these in place instead of
           // unmounting and remounting them (a visible flash) when the answer lands.
           { ...toMessage(data.user_message), key: pendingId },
@@ -243,6 +262,24 @@ export function useChat() {
       });
     } catch (err) {
       if (frame !== null) cancelAnimationFrame(frame);
+      const questionId = inFlight.questionId;
+      if (err.aborted) {
+        flush();
+        // Keep what arrived, marked stopped; with nothing yet, mark the question.
+        if (activeIdRef.current === chatId) {
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.id === streamingId) {
+              return [
+                ...prev.slice(0, -1),
+                { ...last, id: `stopped-${pendingId}`, key: streamingId, streaming: false, stopped: true },
+              ];
+            }
+            return prev.map((m) => (m.id === questionId ? { ...m, failed: true, stopped: true } : m));
+          });
+        }
+        return;
+      }
       pending = "";
       // A partial answer isn't saved, so drop it. A chat we've left reloads from
       // the server, which marks the saved question failed by itself.
@@ -252,7 +289,7 @@ export function useChat() {
       const markFailed = () => {
         if (activeIdRef.current !== chatId) return;
         setMessages((prev) =>
-          prev.map((m) => (m.id === pendingId ? { ...m, failed: true } : m)),
+          prev.map((m) => (m.id === questionId ? { ...m, failed: true } : m)),
         );
       };
       if (err.questionSaved || !onUnsaved) markFailed();
@@ -331,19 +368,40 @@ export function useChat() {
     });
   };
 
-  /** Answer the open chat's last question again after its answer failed. */
-  const retryMessage = () => {
-    const chatId = activeChatId;
-    const last = messages[messages.length - 1];
-    if (!chatId || !last?.failed || sendingChatId === chatId) return;
-    setMessages((prev) => prev.map((m) => (m.id === last.id ? { ...m, failed: false } : m)));
+  /**
+   * Answer a question again, given its id or its answer's. Everything after the
+   * question is removed, here and on the server.
+   */
+  const retryImpl = (messageId) => {
+    const chatId = activeIdRef.current;
+    const list = messagesRef.current;
+    let index = list.findIndex((m) => m.id === messageId);
+    if (list[index]?.sender === "ai") index -= 1;
+    const target = list[index];
+    if (!chatId || target?.sender !== "user" || sendingRef.current === chatId) return;
+    // A question stopped before the server reported its id: it is the latest
+    // unanswered one, which the server picks when no id is given.
+    const unsavedId = target.id.startsWith("pending-");
+    if (unsavedId && list.slice(index + 1).some((m) => m.sender === "user")) return;
+
+    setMessages([...list.slice(0, index), { ...target, failed: false, stopped: false }]);
     streamReply({
       chatId,
-      pendingId: last.id,
-      question: last.text,
-      request: (options) => retryMessageApi(chatId, options),
+      pendingId: target.id,
+      question: target.text,
+      request: (options) => retryMessageApi(chatId, unsavedId ? undefined : target.id, options),
     });
   };
+  const retryRef = useRef(retryImpl);
+  useEffect(() => {
+    retryRef.current = retryImpl;
+  });
+  const retryMessage = useCallback((messageId) => retryRef.current(messageId), []);
+
+  /** Stop the open chat's streaming answer. */
+  const stopResponse = useCallback(() => {
+    inFlightRef.current.get(activeIdRef.current)?.controller.abort();
+  }, []);
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
@@ -357,9 +415,12 @@ export function useChat() {
     isBooting,
     isLoading:
       sendingChatId !== null && sendingChatId === (activeChatId ?? DRAFT_SENDING),
+    // Not while a new chat is still being created: there's no answer to stop yet.
+    canStop: activeChatId !== null && sendingChatId === activeChatId,
     setInputQuery,
     sendMessage,
     retryMessage,
+    stopResponse,
     newChat,
     selectChat,
     renameChat,
