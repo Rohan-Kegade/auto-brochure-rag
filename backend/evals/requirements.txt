@@ -8,7 +8,7 @@ PyYAML==6.0.3
 beautifulsoup4==4.15.0
 pypdf==6.16.1
 
-# Retrieval eval: LLM-judged contextual recall / precision / relevancy
+# LLM-judged metrics: retrieval, generator, RAG Triad, correctness (GEval)
 deepeval==4.3.1
 
 # Document-loader candidates (pdfplumber comes with the app)

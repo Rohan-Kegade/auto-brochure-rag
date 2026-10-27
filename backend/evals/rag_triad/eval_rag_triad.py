@@ -54,7 +54,9 @@ log = logging.getLogger("eval.rag_triad")
 # --- the pipeline ----------------------------------------------------------
 
 
-def run_pipeline(cases: list[dict], args) -> dict:
+def run_pipeline(cases: list[dict], args, out=RUNS) -> dict:
+    """Search + answer per question, as the app does for a first message,
+    saved to `out`. The correctness eval runs its questions through this too."""
     corpus = load_corpus()
     store = build_store(corpus, results_dir("retrieval") / "qdrant", reindex=args.reindex)
     every_doc = [b.id for b in corpus]
@@ -91,7 +93,7 @@ def run_pipeline(cases: list[dict], args) -> dict:
         },
         "cases": runs,
     }
-    RUNS.write_text(json.dumps(saved, indent=2, ensure_ascii=False), encoding="utf-8")
+    out.write_text(json.dumps(saved, indent=2, ensure_ascii=False), encoding="utf-8")
     return saved
 
 

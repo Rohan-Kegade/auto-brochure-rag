@@ -31,6 +31,10 @@ backend/
       eval_rag_triad.py      entry point
       metrics.py  report.py
       results/               runs.json, scores.json, report.md
+    correctness/
+      eval_correctness.py    entry point
+      metrics.py  report.py
+      results/               answers.json, scores.json, report.md
 ```
 
 ## Setup
@@ -46,7 +50,7 @@ Every command below runs from `backend/` with the venv active. Use
 `python -m <tool>` rather than the `.exe` launchers in `.venv\Scripts\`:
 Windows Smart App Control blocks those unsigned launchers.
 
-- **API key:** the retrieval, generator and RAG Triad evals call Gemini, so
+- **API key:** the retrieval, generator, RAG Triad and correctness evals call Gemini, so
   `backend/.env` needs `GOOGLE_API_KEY` (see `backend/.env.sample`). No eval
   needs MySQL or a Qdrant server.
 - **Free-tier Gemini keys** are rate-limited (as low as 5 requests per minute
@@ -241,6 +245,52 @@ and the report lists the per-chunk relevance, unsupported claims and
 off-topic statements behind the lowest scores. The component evals tell you
 *why* a leg is weak: retrieval for context relevance, generator for the other
 two.
+
+## Correctness eval
+
+Is the app's answer right? The RAG Triad never sees an expected answer, so
+an answer that is grounded in the wrong chunks, or correct but missing half
+the question, can still score well there. This eval compares each answer
+with an ideal one. Every case in `goldens/correctness.yaml` is a question
+and its ideal answer. The cases were seeded from `goldens/retrieval.yaml`
+(same ids and questions; a run warns when a question drifts), but they live
+in their own file so an ideal answer can be reworded without changing what
+the retriever is judged on.
+
+Answers come from the whole pipeline, exactly as in the RAG Triad eval
+(`build_search` over the retrieval eval's local Qdrant store, then
+`build_answer`, no chat history). DeepEval's
+[GEval](https://deepeval.com/docs/metrics-llm-evals) judges each answer
+against the expected one as a whole, not claim by claim, and scores it out of
+10 on semantic equivalence, factual accuracy and completeness (stored scaled
+to 0-1).
+
+```powershell
+cd backend
+python -m evals.correctness.eval_correctness                   # all cases, all 5 brochures searched
+python -m evals.correctness.eval_correctness --scope own       # search only each case's brochures
+python -m evals.correctness.eval_correctness --cases venue-boot safari-adas
+python -m evals.correctness.eval_correctness --rescore         # re-judge saved answers only
+python -m evals.correctness.eval_correctness --rpm 5           # free-tier Gemini key
+```
+
+Each case costs 1 search, 1 generation and 1 or 2 judge calls, so a full run
+is about 200 Gemini calls.
+
+**Metric** (full definition and judge steps in `correctness/metrics.py`):
+
+| Metric | Question it answers | Pass |
+|---|---|---|
+| Correctness | Does the answer say the same as the ideal answer, with no wrong facts and nothing left out? | ≥ 0.7 (7/10) |
+
+The judge follows fixed `evaluation_steps` rather than a one-line
+`criteria`. Otherwise GEval writes new steps on every run and the scores
+drift with them. A contradiction (wrong number, wrong variant, wrong car)
+costs more than a missing detail. Extra detail and page citations cost
+nothing unless they are wrong. A refusal scores lowest and is counted
+separately. **Results** are in `correctness/results/report.md`, which shows
+the expected answer, the actual answer and the judge's reason side by side
+for every case below 0.7.
 
 ## Adding an eval for another component
 

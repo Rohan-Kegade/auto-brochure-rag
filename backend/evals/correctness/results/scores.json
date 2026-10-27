@@ -1,0 +1,108 @@
+{
+  "config": {
+    "embedding_model": "gemini-embedding-2",
+    "chunk_size": 1500,
+    "chunk_overlap": 150,
+    "k": 5,
+    "scope": "all",
+    "generator": "gemini-3.1-flash-lite",
+    "judge": "gemini-3.1-flash-lite",
+    "threshold": 0.7,
+    "scope_note": "every brochure in the corpus is attached, as in a chat with all of them open",
+    "date": "2026-10-27"
+  },
+  "summary": {
+    "cases": 2,
+    "refused": 0,
+    "correctness": 0.95,
+    "correctness_pass": 1.0,
+    "correctness_errors": 0
+  },
+  "cases": [
+    {
+      "id": "venue-engines",
+      "type": "multi",
+      "sources": {
+        "venue": [
+          15,
+          17
+        ]
+      },
+      "question": "What engine options does the Hyundai Venue offer, and how much power and torque does each make?",
+      "expected_answer": "The Kappa 1.2 l MPi petrol (1 197 cc) makes 61 kW (83 PS) at 6 000 r/min and 114.7 Nm at 4 200 r/min. The Kappa 1.0 l Turbo GDi petrol (998 cc) makes 88.3 kW (120 PS) at 6 000 r/min and 172 Nm at 1 500-4 000 r/min. The U2 1.5 l CRDi diesel (1 493 cc) makes 85 kW (116 PS) at 4 000 r/min and 250 Nm at 1 500-2 750 r/min.",
+      "answer": "Based on the provided brochure for the 2025 Hyundai Venue, there are three powertrain options available. Their power and torque specifications are as follows:\n\n*   **1.2 l Kappa MPi Petrol**\n    *   **Max Power:** 61 kW (83 PS) @ 6,000 r/min\n    *   **Max Torque:** 114.7 Nm (11.7 kgm) @ 4,200 r/min\n\n*   **1.0 l Kappa Turbo GDi Petrol**\n    *   **Max Power:** 88.3 kW (120 PS) @ 6,000 r/min\n    *   **Max Torque:** 172 Nm (17.5 kgm) @ 1,500-4,000 r/min\n\n*   **1.5 l U2 CRDi Diesel**\n    *   **Max Power:** 85 kW (116 PS) @ 4,000 r/min\n    *   **Max Torque:** 250 Nm (25.5 kgm) @ 1,500-2,750 r/min",
+      "retrieved": [
+        {
+          "doc": "venue",
+          "page": 15
+        },
+        {
+          "doc": "venue",
+          "page": 17
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        },
+        {
+          "doc": "punch",
+          "page": 19
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        }
+      ],
+      "scores": {
+        "correctness": 0.9
+      },
+      "reasons": {
+        "correctness": "The actual output correctly identifies all three engine options and their respective power and torque figures. It is only missing the engine displacement in cubic centimeters (cc) for each engine, which was present in the expected output, but otherwise provides all requested information accurately."
+      },
+      "errors": {},
+      "refused": false
+    },
+    {
+      "id": "venue-boot",
+      "type": "spec",
+      "sources": {
+        "venue": [
+          8
+        ]
+      },
+      "question": "How much boot space does the Hyundai Venue have?",
+      "expected_answer": "The Hyundai Venue has 375 litres of boot space, as per the VDA 215 method.",
+      "answer": "The Hyundai Venue has a boot space of 375 litres (as per VDA 215 method).",
+      "retrieved": [
+        {
+          "doc": "venue",
+          "page": 8
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        },
+        {
+          "doc": "venue",
+          "page": 17
+        },
+        {
+          "doc": "venue",
+          "page": 15
+        },
+        {
+          "doc": "venue",
+          "page": 13
+        }
+      ],
+      "scores": {
+        "correctness": 1.0
+      },
+      "reasons": {
+        "correctness": "The actual output accurately captures the boot space capacity and the measurement method specified in the expected output, maintaining the correct meaning throughout."
+      },
+      "errors": {},
+      "refused": false
+    }
+  ]
+}
