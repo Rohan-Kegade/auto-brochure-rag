@@ -35,6 +35,10 @@ backend/
       eval_correctness.py    entry point
       metrics.py  report.py
       results/               answers.json, scores.json, report.md
+    completeness/
+      eval_completeness.py   entry point
+      metrics.py  report.py
+      results/               answers.json, scores.json, report.md
 ```
 
 ## Setup
@@ -50,7 +54,7 @@ Every command below runs from `backend/` with the venv active. Use
 `python -m <tool>` rather than the `.exe` launchers in `.venv\Scripts\`:
 Windows Smart App Control blocks those unsigned launchers.
 
-- **API key:** the retrieval, generator, RAG Triad and correctness evals call Gemini, so
+- **API key:** the retrieval, generator, RAG Triad, correctness and completeness evals call Gemini, so
   `backend/.env` needs `GOOGLE_API_KEY` (see `backend/.env.sample`). No eval
   needs MySQL or a Qdrant server.
 - **Free-tier Gemini keys** are rate-limited (as low as 5 requests per minute
@@ -291,6 +295,45 @@ nothing unless they are wrong. A refusal scores lowest and is counted
 separately. **Results** are in `correctness/results/report.md`, which shows
 the expected answer, the actual answer and the judge's reason side by side
 for every case below 0.7.
+
+## Completeness eval
+
+Does the app's answer cover everything a complete answer would? Correctness
+judges an answer as a whole, so it can't tell you which fact was left out.
+Each case in `goldens/completeness.yaml` is a question and the **key
+points** of its ideal answer, one fact per point (143 across 64 cases).
+They were split from `goldens/correctness.yaml` one sentence per point, with
+the same ids and questions. Answers come from the whole pipeline, as in the
+correctness and RAG Triad evals. One judge call per answer marks every key
+point **covered**, **partial** (some of it, e.g. power but not torque) or
+**missing** (left out, a different value, or a refusal).
+
+```powershell
+cd backend
+python -m evals.completeness.eval_completeness                   # all cases, all 5 brochures searched
+python -m evals.completeness.eval_completeness --scope own       # search only each case's brochures
+python -m evals.completeness.eval_completeness --cases venue-boot safari-adas
+python -m evals.completeness.eval_completeness --rescore         # re-judge saved answers only
+python -m evals.completeness.eval_completeness --rpm 5           # free-tier Gemini key
+```
+
+Each case costs 1 search, 1 generation and 1 judge call: about 130 Gemini
+calls for a full run.
+
+**Metric** (full definition and judge prompt in `completeness/metrics.py`):
+
+| Metric | Question it answers | Pass |
+|---|---|---|
+| Completeness | What share of the ideal answer's key points does the answer cover? (covered + 0.5 × partial) / points | ≥ 0.7 |
+
+Only coverage counts. Extra detail is ignored, and whether the rest of the
+answer is right is the correctness eval's job, so read the two together: a
+fuller prompt should raise completeness without lowering correctness. Each
+run records a fingerprint of the app's answer prompt (`answer_prompt` in
+`scores.json`), and `--rescore` warns when the saved answers came from a
+different prompt. **Results** are in `completeness/results/report.md`, which
+lists every partial or missing key point of the least complete answers with
+the judge's reason. That's where to look when tuning the prompt.
 
 ## Adding an eval for another component
 

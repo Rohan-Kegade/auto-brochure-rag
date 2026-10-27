@@ -48,3 +48,4 @@ backend/evals/retrieval/results/retrievals.json
 backend/evals/generator/results/generations.json
 backend/evals/rag_triad/results/runs.json
 backend/evals/correctness/results/answers.json
+backend/evals/completeness/results/answers.json

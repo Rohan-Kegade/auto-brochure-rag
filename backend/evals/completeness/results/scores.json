@@ -1,0 +1,135 @@
+{
+  "config": {
+    "embedding_model": "gemini-embedding-2",
+    "chunk_size": 1500,
+    "chunk_overlap": 150,
+    "k": 5,
+    "scope": "all",
+    "generator": "gemini-3.1-flash-lite",
+    "answer_prompt": "0a8685b5",
+    "judge": "gemini-3.1-flash-lite",
+    "threshold": 0.7,
+    "scope_note": "every brochure in the corpus is attached, as in a chat with all of them open",
+    "date": "2026-10-27"
+  },
+  "summary": {
+    "cases": 2,
+    "refused": 0,
+    "completeness": 1.0,
+    "completeness_pass": 1.0,
+    "completeness_errors": 0,
+    "covered": 5,
+    "partial": 0,
+    "missing": 0
+  },
+  "cases": [
+    {
+      "id": "venue-engines",
+      "type": "multi",
+      "sources": {
+        "venue": [
+          15,
+          17
+        ]
+      },
+      "question": "What engine options does the Hyundai Venue offer, and how much power and torque does each make?",
+      "answer": "Based on the provided Hyundai VENUE brochure, there are three powertrain options available. Here are their power and torque specifications:\n\n*   **1.2 l Kappa MPi Petrol**\n    *   **Max power:** 61 kW (83 PS) @ 6 000 r/min\n    *   **Max torque:** 114.7 Nm (11.7 kgm) @ 4 200 r/min\n\n*   **1.0 l Kappa Turbo GDi Petrol**\n    *   **Max power:** 88.3 kW (120 PS) @ 6 000 r/min\n    *   **Max torque:** 172 Nm (17.5 kgm) @ 1 500-4 000 r/min\n\n*   **1.5 l U2 CRDi Diesel**\n    *   **Max power:** 85 kW (116 PS) @ 4 000 r/min\n    *   **Max torque:** 250 Nm (25.5 kgm) @ 1 500-2 750 r/min",
+      "retrieved": [
+        {
+          "doc": "venue",
+          "page": 15
+        },
+        {
+          "doc": "venue",
+          "page": 17
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        },
+        {
+          "doc": "punch",
+          "page": 19
+        },
+        {
+          "doc": "venue",
+          "page": 19
+        }
+      ],
+      "scores": {
+        "completeness": 1.0
+      },
+      "errors": {},
+      "key_points": 3,
+      "verdicts": [
+        {
+          "key_point": "The Kappa 1.2 l MPi petrol (1 197 cc) makes 61 kW (83 PS) at 6 000 r/min and 114.7 Nm at 4 200 r/min.",
+          "verdict": "covered",
+          "reason": "The answer provides the engine name, displacement, power, and torque figures for the 1.2 l MPi petrol engine."
+        },
+        {
+          "key_point": "The Kappa 1.0 l Turbo GDi petrol (998 cc) makes 88.3 kW (120 PS) at 6 000 r/min and 172 Nm at 1 500-4 000 r/min.",
+          "verdict": "covered",
+          "reason": "The answer provides the engine name, displacement, power, and torque figures for the 1.0 l Turbo GDi petrol engine."
+        },
+        {
+          "key_point": "The U2 1.5 l CRDi diesel (1 493 cc) makes 85 kW (116 PS) at 4 000 r/min and 250 Nm at 1 500-2 750 r/min.",
+          "verdict": "covered",
+          "reason": "The answer provides the engine name, displacement, power, and torque figures for the 1.5 l CRDi diesel engine."
+        }
+      ],
+      "refused": false
+    },
+    {
+      "id": "sorento-trims",
+      "type": "list",
+      "sources": {
+        "sorento": [
+          8
+        ]
+      },
+      "question": "What trims is the Kia Sorento available in, and how many seats does each have?",
+      "answer": "Based on the provided brochure, the Kia Sorento is available in the following trims and seating capacities:\n\n| Trim | Seating Capacity |\n| :--- | :--- |\n| **HTE** | 7 |\n| **HTE (O)** | 7 |\n| **HTK** | 6 or 7 |\n| **HTK (A)** | 6 or 7 |\n| **HTK (A) Black Line** | 6 or 7 |\n| **HTX** | 6 or 7 |\n| **HTX Black Line** | 6 or 7 |\n| **HTX (A)** | 6 or 7 |\n| **HTX (A) Black Line** | 6 or 7 |",
+      "retrieved": [
+        {
+          "doc": "sorento",
+          "page": 8
+        },
+        {
+          "doc": "sorento",
+          "page": 8
+        },
+        {
+          "doc": "sorento",
+          "page": 8
+        },
+        {
+          "doc": "sorento",
+          "page": 5
+        },
+        {
+          "doc": "sorento",
+          "page": 6
+        }
+      ],
+      "scores": {
+        "completeness": 1.0
+      },
+      "errors": {},
+      "key_points": 2,
+      "verdicts": [
+        {
+          "key_point": "The Sorento trims are HTE, HTE (O), HTK, HTK (A), HTK (A) Black Line, HTX, HTX Black Line, HTX (A) and HTX (A) Black Line.",
+          "verdict": "covered",
+          "reason": "The answer lists all the specified trim levels."
+        },
+        {
+          "key_point": "HTE and HTE (O) seat 7, and all other trims are available as 6 or 7 seaters.",
+          "verdict": "covered",
+          "reason": "The answer correctly identifies the seating capacity for each trim level."
+        }
+      ],
+      "refused": false
+    }
+  ]
+}
