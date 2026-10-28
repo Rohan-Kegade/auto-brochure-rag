@@ -43,7 +43,9 @@ export function LandingPage() {
     <div className="relative isolate min-h-screen overflow-x-clip bg-slate-50 text-slate-800">
       <PageBackdrop className="inset-x-0 top-0 h-[60rem]" pattern="print" />
 
-      <header className="sticky top-0 z-20 bg-slate-50/70 backdrop-blur-md border-b border-slate-200/70">
+      {/* Fixed rather than sticky: iOS Safari makes sticky headers judder while
+          momentum-scrolling. The blur is desktop only for the same reason. */}
+      <header className="fixed inset-x-0 top-0 z-20 bg-slate-50/95 md:bg-slate-50/70 md:backdrop-blur-md border-b border-slate-200/70">
         <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2 font-bold text-slate-900">
             <Logo className="w-8 h-8" />
@@ -86,7 +88,8 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main>
+      {/* clears the fixed header */}
+      <main className="pt-16">
         <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-20 sm:pt-20 lg:pt-24 lg:pb-28 grid gap-16 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center">
           <div className="animate-[popIn_0.5s_ease-out]">
             <span className="inline-flex items-center gap-2 pl-1 pr-3 py-1 bg-white/80 border border-slate-200 rounded-full text-xs text-slate-600 shadow-sm">

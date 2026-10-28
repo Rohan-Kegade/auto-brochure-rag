@@ -382,18 +382,37 @@ a:hover .wordmark-iq,
   }
 }
 
-/* Landing backdrop: a printer's dot screen instead of the grid, and glows
-   that drift slowly. */
-.backdrop-dots {
-  background-image: radial-gradient(rgb(100 116 139 / 0.3) 1px, transparent 1.5px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 80%);
+/* Landing backdrop: graph paper (a stronger line every fifth square) with a
+   faint technical drawing of a car, and glows that drift slowly. */
+.backdrop-graph {
+  --graph-minor: rgb(100 116 139 / 0.08);
+  --graph-major: rgb(100 116 139 / 0.16);
+  background-image:
+    linear-gradient(to right, var(--graph-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--graph-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--graph-minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--graph-minor) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 30%, #000 30%, transparent 82%);
 }
-.dark .backdrop-dots {
-  background-image: radial-gradient(rgb(148 163 184 / 0.2) 1px, transparent 1.5px);
+.dark .backdrop-graph {
+  --graph-minor: rgb(148 163 184 / 0.05);
+  --graph-major: rgb(148 163 184 / 0.11);
 }
-.backdrop-drift {
-  animation: drift 24s ease-in-out infinite alternate;
+.blueprint-drawing {
+  color: rgb(79 70 229 / 0.16);
+  font-family: "Roboto Mono", monospace;
+  mask-image: radial-gradient(ellipse 60% 70% at 50% 40%, #000 40%, transparent 85%);
+}
+.dark .blueprint-drawing {
+  color: rgb(165 180 252 / 0.12);
+}
+/* Desktop only: on phones the moving layer under the fixed header costs
+   more than it adds. */
+@media (min-width: 48rem) {
+  .backdrop-drift {
+    animation: drift 24s ease-in-out infinite alternate;
+  }
 }
 @keyframes drift {
   from { transform: translate3d(-2%, 0, 0) scale(1); }
