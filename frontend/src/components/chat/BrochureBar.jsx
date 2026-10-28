@@ -1,6 +1,9 @@
-import { FileText, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AddBrochureButton } from "./AddBrochureButton";
 import { BrochurePicker } from "./BrochurePicker";
+import { BrochureSwatch } from "./BrochureSwatch";
+
+const brochureName = (filename) => filename.replace(/\.pdf$/i, "");
 
 export function BrochureBar({
   chatId,
@@ -18,13 +21,8 @@ export function BrochureBar({
   onPickerOpenChange,
 }) {
   return (
-    <div className="border-b border-slate-200 bg-white px-4 sm:px-6 py-2.5 flex items-center gap-2">
-      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 mr-1 shrink-0">
-        <span className="hidden sm:inline">Active PDFs</span>
-        <span className="sm:ml-1.5 text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full normal-case tracking-normal">
-          {activePdfCount}/{maxPdfs}
-        </span>
-      </span>
+    <div className="border-b border-slate-200 px-4 sm:px-6 pb-2.5 flex items-center gap-3">
+      <CapacityGauge used={activePdfCount} max={maxPdfs} />
 
       <div
         onWheel={(e) => {
@@ -34,25 +32,26 @@ export function BrochureBar({
         className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {documents.length === 0 && !isLoadingDocuments && (
-          <span className="text-[11px] text-slate-400 italic">No files active</span>
+          <span className="text-[11px] text-slate-400 italic">No brochures yet</span>
         )}
 
         {documents.map((doc) => (
         <span
           key={doc.id}
-          className="group shrink-0 flex items-center gap-1.5 pl-2 pr-1 py-1 bg-slate-50 border border-slate-200 rounded-lg max-w-40 sm:max-w-56"
+          className="group shrink-0 flex items-center gap-2 pl-1.5 pr-1 py-1 bg-white border border-slate-200 rounded-lg shadow-xs max-w-44 sm:max-w-60 animate-[popIn_0.2s_ease-out]"
         >
-          <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />
+          <BrochureSwatch id={doc.id} />
           <span
             className="text-xs font-medium text-slate-700 truncate"
             title={doc.filename}
           >
-            {doc.filename}
+            {brochureName(doc.filename)}
           </span>
           <button
             onClick={() => onDetach(doc)}
             title="Remove from this chat"
-            className="w-4 h-4 shrink-0 flex items-center justify-center text-slate-400 hover:text-red-500 cursor-pointer"
+            aria-label={`Remove ${doc.filename} from this chat`}
+            className="w-5 h-5 shrink-0 flex items-center justify-center rounded text-slate-400 hover:text-red-500 hover:bg-slate-50 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer"
           >
             <X className="w-3 h-3" />
           </button>
@@ -82,5 +81,29 @@ export function BrochureBar({
         />
       )}
     </div>
+  );
+}
+
+// How many of the chat's brochure slots are used, as a row of bars, like a
+// fuel gauge.
+function CapacityGauge({ used, max }) {
+  const label = `${used} of ${max} brochures in this chat`;
+  return (
+    <span className="shrink-0 flex items-center gap-2" title={label} aria-label={label} role="img">
+      <span className="flex items-end gap-0.5" aria-hidden="true">
+        {Array.from({ length: max }, (_, i) => (
+          <span
+            key={i}
+            className={`w-1.5 rounded-sm transition-colors duration-300 ${
+              i < used ? "bg-indigo-500" : "bg-slate-200"
+            }`}
+            style={{ height: `${8 + i * 2}px` }}
+          />
+        ))}
+      </span>
+      <span className="text-[11px] font-medium text-slate-500 tabular-nums" aria-hidden="true">
+        {used}/{max}
+      </span>
+    </span>
   );
 }

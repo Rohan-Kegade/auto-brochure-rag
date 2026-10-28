@@ -1,13 +1,15 @@
 // Decorative glow + pattern layer; place inside a `relative isolate` container.
-// "grid" is the app-wide default; "print" is the landing page's dot screen
-// with registration marks, like a brochure proof.
+// "grid" is the app-wide default; "glow" is the colour glows alone; "print" is
+// the landing page's dot screen with registration marks, like a brochure proof.
 export function PageBackdrop({ className = "inset-0", pattern = "grid" }) {
   const print = pattern === "print";
 
   return (
     <div className={`pointer-events-none absolute -z-10 overflow-hidden ${className}`} aria-hidden="true">
       <div className={`absolute inset-0 backdrop-glow ${print ? "backdrop-drift" : ""}`} />
-      <div className={`absolute inset-0 ${print ? "backdrop-dots" : "backdrop-grid"}`} />
+      {pattern !== "glow" && (
+        <div className={`absolute inset-0 ${print ? "backdrop-dots" : "backdrop-grid"}`} />
+      )}
       {print && (
         <>
           <RegistrationMark className="absolute top-28 left-[3%]" />

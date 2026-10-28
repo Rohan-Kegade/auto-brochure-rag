@@ -95,7 +95,8 @@ constants/      config values and fixed text
 |---|---|
 | `pages/` | `LandingPage`, `LoginPage`, `SignupPage`, `ChatPage` (the main app at `/app`). |
 | `components/auth/` | Login state (`AuthProvider`) and route guards. |
-| `components/chat/` | Everything in the main chat column: header, brochure bar and picker, messages, input. |
+| `components/landing/` | Sections of the landing page: `HeroDemo`, `QuestionTicker`, `CompareShowcase`, `SpecSheet`, `HowItWorks`, plus the `Reveal` scroll-in wrapper. |
+| `components/chat/` | Everything in the main chat column: header, brochure bar and picker, messages, input. Each attached brochure gets a colour (`hooks/useBrochureTone.js`) shared by its chip and its citations. |
 | `components/sidebar/` | The chat list: `Sidebar`, `ChatRow`, `ChatRowMenu`. |
 | `components/settings/` | `SettingsDialog` plus one file per tab (`ProfileSection`, `PasswordSection`, …). |
 | `components/common/` | Reused anywhere: `FormField`, `SubmitButton`, `ConfirmDialog`, `Logo`, `ThemeToggle`. |

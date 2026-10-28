@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ScanText } from "lucide-react";
 import { ConfirmDialog } from "../common/ConfirmDialog";
+import { Logo } from "../common/Logo";
 import { ChatMessage } from "./ChatMessage";
 
 // How close to the bottom (px) still counts as "following" the conversation.
@@ -66,9 +68,9 @@ export function MessageList({ messages, isLoading, canRetry, onRetry }) {
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto py-6 px-4 sm:px-10 lg:px-20"
+      className="flex-1 overflow-y-auto pt-6 pb-4 px-4 sm:px-8 lg:px-12"
     >
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="max-w-4xl mx-auto space-y-5">
         {messages.map((msg) => (
           <ChatMessage
             key={msg.key ?? msg.id}
@@ -79,11 +81,12 @@ export function MessageList({ messages, isLoading, canRetry, onRetry }) {
         ))}
 
         {isLoading && !messages[messages.length - 1]?.streaming && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-none text-slate-400 text-sm flex items-center gap-2 shadow-xs">
-              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
-              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+          // Until the first token: a beam sweeps the card while the brochures are searched.
+          <div className="flex gap-3 animate-[fadeIn_0.2s_ease-out]" role="status">
+            <Logo className="hidden sm:block w-8 h-8 mt-0.5" />
+            <div className="reading-card relative overflow-hidden px-4 py-3 bg-white border border-slate-200 rounded-2xl rounded-tl-md shadow-xs flex items-center gap-2.5 text-sm">
+              <ScanText className="w-4 h-4 text-indigo-500" />
+              <span className="shimmer-text">Reading your brochures…</span>
             </div>
           </div>
         )}

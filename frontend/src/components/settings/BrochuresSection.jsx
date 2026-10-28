@@ -146,10 +146,11 @@ export function BrochuresSection({ onDocumentDeleted }) {
         <button
           onClick={() => inputRef.current?.click()}
           disabled={isUploading}
-          className="shrink-0 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          title={isUploading ? "Processing…" : "Upload PDFs"}
+          aria-label={isUploading ? "Processing uploads" : "Upload PDFs"}
+          className="shrink-0 flex items-center justify-center px-3 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
         >
           {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          {isUploading ? "Processing…" : "Upload PDFs"}
         </button>
       </div>
 
