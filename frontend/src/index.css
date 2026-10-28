@@ -58,6 +58,12 @@
   border-color: #fff;
 }
 
+/* Always reserve the scrollbar's space so centred layouts don't shift
+   between short pages (no scrollbar) and long ones. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   font-family: "Roboto Mono", monospace;
 }
