@@ -72,3 +72,58 @@ body {
   from { opacity: 0; transform: scale(0.95) translateY(8px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* Decorative page backdrop: soft colour glows over a faint grid that fades
+   out toward the edges. Sits behind content in a relative container. */
+.backdrop-glow {
+  background-image:
+    radial-gradient(ellipse 55% 45% at 12% 0%, rgb(99 102 241 / 0.20), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 92% 8%, rgb(168 85 247 / 0.16), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 60% 100%, rgb(14 165 233 / 0.12), transparent 70%);
+}
+.backdrop-grid {
+  background-image:
+    linear-gradient(to right, rgb(100 116 139 / 0.10) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(100 116 139 / 0.10) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 80%);
+}
+.dark .backdrop-glow {
+  background-image:
+    radial-gradient(ellipse 55% 45% at 12% 0%, rgb(99 102 241 / 0.30), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 92% 8%, rgb(168 85 247 / 0.22), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 60% 100%, rgb(14 165 233 / 0.14), transparent 70%);
+}
+.dark .backdrop-grid {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.07) 1px, transparent 1px);
+}
+
+/* Wordmark: gradient "IQ" that shimmers when its link is hovered. */
+.wordmark-iq {
+  margin-left: 0.04em;
+  font-weight: 800;
+  background-image: linear-gradient(100deg, #4f46e5, #9333ea 45%, #0ea5e9 70%, #4f46e5);
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: background-position 0.8s ease;
+}
+.dark .wordmark-iq {
+  background-image: linear-gradient(100deg, #818cf8, #c084fc 45%, #38bdf8 70%, #818cf8);
+}
+a:hover .wordmark-iq,
+.wordmark:hover .wordmark-iq {
+  background-position: 100% 0;
+}
+
+.wordmark {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.wordmark .wordmark-iq {
+  font-weight: 700;
+}

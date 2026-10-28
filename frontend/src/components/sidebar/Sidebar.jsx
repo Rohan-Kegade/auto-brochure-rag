@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LogOut, PanelLeftClose, PanelLeftOpen, Search, Plus, Settings, Sparkles, X } from "lucide-react";
 import { formatDay } from "../../utils/format";
 import { Logo } from "../common/Logo";
+import { Wordmark } from "../common/Wordmark";
 import { ChatRow } from "./ChatRow";
 
 // Group chats under a day heading, keeping the list's existing order.
@@ -112,7 +113,7 @@ export function Sidebar({
     <div className="w-72 h-full p-4 flex flex-col">
       <div className="flex items-center gap-2 mb-5 px-2">
         <Logo />
-        <h1 className="text-xl font-bold text-slate-900 flex-1">SpecSense</h1>
+        <h1 className="text-xl font-bold text-slate-900 flex-1"><Wordmark /></h1>
         <button
           onClick={drawerOpen ? onCloseDrawer : onToggleCollapsed}
           title={drawerOpen ? "Close sidebar" : "Collapse sidebar"}

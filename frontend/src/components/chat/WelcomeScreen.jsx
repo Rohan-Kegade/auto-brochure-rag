@@ -1,6 +1,7 @@
 import { MessageSquarePlus } from "lucide-react";
 import { AddBrochureButton } from "./AddBrochureButton";
 import { Logo } from "../common/Logo";
+import { Wordmark } from "../common/Wordmark";
 import {
   MULTI_CAR_SUGGESTIONS,
   SINGLE_CAR_SUGGESTIONS,
@@ -21,7 +22,7 @@ export function WelcomeScreen({
     <div className="flex-1 overflow-y-auto flex p-4 sm:p-6">
       <div className="m-auto max-w-xl w-full text-center">
         <Logo className="w-16 h-16 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-slate-900">Hello, welcome to SpecSense</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Hello, welcome to <Wordmark /></h2>
 
         {hasPdfs ? (
           <>

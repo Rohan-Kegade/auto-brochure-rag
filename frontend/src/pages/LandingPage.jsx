@@ -8,6 +8,8 @@ import {
   Upload,
 } from "lucide-react";
 import { Logo } from "../components/common/Logo";
+import { Wordmark } from "../components/common/Wordmark";
+import { PageBackdrop } from "../components/common/PageBackdrop";
 import { ThemeToggle } from "../components/common/ThemeToggle";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
@@ -47,12 +49,13 @@ export function LandingPage() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      <header className="sticky top-0 z-10 bg-slate-50/80 backdrop-blur border-b border-slate-200">
+    <div className="relative isolate min-h-screen bg-slate-50 text-slate-800">
+      <PageBackdrop className="inset-x-0 top-0 h-[56rem]" />
+      <header className="sticky top-0 z-10 bg-slate-50/60 backdrop-blur border-b border-slate-200/70">
         <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2 font-bold text-slate-900">
             <Logo className="w-8 h-8" />
-            <span className="hidden min-[400px]:inline">SpecSense</span>
+            <Wordmark className="hidden min-[400px]:inline" />
           </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
@@ -61,7 +64,7 @@ export function LandingPage() {
                 to="/app"
                 className="px-3.5 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
               >
-                Open SpecSense
+                Open BrochureIQ
               </Link>
             ) : (
               <>
@@ -94,7 +97,7 @@ export function LandingPage() {
               Ask your car brochures anything.
             </h1>
             <p className="mt-5 text-base text-slate-500 leading-relaxed max-w-lg">
-              SpecSense reads official car brochures so you don't have to. Ask
+              BrochureIQ reads official car brochures so you don't have to. Ask
               about specs, features and variants, compare cars side by side, and
               get answers with page references you can check.
             </p>
@@ -149,13 +152,13 @@ export function LandingPage() {
             ))}
           </ol>
 
-          <div className="mt-16 p-6 sm:p-10 bg-indigo-600 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="mt-16 p-6 sm:p-10 bg-linear-to-br from-indigo-600 via-indigo-600 to-violet-600 rounded-2xl shadow-lg shadow-indigo-600/20 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-white">
                 Shortlisting your next car?
               </h2>
               <p className="mt-1.5 text-sm text-white opacity-80">
-                Stop flipping through PDFs. Let SpecSense find the answers.
+                Stop flipping through PDFs. Let BrochureIQ find the answers.
               </p>
             </div>
             <Link
@@ -173,7 +176,7 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 text-center">
           <span className="flex items-center gap-2">
             <Logo className="w-5 h-5" />
-            SpecSense
+            <Wordmark />
           </span>
           <span>Answers are generated from the brochures you provide. Always confirm with the dealer.</span>
         </div>

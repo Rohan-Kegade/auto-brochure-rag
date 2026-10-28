@@ -27,19 +27,19 @@ logger = logging.getLogger("autobrochure")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("SpecSense starting up")
+    logger.info("BrochureIQ starting up")
     try:
         await asyncio.to_thread(create_collection_if_missing)
     except Exception:
         # Don't block startup: Qdrant may simply not be running yet.
         logger.exception("Could not prepare the Qdrant collection (is Qdrant running?)")
     yield
-    logger.info("SpecSense shutting down")
+    logger.info("BrochureIQ shutting down")
     # Releases the in-process Qdrant's lock on its data folder (no-op for a server).
     get_qdrant_client().close()
 
 
-app = FastAPI(title="SpecSense", lifespan=lifespan)
+app = FastAPI(title="BrochureIQ", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,7 +67,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.get("/")
 async def root():
-    return {"service": "SpecSense", "status": "ok"}
+    return {"service": "BrochureIQ", "status": "ok"}
 
 
 @app.get("/health")
