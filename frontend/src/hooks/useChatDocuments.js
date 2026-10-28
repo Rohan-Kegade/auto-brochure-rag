@@ -27,8 +27,15 @@ export function useChatDocuments(chatId) {
       ? loaded.documents
       : []
     : draft;
+  // Takes a list or, like a state setter, a function of the current list.
   const setDocuments = useCallback(
-    (docs) => (chatId ? setLoaded({ chatId, documents: docs }) : setDraft(docs)),
+    (update) => {
+      if (!chatId) return setDraft(update);
+      setLoaded((prev) => {
+        const current = prev.chatId === chatId ? prev.documents : [];
+        return { chatId, documents: typeof update === "function" ? update(current) : update };
+      });
+    },
     [chatId],
   );
 
@@ -80,7 +87,7 @@ export function useChatDocuments(chatId) {
     }
     try {
       await detachDocumentApi(chatId, doc.id);
-      setDocuments(documents.filter((d) => d.id !== doc.id));
+      setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
     } catch (err) {
       toast.error(getErrorMessage(err, `Couldn't remove ${doc.filename}.`));
     }
